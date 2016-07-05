@@ -1,0 +1,10 @@
+#ignored folders
+.idea/
+.coverage/
+node_modules/
+bower_components/
+projectFilesBackup/
+doc/
+
+#ignored file types
+*.log

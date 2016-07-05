@@ -1,0 +1,29 @@
+{
+  "name": "cell-bitset",
+  "version": "0.0.0",
+  "description": "Fast JS BitSet implementation. No worrying about 32bits restrictions.",
+  "main": "src/BitSet.js",
+  "authors": [
+    "Rogier Geertzema"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "bitset",
+    "bitvector",
+    "bitarray",
+    "bitstring"
+  ],
+  "moduleType": [
+    "amd",
+    "globals",
+    "node"
+  ],
+  "homepage": "github.com/unnoon/cell-bitset",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
