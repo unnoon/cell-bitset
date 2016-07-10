@@ -4,8 +4,13 @@
   "description": "Fast JS BitSet implementation. No worrying about 32bits restrictions.",
   "main": "src/BitSet.js",
   "scripts": {
-    "docs": "./node_modules/.bin/jsdoc src -r -d doc",
-    "minify": "uglifyjs src/BitSet.js --compress --mangle --output bin/BitSet.min.js",
+    "bump": "npm --no-git-tag-version version",
+    "docs": "./node_modules/.bin/jsdoc -c .jsdoc.json",
+    "minify": "uglifyjs bin/BitSet.js --compress --mangle --output bin/BitSet.min.js",
+    "preversion": "npm test",
+    "version": "npm run preprocess && npm run minify && git add -A bin",
+    "tmppostversion": "git push && git push --tags",
+    "preprocess": "metascript src/BitSet.js > bin/BitSet.js -VERSION=%npm_package_version%",
     "test": "karma start --single-run",
     "update": "npm-check-updates -u && npm install"
   },
@@ -24,11 +29,12 @@
   "license": "MIT",
   "devDependencies": {
     "coveralls": "^2.11.9",
+    "jaguarjs-jsdoc": "1.0.0",
     "jsdoc": "^3.4.0",
     "karma": "~1.1.0",
     "karma-chai-plugins": "~0.7.0",
     "karma-chrome-launcher": "~1.0.1",
-    "karma-coverage": "~1.0.0",
+    "karma-coverage": "~1.1.0",
     "karma-coveralls": "~1.1.2",
     "karma-firefox-launcher": "~1.0.0",
     "karma-ie-launcher": "~1.0.0",
@@ -38,6 +44,6 @@
     "mocha": "^2.5.3",
     "phantomjs-prebuilt": "~2.1.4",
     "requirejs": "^2.2.0",
-    "uglify-js": "^2.6.4"
+    "uglify-js": "^2.7.0"
   }
 }

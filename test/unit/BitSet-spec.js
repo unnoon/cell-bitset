@@ -2,10 +2,6 @@ define([
     'BitSet'
 ], function(BitSet) {
 
-    before(function() {
-        sinon.stub(console, 'warn');
-    });
-
     describe("BitSet", function() {
 
         describe("@hammingWeight/$popCount", function() {
@@ -22,6 +18,20 @@ define([
 
             it("should create a new BitSet using the static BitSet.create", function() {
                 var bs = BitSet.create(234).add(6).add(14).add(62);
+
+                expect(bs.has(14)).to.be.true;
+                expect(bs.length).to.eql(234);
+            });
+
+            it("should create a new BitSet using the prototype static $create", function() {
+                var bs = BitSet.prototype.$create(234).add(6).add(14).add(62);
+
+                expect(bs.has(14)).to.be.true;
+                expect(bs.length).to.eql(234);
+            });
+
+            it("should create a new BitSet using the prototype static $spawn alias", function() {
+                var bs = BitSet.prototype.$spawn(234).add(6).add(14).add(62);
 
                 expect(bs.has(14)).to.be.true;
                 expect(bs.length).to.eql(234);
@@ -366,6 +376,23 @@ define([
                 expect(str_full).to.eql('0100000000000000000000000000000000000000000000010100000000000000');
                 expect(str_full.length).to.eql(64);
             });
+
+            it("should be able to use the alias xor", function() {
+                var bs1  = new BitSet().add(6).add(14).add(62);
+                var bs2  = new BitSet(20).add(6).add(16);
+
+                bs2.xor(bs1);
+
+                var str = bs2.toString(2);
+
+                expect(str).to.eql('100000000000000000000000000000000000000000000010100000000000000');
+                expect(str.length).to.eql(63);
+
+                var str_full = bs2.toString(-1);
+
+                expect(str_full).to.eql('0100000000000000000000000000000000000000000000010100000000000000');
+                expect(str_full.length).to.eql(64);
+            });
         });
 
         describe("Exclusion/SymmetricDifference", function() {
@@ -389,15 +416,18 @@ define([
                 expect(exc).to.not.equal(bs1);
             });
 
-            it("should be possible to use the alias SymmetricDifference", function() {
+            it("should be possible to use the aliases SymmetricDifference/Xor", function() {
                 var bs1  = new BitSet().add(6).add(14).add(62);
                 var bs2  = new BitSet().add(6).add(16);
 
                 var exc = bs1.SymmetricDifference(bs2);
+                var exc2 = bs1.Xor(bs2);
 
                 var str = exc.toString(2);
+                var str2 = exc2.toString(2);
 
                 expect(str).to.eql('100000000000000000000000000000000000000000000010100000000000000');
+                expect(str2).to.eql('100000000000000000000000000000000000000000000010100000000000000');
                 expect(str.length).to.eql(63);
 
                 var str_full = exc.toString(-1);
@@ -457,7 +487,7 @@ define([
 
                 expect(bs.has(14)).to.be.true;
                 expect(bs.has(16)).to.be.false;
-                expect(bs.member(123)).to.be.false;
+                expect(bs.isMember(123)).to.be.false;
             });
         });
 
@@ -494,19 +524,33 @@ define([
 
                 expect(str).to.eql('{}');
             });
+
+            it("should calculate the intersection between 2 sets using alias and", function() {
+                var bs1  = new BitSet().add(6).add(14).add(62);
+                var bs2  = new BitSet().add(6).add(14);
+
+                bs1.and(bs2);
+
+                var str = bs1.toString();
+
+                expect(str).to.eql('{6, 14}');
+            });
         });
 
         describe("Intersection", function() {
 
-            it("should calculate the Intersection between 2 sets", function() {
+            it("should calculate the Intersection between 2 sets or its alias And", function() {
                 var bs1  = new BitSet().add(6).add(14).add(62);
                 var bs2  = new BitSet().add(6).add(14);
 
-                var ins = bs1.Intersection(bs2);
+                var ins  = bs1.Intersection(bs2);
+                var ins2 = bs1.And(bs2);
 
-                var str = ins.toString();
+                var str  = ins.toString();
+                var str2 = ins2.toString();
 
                 expect(str).to.eql('{6, 14}');
+                expect(str2).to.eql('{6, 14}');
 
                 expect(ins).to.not.equal(bs1);
             });
@@ -544,6 +588,18 @@ define([
             });
         });
 
+        describe("isSubsetOf/isContainedIn", function() {
+
+            it("should be able to test if a bitset isSubsetOf of another or not", function() {
+                var bs   = new BitSet().add(6).add(14).add(62).add(123);
+                var bs2 = new BitSet().add(6).add(14).add(62);
+
+                expect(bs2.isSubsetOf(bs)).to.be.true;
+                expect(bs.isSubsetOf(bs2)).to.be.false;
+                expect(bs.isContainedIn(bs2)).to.be.false;
+            });
+        });        
+        
         describe("length", function() {
 
             it("should return the length of the underlying bitvector", function() {
@@ -795,11 +851,8 @@ define([
                 expect(str).to.eql('{7, 23, 54, 67}');
                 expect(bs1.length).to.eql(68);
             });
-        });
 
-        describe("Union", function() {
-
-            it("should calculate the Union of 2 sets", function() {
+            it("should calculate the union of 2 sets using the alias or", function() {
                 var bs1  = new BitSet(32)
                     .add(7)
                     .add(54)
@@ -809,11 +862,35 @@ define([
                     .add(67)
                     .add(23);
 
-                var un = bs1.Union(bs2);
+                bs1.or(bs2);
 
-                var str = un.toString();
+                var str = bs1.toString();
 
                 expect(str).to.eql('{7, 23, 54, 67}');
+                expect(bs1.length).to.eql(68);
+            });
+        });
+
+        describe("Union", function() {
+
+            it("should calculate the Union/Or of 2 sets", function() {
+                var bs1  = new BitSet(32)
+                    .add(7)
+                    .add(54)
+                    .add(23);
+                var bs2  = new BitSet(63)
+                    .add(7)
+                    .add(67)
+                    .add(23);
+
+                var un  = bs1.Union(bs2);
+                var un2 = bs1.Or(bs2);
+
+                var str  = un.toString();
+                var str2 = un2.toString();
+
+                expect(str).to.eql('{7, 23, 54, 67}');
+                expect(str2).to.eql('{7, 23, 54, 67}');
                 expect(un.length).to.eql(68);
 
                 expect(un).to.not.equal(bs1);

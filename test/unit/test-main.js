@@ -19,3 +19,11 @@ requirejs.config({
 	// start test run, once Require.js is done
 	callback: window.__karma__.start
 });
+
+require([
+], function() {
+
+	before(function() {
+		sinon.stub(console, 'warn');
+	});
+});

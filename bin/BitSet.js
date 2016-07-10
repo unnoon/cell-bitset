@@ -15,7 +15,7 @@
      */
     BitSet.info = {
         "name": "cell-bitset",
-        "version": "/*?= VERSION */",
+        "version": "0.0.0",
         "description": "Fast JS BitSet implementation. No worrying about 32bits restrictions.",
         "url": "github.com/unnoon/cell-bitset"
     };
@@ -29,7 +29,7 @@
      *
      * @return {BitSet} new BitSet
      */
-    function BitSet(length_) { 
+    function BitSet(length_) {
     {
         this.init(length_);
     }}
@@ -196,7 +196,7 @@
          *
          * @returns {BitSet} clone
          */
-        clone: function() { 
+        clone: function() {
         {
             var clone = Object.create(BitSet.prototype);
 
@@ -213,7 +213,7 @@
          *
          * @returns {BitSet} this
          */
-        complement: function() { 
+        complement: function() {
         {
             for(var i = 0|0, max = this.words.length; i < max; i++)
             {
@@ -273,7 +273,7 @@
          *
          * @returns {BitSet} this
          */
-        difference: function(bitset) { 
+        difference: function(bitset) {
         {
             for(var i = 0|0, max = this.words.length; i < max; i++)
             {
@@ -359,7 +359,7 @@
          *
          * @returns {boolean} boolean indicating if the the 2 bitsets are equal
          */
-        equals: function(bitset) { 
+        equals: function(bitset) {
         {
             for(var i = 0|0, max = this.words.length; i < max; i++)
             {
@@ -417,7 +417,7 @@
          *
          * @returns {BitSet} this
          */
-        flip: function(index) { 
+        flip: function(index) {
         {
             if((index |= 0) >= this._length) {this.resize(index+1)}
 
@@ -435,7 +435,7 @@
          *
          * @returns {number} the value of the bit at the given index
          */
-        get: function(index) { 
+        get: function(index) {
         {   if((index |= 0) >= this._length) {return 0|0}
 
             return ((this.words[index >>> WORD_LOG] >>> index) & 1)|0;
@@ -533,7 +533,7 @@
          *
          * @returns {boolean} boolean indicating that the set is empty
          */
-        isEmpty: function() { 
+        isEmpty: function() {
         {
             for(var i = 0|0, max = this.words.length; i < max; i++)
             {
@@ -781,7 +781,7 @@
          *
          * @returns {BitSet} this
          */
-        trim: function() { 
+        trim: function() {
         {
             return this.resize(this.max()+1)
         }},
@@ -794,7 +794,7 @@
          *
          * @returns {BitSet}
          */
-        trimTrailingBits: function() { 
+        trimTrailingBits: function() {
         {
             var wordsLength = this.words.length;
             var diff        = wordsLength*WORD_SIZE - this._length;

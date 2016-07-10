@@ -8,9 +8,6 @@ branches:
         - master
         - dev
 
-before_install:
-    - npm install -g grunt-cli
-
 install:
     - npm install
 
@@ -24,4 +21,4 @@ before_script:
     - grunt preprocess
 
 script:
-    - karma start --browsers Firefox --single-run
+    - karma start --browsers Firefox --reporters coveralls --single-run
