@@ -10,7 +10,7 @@
     "release": "npm version",
     "preversion": "npm test",
     "version": "npm run build && git add -A bin",
-    "postversion": "git push && git push --tags",
+    "postversion": "git push && git push --tags && npm publish",
     "preprocess": "metascript src/BitSet.js > bin/BitSet.js -VERSION=%npm_package_version%",
     "test": "karma start --single-run",
     "update": "npm-check-updates -u && npm install"

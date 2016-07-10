@@ -5,19 +5,19 @@
 [![Inline docs](http://inch-ci.org/github/unnoon/cell-bitset.svg?branch=dev)](http://inch-ci.org/github/unnoon/cell-bitset)
 [![MIT license](http://img.shields.io/badge/license-MIT-brightgreen.svg)](http://opensource.org/licenses/MIT)
 
-Fast(est) & consistent Javascript BitSet (AKA bitvector, bitarray, bitstring) implementation. Implemented as part of my upcoming(... whenever that is) cell game engine, but perfectly usable as a standalone lib.
+Fast(est) & consistent Javascript BitSet (AKA bitvector, bitarray, bitstring) implementation. Implemented as part of my upcoming(...loading...) cell game engine, but perfectly usable as a standalone lib.
 
 ## Features
 
 - Fast! 
 - Fully tested
 - Fully documented
-- Prototypal & Classical inheritance ready
-- Supports amd, node, globals (es6 modules coming up in the near future)
 - Both bitset & bitvector like operands
 - Pascal case operands can be used to output new bitsets
 - Chaining
 - Lots of aliases
+- Prototypal & Classical inheritance ready
+- Supports amd, node, globals (es6 modules coming up in the near future)
 - Made with bits of love!
 
 ## Installation
