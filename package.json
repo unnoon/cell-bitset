@@ -4,19 +4,20 @@
   "description": "Fast JS BitSet implementation. No worrying about 32bits restrictions.",
   "main": "src/BitSet.js",
   "scripts": {
-    "bump": "npm --no-git-tag-version version",
-    "docs": "./node_modules/.bin/jsdoc -c .jsdoc.json",
+    "build": "npm run preprocess && npm run minify",
+    "docs": "./node_modules/.bin/jsdoc -c .jsdoc.conf.json",
     "minify": "uglifyjs bin/BitSet.js --compress --mangle --output bin/BitSet.min.js",
+    "release": "npm version",
     "preversion": "npm test",
-    "version": "npm run preprocess && npm run minify && git add -A bin",
-    "tmppostversion": "git push && git push --tags",
+    "version": "npm run build && git add -A bin",
+    "postversion": "git push && git push --tags",
     "preprocess": "metascript src/BitSet.js > bin/BitSet.js -VERSION=%npm_package_version%",
     "test": "karma start --single-run",
     "update": "npm-check-updates -u && npm install"
   },
   "repository": {
     "type": "git",
-    "url": "github.com/unnoon/cell-bitset"
+    "url": "https://github.com/unnoon/cell-bitset.git"
   },
   "keywords": [
     "bitset",

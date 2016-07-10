@@ -17,7 +17,7 @@
     "globals",
     "node"
   ],
-  "homepage": "github.com/unnoon/cell-bitset",
+  "homepage": "https://github.com/unnoon/cell-bitset",
   "ignore": [
     "**/.*",
     "node_modules",

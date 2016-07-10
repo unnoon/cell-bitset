@@ -846,10 +846,10 @@ define([
 
                 bs1.union(bs2);
 
-                var str = bs1.toString();
-
-                expect(str).to.eql('{7, 23, 54, 67}');
-                expect(bs1.length).to.eql(68);
+                expect(bs1.stringify()).to.eql('{7, 23, 54, 67}'); // alias for toString
+                expect(bs1.toString(2)).to.eql('10000000000001000000000000000000000000000000100000000000000010000000'); // will output the bitstring
+                expect(bs1.length).to.eql(68); // The length of the underlying bitvector. The length of bs1 is automatically resized
+                expect(bs1.cardinality).to.eql(4); // i.e. the number of flipped bits
             });
 
             it("should calculate the union of 2 sets using the alias or", function() {

@@ -17,7 +17,7 @@
         "name": "cell-bitset",
         "version": "/*?= VERSION */",
         "description": "Fast JS BitSet implementation. No worrying about 32bits restrictions.",
-        "url": "github.com/unnoon/cell-bitset"
+        "url": "https://github.com/unnoon/cell-bitset.git"
     };
 
     /**
