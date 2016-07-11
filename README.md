@@ -5,7 +5,7 @@
 [![Inline docs](http://inch-ci.org/github/unnoon/cell-bitset.svg?branch=dev)](http://inch-ci.org/github/unnoon/cell-bitset)
 [![MIT license](http://img.shields.io/badge/license-MIT-brightgreen.svg)](http://opensource.org/licenses/MIT)
 
-Fast(est) & consistent Javascript BitSet (AKA bitvector, bitarray, bitstring) implementation. Implemented as part of my upcoming(...loading...) cell game engine, but perfectly usable as a standalone lib.
+Fast(est) & consistent JavaScript BitSet (AKA bitvector, bitarray, bitstring) implementation. Implemented as part of my upcoming(...loading...) cell game engine, but perfectly usable as a standalone lib.
 
 ## Features
 
