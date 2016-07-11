@@ -1,4 +1,4 @@
-<img src="https://github.com/unnoon/cell-bitset/rsc/img/cell-bitset.png">
+<img src="https://github.com/unnoon/cell-bitset/raw/master/rsc/img/cell-bitset.png">
 
 [![Build Status](https://travis-ci.org/unnoon/cell-bitset.svg?branch=dev)](http://inch-ci.org/github/unnoon/cell-bitset)
 [![Coverage Status](https://coveralls.io/repos/github/unnoon/cell-bitset/badge.svg?branch=dev)](https://coveralls.io/github/unnoon/cell-bitset?branch=dev)
