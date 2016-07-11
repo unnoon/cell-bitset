@@ -22,4 +22,4 @@ before_script:
     - npm run build
 
 script:
-    - karma start --browsers Firefox --reporters coverage coveralls --single-run
+    - karma start --browsers Firefox --reporters=dots,coverage,coveralls  --single-run
