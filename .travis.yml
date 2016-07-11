@@ -10,6 +10,7 @@ branches:
 
 install:
     - npm install
+    - npm install -g metascript
 
 cache:
     directories:
@@ -18,7 +19,7 @@ cache:
 before_script:
     - export DISPLAY=:99.0
     - sh -e /etc/init.d/xvfb start
-    - grunt preprocess
+    - npm run build
 
 script:
     - karma start --browsers Firefox --reporters coveralls --single-run
