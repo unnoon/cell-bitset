@@ -835,18 +835,18 @@ define([
         describe("union", function() {
 
             it("should calculate the union of 2 sets", function() {
-                var bs1  = new BitSet(32)
+                var bs1 = new BitSet() // default length is 32
                     .add(7)
-                    .add(54)
+                    .add(54) // the length of the underlying bitvector is automatically resized to 55
                     .add(23);
-                var bs2  = new BitSet(63)
+                var bs2 = new BitSet(68) // create a bitvector with a specific size
                     .add(7)
                     .add(67)
                     .add(23);
 
                 bs1.union(bs2);
 
-                expect(bs1.stringify()).to.eql('{7, 23, 54, 67}'); // alias for toString
+                expect(bs1.toString()).to.eql('{7, 23, 54, 67}');
                 expect(bs1.toString(2)).to.eql('10000000000001000000000000000000000000000000100000000000000010000000'); // will output the bitstring
                 expect(bs1.length).to.eql(68); // The length of the underlying bitvector. The length of bs1 is automatically resized
                 expect(bs1.cardinality).to.eql(4); // i.e. the number of flipped bits

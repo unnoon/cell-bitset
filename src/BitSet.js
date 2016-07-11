@@ -4,8 +4,8 @@
     /*nodejs*/    case typeof(module) === 'object'   && root === module.exports                : module.exports = bitset();                                                break;
     /*root*/      case !root.BitSet                                                            : Object.defineProperty(root, 'BitSet', {value: bitset(), enumerable: !0}); break; default : console.error("'BitSet' is already defined on root object")}
 }(this, function bitset() { "use strict";
-    var WORD_SIZE = 32;
-    var WORD_LOG  = 5;
+    var WORD_SIZE = 32|0;
+    var WORD_LOG  =  5|0;
     /**
      * Info object to hold general module information
      *
