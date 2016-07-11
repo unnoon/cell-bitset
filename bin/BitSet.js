@@ -15,9 +15,9 @@
      */
     BitSet.info = {
         "name": "cell-bitset",
-        "version": "0.0.0",
+        "version": "0.0.1",
         "description": "Fast JS BitSet implementation. No worrying about 32bits restrictions.",
-        "url": "github.com/unnoon/cell-bitset"
+        "url": "https://github.com/unnoon/cell-bitset.git"
     };
 
     /**
@@ -545,6 +545,10 @@
         /**
          * Checks if a bitset is contained in another
          *
+         * @public
+         * @method BitSet#isSubsetOf
+         * @alias  isContainedIn
+         *
          * @param {BitSet} bitset - to check for containment
          * -
          * @returns {boolean} boolean indicating if this is contained in bitset
@@ -777,6 +781,7 @@
         /**
          * Trims the bitset to the most significant bit to save space.
          *
+         * @public
          * @method BitSet#trim
          *
          * @returns {BitSet} this
