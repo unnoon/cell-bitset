@@ -4,16 +4,16 @@
   "description": "Fast JS BitSet implementation. No worrying about 32bits restrictions.",
   "main": "src/BitSet.js",
   "scripts": {
-    "build": "npm run preprocess && npm run minify",
-    "docs": "rimraf -rf doc && jsdoc -c .jsdoc.conf.json",
-    "minify": "uglifyjs bin/BitSet.js --compress --mangle --output bin/BitSet.min.js",
-    "release": "npm version",
-    "preversion": "npm test && npm run docs",
-    "version": "npm run build && git add -A bin",
+    "build":       "npm run preprocess && npm run minify",
+    "docs":        "rimraf -rf doc && jsdoc -c .jsdoc.conf.json",
+    "minify":      "uglifyjs bin/BitSet.js --compress --mangle --output bin/BitSet.min.js",
+    "release":     "npm version",
+    "preversion":  "npm test && npm run docs",
+    "version":     "npm run build && git add -A bin",
     "postversion": "git push && git push --tags && npm publish",
-    "preprocess": "metascript src/BitSet.js > bin/BitSet.js -VERSION=%npm_package_version%",
-    "test": "karma start --single-run",
-    "update": "ncu -u && npm install"
+    "preprocess":  "metascript src/BitSet.js > bin/BitSet.js -VERSION=%npm_package_version%",
+    "test":        "karma start --single-run",
+    "update":      "ncu -u && npm install"
   },
   "repository": {
     "type": "git",
@@ -42,6 +42,7 @@
     "karma-mocha": "~1.1.1",
     "karma-phantomjs-launcher": "~1.0.0",
     "karma-requirejs": "~1.0.0",
+    "metascript": "^1.0.0",
     "mocha": "^2.5.3",
     "phantomjs-prebuilt": "~2.1.4",
     "requirejs": "^2.2.0",

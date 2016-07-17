@@ -10,7 +10,6 @@ branches:
 
 install:
     - npm install
-    - npm install -g metascript
 
 cache:
     directories:
