@@ -4,6 +4,34 @@ define([
 
     describe("BitSet", function() {
 
+        describe("basic usage", function() {
+
+            it("should demonstrate the basic functions of cell-bitset", function() {
+                var bs1 = new BitSet() // default length is 32
+                    .set(7)
+                    .set(54) // the length of the underlying bitvector is automatically resized to 55
+                    .set(23);
+
+                var bs2 = new BitSet(68) // create a bitvector with a specific size
+                    .add(7, 67, 23);
+
+                var bs3 = new BitSet([7, 54, 23]); // use an array to initialize the bitset
+
+                bs1.union(bs2);
+
+                expect(bs1.toString()).to.eql('{7, 23, 54, 67}');
+                expect(bs1.toString(2)).to.eql('10000000000001000000000000000000000000000000100000000000000010000000'); // will output the bitstring
+                expect(bs1.length).to.eql(68); // The length of the underlying bitvector. The length of bs1 is automatically resized
+                expect(bs1.cardinality).to.eql(4); // i.e. the number of flipped bits
+
+                var bs4 = bs3.Union(bs2); // use Pascal case Union to output a new bitset and leave bs3 unchanged
+
+                expect(bs3.toString()).to.eql('{7, 23, 54}');
+                expect(bs4.toString()).to.eql('{7, 23, 54, 67}');
+            });
+
+        });
+
         describe("@hammingWeight/$popCount", function() {
 
             it("should calculate the hamming weight of a word", function() {
@@ -15,6 +43,15 @@ define([
         });
 
         describe("@static create", function() {
+
+            it("should create a new BitSet using the static BitSet.create using an array", function() {
+                var bs = BitSet.create([6,14,62]);
+
+                expect(bs.has(6)).to.be.true;
+                expect(bs.has(14)).to.be.true;
+                expect(bs.has(62)).to.be.true;
+                expect(bs.length).to.eql(63);
+            });
 
             it("should create a new BitSet using the static BitSet.create", function() {
                 var bs = BitSet.create(234).add(6).add(14).add(62);
@@ -38,10 +75,19 @@ define([
             });
         });
 
-        describe("add/set", function() {
+        describe("add", function() {
 
             it("should be able to add a number/index", function() {
-                var bs = new BitSet().add(6).set(14);
+                var bs = new BitSet().add(6).add(14);
+
+                var str = bs.toString(-1);
+
+                expect(str).to.eql('00000000000000000100000001000000');
+                expect(str.length).to.eql(32);
+            });
+
+            it("should be able to add multiple number/indices at the same time", function() {
+                var bs = new BitSet().add(6, 14);
 
                 var str = bs.toString(-1);
 
@@ -56,15 +102,6 @@ define([
 
                 expect(str).to.eql('1000000000000000000000000000000000000000000000000100000001000000');
                 expect(str.length).to.eql(64);
-            });
-
-            it("should be able to set an index to 0", function() {
-                var bs = new BitSet().add(6).add(6, 0);
-
-                var str = bs.toString(-1);
-
-                expect(str).to.eql('00000000000000000000000000000000');
-                expect(str.length).to.eql(32);
             });
         });
 
@@ -165,7 +202,7 @@ define([
 
             it("should be able to positively test if a larger mask contains", function() {
                 var bs   = new BitSet().add(6).add(14).add(62).add(123);
-                var mask = new BitSet().add(6).add(14).add(62).add(367, 0);
+                var mask = new BitSet().add(6).add(14).add(62).set(367, 0);
 
                 expect(bs.contains(mask)).to.be.true;
             });
@@ -480,7 +517,7 @@ define([
             });
         });
 
-        describe("has/member", function() {
+        describe("has/isMember", function() {
 
             it("should return the correct boolean values for membership", function() {
                 var bs   = new BitSet().add(6).add(14).add(62);
@@ -671,13 +708,21 @@ define([
                 expect(str).to.eql('{9, 200}');
             });
 
-            it("should increase the length in case the index falls out of bounds", function() {
+            it("should be able to remove multiple indices at the same time", function() {
+                var bs  = new BitSet().add(9).add(14).add(200);
+
+                var str = bs.remove(14, 45).toString();
+
+                expect(str).to.eql('{9, 200}');
+            });
+
+            it("should not increase the length in case the index falls out of bounds", function() {
                 var bs  = new BitSet().add(9).add(14).add(200);
 
                 var str = bs.remove(14).remove(45).remove(400).toString();
 
                 expect(str).to.eql('{9, 200}');
-                expect(bs.length).to.eql(401);
+                expect(bs.length).to.eql(201);
             });
         });
 
@@ -709,6 +754,27 @@ define([
                 expect(self).to.equal(bs);
             });
         });
+
+        describe("set", function() {
+
+            it("should be able to add a number/index", function() {
+                var bs = new BitSet().set(6).set(14);
+
+                var str = bs.toString(-1);
+
+                expect(str).to.eql('00000000000000000100000001000000');
+                expect(str.length).to.eql(32);
+            });
+
+            it("should be able to set an index to 0", function() {
+                var bs = new BitSet().set(6).set(6, 0);
+
+                var str = bs.toString(-1);
+
+                expect(str).to.eql('00000000000000000000000000000000');
+                expect(str.length).to.eql(32);
+            });
+        });        
 
         describe("toArray", function() {
 

@@ -6,9 +6,9 @@
  */
 !function(root, bitset) {
     var environments = true; /* istanbul ignore next */ switch(environments) {
-    /*requirejs*/ case typeof(define) === 'function' && root.define === define && !!define.amd : define(bitset);                                                           break;
-    /*nodejs*/    case typeof(module) === 'object'   && root === module.exports                : module.exports = bitset();                                                break;
-    /*root*/      case !root.BitSet                                                            : Object.defineProperty(root, 'BitSet', {value: bitset(), enumerable: !0}); break; default : console.error("'BitSet' is already defined on root object")}
+    /*amd*/    case typeof(define) === 'function' && root.define === define && !!define.amd : define(bitset);                                                           break;
+    /*node*/   case typeof(module) === 'object'   && root === module.exports                : module.exports = bitset();                                                break;
+    /*global*/ case !root.BitSet                                                            : Object.defineProperty(root, 'BitSet', {value: bitset(), enumerable: !0}); break; default : console.error("'BitSet' is already defined on root object")}
 }(this, function bitset() { "use strict";
     /**
      * @property {Object} info - Info object to hold general module information
@@ -27,46 +27,43 @@
      *        Fast JS BitSet implementation.
      *        No worrying about 32bits restrictions.
      *
-     * @param  {number} length_=32 - optional length.
+     * @param {number|Array=} length_array_=32 - length for the underlying bitvector or an array-like object with indices.
      *
      * @return {BitSet} new BitSet
      */
-    function BitSet(length_) { 
+    function BitSet(length_array_) {
     {
-        this.init(length_);
+        this.init(length_array_);
     }}
 
     /**
-     * @static
      * @method BitSet.create
      * @desc   **aliases:** spawn
      * #
      *         Alternative create method for people who hate the 'new' keyword.
      *
-     * @param  {number} length_=32 - optional length.
+     * @param {number|Array=} length_array_=32 - length for the underlying bitvector or an array-like object with indices.
      *
      * @return {BitSet} new BitSet.
      */
-    BitSet.create = BitSet.spawn = function(length_) {
+    BitSet.create = BitSet.spawn = function(length_array_) {
     {
-        return Object.create(BitSet.prototype).init(length_);
+        return Object.create(BitSet.prototype).init(length_array_);
     }};
 
     extend(BitSet.prototype, {
         /**
-         * @static
          * @method BitSet#$create
          * @desc   **aliases:** $spawn
          * #
          *         Alternative create method for people who rather use prototypal inheritance.
          *
-         * @param  {number} length_=32 - optional length.
+         * @param {number|Array=} length_array_=32 - length for the underlying bitvector or an array-like object with indices.
          *
          * @return {BitSet} new BitSet.
          */
         $create: BitSet.create, $spawn: BitSet.create,
         /**
-         * @static
          * @method BitSet#$hammingWeight
          * @desc   **aliases:** $popCount
          * #
@@ -84,7 +81,6 @@
             return (((w + (w >>> 4) & 0xF0F0F0F) * 0x1010101) >>> 24)|0;
         }},
         /**
-         * @static
          * @method BitSet#$lsb
          * @desc
          *         Returns the least significant bit in a word. Returns 32 in case the word is 0.
@@ -98,7 +94,6 @@
             return this.$hammingWeight((w & -w) - 1);
         }},
         /**
-         * @static
          * @method BitSet#$msb
          * @desc
          *         Returns the most significant bit in a word.
@@ -119,29 +114,21 @@
         }},
         /**
          * @method BitSet#add
-         * @desc   **aliases:** set
-         * #
-         *         Adds a number(index) to the set. It will resize the set in case the index falls out of bounds.
+         * @desc
+         *         Adds numbers(indices) to the set. It will resize the set in case the index falls out of bounds.
          *
-         * @param {number} index  - index/number to add to the set.
-         * @param {number} val_=1 - optional value to be set. Either 0 or 1.
+         * @param {...number} ___indices - indices/numbers to add to the set.
          *
          * @returns {BitSet} this
          */
-        add: function(index, val_) { "@aliases: set";
+        add: function(___indices) {
         {
-            if((index |= 0) >= this._length) {this.resize(index+1)}
-
-            if(val_ === undefined || val_)
+            for(var i = arguments.length; i--;)
             {
-                this.words[index >>> WORD_LOG] |=  (1 << index);
-            }
-            else
-            {
-                this.words[index >>> WORD_LOG] &= ~(1 << index);
+                this.set(arguments[i]);
             }
 
-            return this;
+            return this
         }},
         /**
          * @readonly
@@ -292,7 +279,7 @@
          *         Can be broken prematurely by returning false.
          *
          * @param {function(value, index, bitset)} cb   - callback function o be called on each bit.
-         * @param {Object}                         ctx_ - optional context to be called upon the callback function.
+         * @param {Object=}                        ctx_ - context to be called upon the callback function.
          *
          * @returns {boolean} boolean indicating if the loop finished completely=true or was broken=false
          */
@@ -322,7 +309,7 @@
          *         Can be broken prematurely by returning false.
          *
          * @param {function(value, index, bitset)} cb   - callback function o be called on each bit.
-         * @param {Object}                         ctx_ - optional context to be called upon the callback function.
+         * @param {Object=}                        ctx_ - context to be called upon the callback function.
          *
          * @returns {boolean} boolean indicating if the loop finished completely=true or was broken=false.
          */
@@ -440,15 +427,20 @@
          * @desc
          *         Initializes the BitSet. Useful in case one wants to use 'Object.create' instead of 'new'.
          *
-         * @param {number=} length_=32 - optional length of the underlying bitvector.
+         * @param {number|Array=} length_array_=32 - length for the underlying bitvector or an array-like object with indices.
          *
          * @returns {BitSet} this
          */
         // TODO use an array to init the bitset
-        init: function(length_) {
+        init: function(length_array_) {
         {
-            Object.defineProperty(this,'_length', {value: (length_ || WORD_SIZE)|0, writable: true});
+            var arr = length_array_ && length_array_.length ? length_array_ : [];
+            var len = ((arr.length ? arr[arr.length-1] : length_array_) || WORD_SIZE)|0;
+
+            Object.defineProperty(this,'_length', {value: len, writable: true});
             this.words = new Uint32Array(Math.ceil(this._length / WORD_SIZE));
+
+            this.add.apply(this, arr);
 
             return this
         }},
@@ -590,16 +582,20 @@
         /**
          * @method BitSet#remove
          * @desc
-         *         Removes an index/number from the bitset.
-         *         Increases the length in case the index falls out of bounds.
+         *         Removes indices/numbers from the bitset.
          *
-         * @param {number} index - the index/number to be removed.
+         * @param {...number} ___indices - the indices/numbers to be removed.
          *
          * @returns {BitSet}
          */
-        remove: function(index) {
+        remove: function(___indices) {
         {
-            return this.add(index, 0);
+            for(var i = arguments.length; i--;)
+            {
+                this.set(arguments[i], 0);
+            }
+
+            return this
         }},
         /**
          * @method BitSet#resize
@@ -638,11 +634,36 @@
             return this
         }},
         /**
+         * @method BitSet#set
+         * @desc
+         *         Adds a number(index) to the set. It will resize the set in case the index falls out of bounds.
+         *
+         * @param {number}  index  - index/number to add to the set.
+         * @param {number=} val_=1 - value (0|1) to set.
+         *
+         * @returns {BitSet} this
+         */
+        set: function(index, val_) {
+        {
+            if((index |= 0) >= this._length && val_ !== 0) {this.resize(index+1)} // don't resize in case of a remove
+
+            if(val_ === 0)
+            {
+                this.words[index >>> WORD_LOG] &= ~(1 << index);
+            }
+            else
+            {
+                this.words[index >>> WORD_LOG] |=  (1 << index);
+            }
+
+            return this;
+        }},
+        /**
          * @method BitSet#toArray
          * @desc
          *         Outputs the set as an array.
          *
-         * @param {number=} type_ - optional type for the array Uint(8|16|32)Array. Default is a normal Array.
+         * @param {number=} type_ - type for the array Uint(8|16|32)Array.
          *
          * @returns {Array<number>|Uint8Array<int>|Uint16Array<int>|Uint32Array<int>}
          */
@@ -668,7 +689,7 @@
          * @desc
          *         Outputs the underlying bitvector as an array, starting with the least significant bits.
          *
-         * @param {number=} type_ - optional type for the array Uint(8|16|32)Array. Default is a normal Array.
+         * @param {number=} type_ - type for the array Uint(8|16|32)Array.
          *
          * @returns {Array<number>|Uint8Array<int>|Uint16Array<int>|Uint32Array<int>}
          */
@@ -708,7 +729,7 @@
          * @desc
          *         Outputs the underlying bitvector as a bitstring, starting with the most significant bit.
          *
-         * @param {number} mode_ - optional mode for stringification. -1 is used to display the full string including trailing bits.
+         * @param {number=} mode_ - mode for stringification. -1 is used to display the full string including trailing bits.
          *
          * @returns {string} the stringified bitvector.
          */
@@ -814,6 +835,7 @@
     });
 
     /**
+     * @func extend
      * @desc
      *        Very simple extend function including alias support.
      *

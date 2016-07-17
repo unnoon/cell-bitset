@@ -5,15 +5,15 @@
   "main": "src/BitSet.js",
   "scripts": {
     "build": "npm run preprocess && npm run minify",
-    "docs": "./node_modules/.bin/jsdoc -c .jsdoc.conf.json",
+    "docs": "rimraf -rf doc && jsdoc -c .jsdoc.conf.json",
     "minify": "uglifyjs bin/BitSet.js --compress --mangle --output bin/BitSet.min.js",
     "release": "npm version",
-    "preversion": "npm test",
+    "preversion": "npm test && npm run docs",
     "version": "npm run build && git add -A bin",
     "postversion": "git push && git push --tags && npm publish",
     "preprocess": "metascript src/BitSet.js > bin/BitSet.js -VERSION=%npm_package_version%",
     "test": "karma start --single-run",
-    "update": "npm-check-updates -u && npm install"
+    "update": "ncu -u && npm install"
   },
   "repository": {
     "type": "git",
@@ -45,6 +45,7 @@
     "mocha": "^2.5.3",
     "phantomjs-prebuilt": "~2.1.4",
     "requirejs": "^2.2.0",
+    "rimraf": "^2.5.3",
     "uglify-js": "^2.7.0"
   }
 }
