@@ -1,81 +1,77 @@
+/*!
+ * @author       Rogier Geertzema
+ * @copyright    2016 Rogier Geertzema
+ * @license      {@link https://github.com/unnoon/cell-bitset/blob/master/LICENSE|MIT License}
+ * @overview     Fast JS BitSet implementation. No worrying about 32bits restrictions.
+ */
 !function(root, bitset) {
     var environments = true; /* istanbul ignore next */ switch(environments) {
-    /*requirejs*/ case typeof(define) === 'function' && root.define === define && !!define.amd : define(bitset);                                                           break;
-    /*nodejs*/    case typeof(module) === 'object'   && root === module.exports                : module.exports = bitset();                                                break;
-    /*root*/      case !root.BitSet                                                            : Object.defineProperty(root, 'BitSet', {value: bitset(), enumerable: !0}); break; default : console.error("'BitSet' is already defined on root object")}
+    /*amd*/    case typeof(define) === 'function' && root.define === define && !!define.amd : define(bitset);                                                           break;
+    /*node*/   case typeof(module) === 'object'   && root === module.exports                : module.exports = bitset();                                                break;
+    /*global*/ case !root.BitSet                                                            : Object.defineProperty(root, 'BitSet', {value: bitset(), enumerable: !0}); break; default : console.error("'BitSet' is already defined on root object")}
 }(this, function bitset() { "use strict";
-    var WORD_SIZE = 32;
-    var WORD_LOG  = 5;
     /**
-     * Info object to hold general module information
-     *
-     * @static
-     * @name BitSet.info
-     * @type Object
+     * @property {Object} info - Info object to hold general module information
      */
     BitSet.info = {
         "name": "cell-bitset",
-        "version": "0.0.1",
-        "description": "Fast JS BitSet implementation. No worrying about 32bits restrictions.",
-        "url": "https://github.com/unnoon/cell-bitset.git"
+        "version": "0.0.2",
+        "url": "https://github.com/unnoon/cell-bitset"
     };
 
+    var WORD_SIZE = 32|0;
+    var WORD_LOG  =  5|0;
     /**
-     * BitSet: no worrying about 32bits restrictions
+     * @class BitSet
+     * @desc
+     *        Fast JS BitSet implementation.
+     *        No worrying about 32bits restrictions.
      *
-     * @constructor BitSet
-     *
-     * @param  {number} length_=32 - optional length
+     * @param {number|Array=} length_array_=32 - length for the underlying bitvector or an array-like object with indices.
      *
      * @return {BitSet} new BitSet
      */
-    function BitSet(length_) {
+    function BitSet(length_array_) {
     {
-        this.init(length_);
+        this.init(length_array_);
     }}
 
     /**
-     * Alternative create method for people who hate the 'new' keyword
-     *
-     * @public
-     * @static
      * @method BitSet.create
-     * @alias  spawn
+     * @desc   **aliases:** spawn
+     * #
+     *         Alternative create method for people who hate the 'new' keyword.
      *
-     * @param  {number} length_=32 - optional length
+     * @param {number|Array=} length_array_=32 - length for the underlying bitvector or an array-like object with indices.
      *
-     * @return {BitSet} new BitSet
+     * @return {BitSet} new BitSet.
      */
-    BitSet.create = BitSet.spawn = function(length_) {
+    BitSet.create = BitSet.spawn = function(length_array_) {
     {
-        return Object.create(BitSet.prototype).init(length_);
+        return Object.create(BitSet.prototype).init(length_array_);
     }};
 
     extend(BitSet.prototype, {
         /**
-         * Alternative create method for people who rather use prototypal inheritance
-         *
-         * @public
-         * @static
          * @method BitSet#$create
-         * @alias  $spawn
+         * @desc   **aliases:** $spawn
+         * #
+         *         Alternative create method for people who rather use prototypal inheritance.
          *
-         * @param  {number} length_=32 - optional length
+         * @param {number|Array=} length_array_=32 - length for the underlying bitvector or an array-like object with indices.
          *
-         * @return {BitSet} new BitSet
+         * @return {BitSet} new BitSet.
          */
         $create: BitSet.create, $spawn: BitSet.create,
         /**
-         * Calculate the hamming weight i.e. the number of ones in a bitstring/word
-         *
-         * @public
-         * @static
          * @method BitSet#$hammingWeight
-         * @alias  $popCount
+         * @desc   **aliases:** $popCount
+         * #
+         *         Calculate the hamming weight i.e. the number of ones in a bitstring/word.
          *
-         * @param {number} w - word to get the number of set bits from
+         * @param {number} w - word to get the number of set bits from.
          *
-         * @returns {number} the number of set bits in the word
+         * @returns {number} the number of set bits in the word.
          */
         $hammingWeight: function(w) { "@aliases: $popCount";
         {
@@ -85,30 +81,26 @@
             return (((w + (w >>> 4) & 0xF0F0F0F) * 0x1010101) >>> 24)|0;
         }},
         /**
-         * Returns the least significant bit in a word. Returns 32 in case the word is 0
-         *
-         * @public
-         * @static
          * @method BitSet#$lsb
+         * @desc
+         *         Returns the least significant bit in a word. Returns 32 in case the word is 0.
          *
-         * @param {number} w - the word to get the least significant bit from
+         * @param {number} w - the word to get the least significant bit from.
          *
-         * @returns {number} the least significant bit in w
+         * @returns {number} the least significant bit in w.
          */
         $lsb: function(w) {
         {
             return this.$hammingWeight((w & -w) - 1);
         }},
         /**
-         * Returns the most significant bit in a word
-         *
-         * @public
-         * @static
          * @method BitSet#$msb
+         * @desc
+         *         Returns the most significant bit in a word.
          *
-         * @param {number} w - the word to get the most significant bit from
+         * @param {number} w - the word to get the most significant bit from.
          *
-         * @returns {number} the most significant bit in w
+         * @returns {number} the most significant bit in w.
          */
         $msb: function(w) {
         {
@@ -121,40 +113,30 @@
             return this.$hammingWeight(w - 1);
         }},
         /**
-         *  Adds a number(index) to the set. It will resize the set in case the index falls out of bounds.
-         *
-         * @public
          * @method BitSet#add
-         * @alias  set
+         * @desc
+         *         Adds numbers(indices) to the set. It will resize the set in case the index falls out of bounds.
          *
-         * @param {number} index  - index/number to add to the set
-         * @param {number} val_=1 - optional value to be set. Either 0 or 1
+         * @param {...number} ___indices - indices/numbers to add to the set.
          *
          * @returns {BitSet} this
          */
-        add: function(index, val_) { "@aliases: set";
+        add: function(___indices) {
         {
-            if((index |= 0) >= this._length) {this.resize(index+1)}
-
-            if(val_ === undefined || val_)
+            for(var i = arguments.length; i--;)
             {
-                this.words[index >>> WORD_LOG] |=  (1 << index);
-            }
-            else
-            {
-                this.words[index >>> WORD_LOG] &= ~(1 << index);
+                this.set(arguments[i]);
             }
 
-            return this;
+            return this
         }},
         /**
-         * Getter for the cardinality of the set.
-         * In case of a set it will return a warning.
-         *
          * @readonly
          * @name BitSet#cardinality
          * @type number
-         * @default 0
+         * @desc
+         *       Getter for the cardinality of the set.
+         *       In case of a set it will return a warning.
          */
         get cardinality() {
         {
@@ -172,10 +154,9 @@
             console.warn('Cardinality is read only')
         }},
         /**
-         * Clears the bitset. Length will be maintained.
-         *
-         * @public
          * @method BitSet#clear
+         * @desc
+         *         Clears the bitset. Length will be maintained.
          *
          * @returns {BitSet} this
          */
@@ -189,10 +170,9 @@
             return this
         }},
         /**
-         * Creates a clone of the bitset
-         *
-         * @public
          * @method BitSet#clone
+         * @desc
+         *         Creates a clone of the bitset.
          *
          * @returns {BitSet} clone
          */
@@ -206,10 +186,9 @@
             return clone;
         }},
         /**
-         * Calculates the inverse of the set. Any trailing bits outside the length bound will be set to 0.
-         *
-         * @public
          * @method BitSet#complement
+         * @desc
+         *         Calculates the inverse of the set. Any trailing bits outside the length bound will be set to 0.
          *
          * @returns {BitSet} this
          */
@@ -225,29 +204,27 @@
             return this
         }},
         /**
-         * Calculates the inverse of the set. Any trailing bits outside the length bound will be set to 0.
-         * The result will be a new instance of a BitSet
-         *
-         * @public
          * @method BitSet#Complement
+         * @desc
+         *         Calculates the inverse of the set. Any trailing bits outside the length bound will be set to 0.
+         *         The result will be a new instance of a BitSet.
          *
-         * @returns {BitSet} new BitSet of the complement
+         * @returns {BitSet} new BitSet of the complement.
          */
         Complement: function() {
         {
             return this.clone().complement();
         }},
         /**
-         * Calculates if the bitset contains a certain bitset.
-         * In bitmask terms it will calculate if a bitmask fits a bitset
-         *
-         * @public
          * @method BitSet#contains
-         * @alias  fits
+         * @desc   **aliases:** fits
+         * #
+         *         Calculates if the bitset contains a certain bitset.
+         *         In bitmask terms it will calculate if a bitmask fits a bitset.
          *
-         * @param {BitSet} mask - bitset mask to test fit. i.e. subset to test containment
+         * @param {BitSet} mask - bitset mask to test fit. i.e. subset to test containment.
          *
-         * @returns {boolean} boolean indicating if the mask fits the bitset or is a subset
+         * @returns {boolean} boolean indicating if the mask fits the bitset or is a subset.
          */
         contains: function(mask) { "@aliases: fits";
         {
@@ -263,13 +240,12 @@
             return true
         }},
         /**
-         * Calculates the difference between 2 bitsets.
-         * The result is stored in this
-         *
-         * @public
          * @method BitSet#difference
+         * @desc
+         *         Calculates the difference between 2 bitsets.
+         *         The result is stored in this.
          *
-         * @param {BitSet} bitset - the bit set to subtract from the current one
+         * @param {BitSet} bitset - the bit set to subtract from the current one.
          *
          * @returns {BitSet} this
          */
@@ -283,29 +259,27 @@
             return this
         }},
         /**
-         * Calculates the difference between 2 bitsets.
-         * The result will be a new instance of BitSet
-         *
-         * @public
          * @method BitSet#Difference
+         * @desc
+         *         Calculates the difference between 2 bitsets.
+         *         The result will be a new instance of BitSet.
          *
-         * @param {BitSet} bitset - the bit set to subtract from the current one
+         * @param {BitSet} bitset - the bit set to subtract from the current one.
          *
-         * @returns {BitSet} new BitSet of the difference
+         * @returns {BitSet} new BitSet of the difference.
          */
         Difference: function(bitset) {
         {
             return this.clone().difference(bitset)
         }},
         /**
-         * Iterates over the set bits and calls the callback function with: value=1, index, this.
-         * Can be broken prematurely by returning false
-         *
-         * @public
          * @method BitSet#each
+         * @desc
+         *         Iterates over the set bits and calls the callback function with: value=1, index, this.
+         *         Can be broken prematurely by returning false.
          *
-         * @param {function(value, index, bitset)} cb   - callback function o be called on each bit
-         * @param {Object}                         ctx_ - optional context to be called upon the callback function
+         * @param {function(value, index, bitset)} cb   - callback function o be called on each bit.
+         * @param {Object=}                        ctx_ - context to be called upon the callback function.
          *
          * @returns {boolean} boolean indicating if the loop finished completely=true or was broken=false
          */
@@ -329,16 +303,15 @@
             return true
         },
         /**
-         * Iterates over all bits and calls the callback function with: value, index, this.
-         * Can be broken prematurely by returning false
-         *
-         * @public
          * @method BitSet#each$
+         * @desc
+         *         Iterates over all bits and calls the callback function with: value, index, this.
+         *         Can be broken prematurely by returning false.
          *
-         * @param {function(value, index, bitset)} cb   - callback function o be called on each bit
-         * @param {Object}                         ctx_ - optional context to be called upon the callback function
+         * @param {function(value, index, bitset)} cb   - callback function o be called on each bit.
+         * @param {Object=}                        ctx_ - context to be called upon the callback function.
          *
-         * @returns {boolean} boolean indicating if the loop finished completely=true or was broken=false
+         * @returns {boolean} boolean indicating if the loop finished completely=true or was broken=false.
          */
         each$: function(cb, ctx_)
         {
@@ -350,14 +323,13 @@
             return true
         },
         /**
-         * Tests if 2 bitsets are equal
-         *
-         * @public
          * @method BitSet#equals
+         * @desc
+         *         Tests if 2 bitsets are equal.
          *
-         * @param {BitSet} bitset - bitset to compare to this
+         * @param {BitSet} bitset - bitset to compare to this.
          *
-         * @returns {boolean} boolean indicating if the the 2 bitsets are equal
+         * @returns {boolean} boolean indicating if the the 2 bitsets are equal.
          */
         equals: function(bitset) {
         {
@@ -369,12 +341,11 @@
             return true
         }},
         /**
-         * Calculates the exclusion/symmetric difference between to bitsets.
-         * The result is stored in this.
-         *
-         * @public
          * @method BitSet#exclusion
-         * @alias  symmetricDifference
+         * @desc   **aliases:** symmetricDifference, xor
+         * #
+         *         Calculates the exclusion/symmetric difference between to bitsets.
+         *         The result is stored in this.
          *
          * @param {BitSet} bitset - the bitset to calculate the symmetric difference with.
          *
@@ -392,28 +363,26 @@
             return this
         }},
         /**
-         * Calculates the exclusion/symmetric difference between to bitsets.
-         * The result is a new instance of BitSet
-         *
-         * @public
          * @method BitSet#Exclusion
-         * @alias  SymmetricDifference
+         * @desc   **aliases:** SymmetricDifference, Xor
+         * #
+         *         Calculates the exclusion/symmetric difference between to bitsets.
+         *         The result is a new instance of BitSet.
          *
          * @param {BitSet} bitset - the bitset to calculate the symmetric difference with.
          *
-         * @returns {BitSet} new BitSet of the exclusion
+         * @returns {BitSet} new BitSet of the exclusion.
          */
         Exclusion: function(bitset) { "@aliases: SymmetricDifference, Xor";
         {
             return this.clone().exclusion(bitset)
         }},
         /**
-         * Flips a bit in the bitset. In case index will fall out of bounds the bitset is enlarged
-         *
-         * @public
          * @method BitSet#flip
+         * @desc
+         *         Flips a bit in the bitset. In case index will fall out of bounds the bitset is enlarged.
          *
-         * @param {number} index - index of the bit to be flipped
+         * @param {number} index - index of the bit to be flipped.
          *
          * @returns {BitSet} this
          */
@@ -426,14 +395,13 @@
             return this
         }},
         /**
-         * Gets a specific bit from the bitset
-         *
-         * @public
          * @method BitSet#get
+         * @desc
+         *         Gets a specific bit from the bitset.
          *
-         * @param {number} index - index of the bit to get
+         * @param {number} index - index of the bit to get.
          *
-         * @returns {number} the value of the bit at the given index
+         * @returns {number} the value of the bit at the given index.
          */
         get: function(index) {
         {   if((index |= 0) >= this._length) {return 0|0}
@@ -441,44 +409,49 @@
             return ((this.words[index >>> WORD_LOG] >>> index) & 1)|0;
         }},
         /**
-         * Checks is the bitsets has a value/index
-         *
-         * @public
          * @method BitSet#has
-         * @alias  member
+         * @desc   **aliases:** isMember
+         * #
+         *         Checks is the bitsets has a value/index.
          *
-         * @param {number} index - the index/value to check membership for
+         * @param {number} index - the index/value to check membership for.
          *
-         * @returns {boolean} boolean indicating if the bitset has the vale/index
+         * @returns {boolean} boolean indicating if the bitset has the vale/index.
          */
         has: function(index) { "@aliases: isMember";
         {
             return !!this.get(index);
         }},
         /**
-         * Initializes the BitSet. Useful in case one wants to use 'Object.create' instead of 'new'
-         *
-         * @public
          * @method BitSet#init
-         * @param {number=} length_ - optional length of the underlying bitvector
+         * @desc
+         *         Initializes the BitSet. Useful in case one wants to use 'Object.create' instead of 'new'.
+         *
+         * @param {number|Array=} length_array_=32 - length for the underlying bitvector or an array-like object with indices.
          *
          * @returns {BitSet} this
          */
-        init: function(length_) {
+        // TODO use an array to init the bitset
+        init: function(length_array_) {
         {
-            Object.defineProperty(this,'_length', {value: (length_ || WORD_SIZE)|0, writable: true});
+            var arr = length_array_ && length_array_.length ? length_array_ : [];
+            var len = ((arr.length ? arr[arr.length-1] : length_array_) || WORD_SIZE)|0;
+
+            Object.defineProperty(this,'_length', {value: len, writable: true});
             this.words = new Uint32Array(Math.ceil(this._length / WORD_SIZE));
+
+            this.add.apply(this, arr);
 
             return this
         }},
         /**
-         * Calculates the intersection between two bitsets.
-         * The result is stored in this.
-         *
-         * @public
          * @method BitSet#intersection
+         * @desc   **aliases:** and
+         * #
+         *         Calculates the intersection between two bitsets.
+         *         The result is stored in this.
          *
-         * @param {BitSet} bitset - the bitset to calculate the intersection with
+         * @param {BitSet} bitset - the bitset to calculate the intersection with.
          *
          * @returns {BitSet} this
          */
@@ -492,29 +465,28 @@
             return this
         }},
         /**
-         * Calculates the intersection between two bitsets.
-         * The result is a new instance of BitSet.
-         *
-         * @public
          * @method BitSet#Intersection
+         * @desc   **aliases:** And
+         * #
+         *         Calculates the intersection between two bitsets.
+         *         The result is a new instance of BitSet.
          *
-         * @param {BitSet} bitset - the bitset to calculate the intersection with
+         * @param {BitSet} bitset - the bitset to calculate the intersection with.
          *
-         * @returns {BitSet} new bitset intersection
+         * @returns {BitSet} new bitset intersection.
          */
         Intersection: function(bitset) { "@aliases: And";
         {
             return this.clone().intersection(bitset)
         }},
         /**
-         * Calculates if two bitsets intersect
-         *
-         * @public
          * @method BitSet#intersects
+         * @desc
+         *         Calculates if two bitsets intersect.
          *
-         * @param {BitSet} bitset - the bitset to check intersection with
+         * @param {BitSet} bitset - the bitset to check intersection with.
          *
-         * @returns {boolean} boolean indicating if the two bitsets intersects
+         * @returns {boolean} boolean indicating if the two bitsets intersects.
          */
         intersects: function(bitset) {
         {
@@ -526,12 +498,11 @@
             return false
         }},
         /**
-         * Returns if a set is empty i.e. all words are 0
-         *
-         * @public
          * @method BitSet#isEmpty
+         * @desc
+         *         Returns if a set is empty i.e. all words are 0.
          *
-         * @returns {boolean} boolean indicating that the set is empty
+         * @returns {boolean} boolean indicating that the set is empty.
          */
         isEmpty: function() {
         {
@@ -543,28 +514,26 @@
             return true
         }},
         /**
-         * Checks if a bitset is contained in another
-         *
-         * @public
          * @method BitSet#isSubsetOf
-         * @alias  isContainedIn
+         * @desc   **aliases:** isContainedIn
+         * #
+         *         Checks if a bitset is contained in another.
          *
-         * @param {BitSet} bitset - to check for containment
-         * -
-         * @returns {boolean} boolean indicating if this is contained in bitset
+         * @param {BitSet} bitset - to check for containment.
+         *
+         * @returns {boolean} boolean indicating if this is contained in bitset.
          */
         isSubsetOf: function(bitset) { "@aliases: isContainedIn";
         {
             return bitset.contains(this);
         }},
         /**
-         * Getter for the length of the underlying bitvector.
-         * In case of a set it will return a warning.
-         *
          * @readonly
          * @name BitSet#length
          * @type number
-         * @default 0
+         * @desc
+         *       Getter for the length of the underlying bitvector.
+         *       In case of a set it will return a warning.
          */
         get length() {
         {
@@ -575,13 +544,12 @@
             console.warn('Length is read only')
         }},
         /**
-         * Returns the max index in a set
-         *
-         * @public
          * @method BitSet#max
-         * @alias  msb
+         * @desc   **aliases:** msb
+         * #
+         *         Returns the max index in a set.
          *
-         * @returns {number} the max number/index in the set
+         * @returns {number} the max number/index in the set.
          */
         max: function() { "@aliases: msb";
         {
@@ -594,13 +562,12 @@
             }
         }},
         /**
-         * Returns the minimum index in a set
-         *
-         * @public
          * @method BitSet#min
-         * @alias  lsb
+         * @desc   **aliases:** lsb
+         * #
+         *         Returns the minimum index in a set.
          *
-         * @returns {number} the minimum number/index in the set
+         * @returns {number} the minimum number/index in the set.
          */
         min: function() { "@aliases: lsb";
         {
@@ -613,30 +580,32 @@
             }
         }},
         /**
-         * Removes an index/number from the bitset.
-         * Increases the length in case the index falls out of bounds.
-         *
-         * @public
          * @method BitSet#remove
+         * @desc
+         *         Removes indices/numbers from the bitset.
          *
-         * @param {number} index - the index/number to be removed
+         * @param {...number} ___indices - the indices/numbers to be removed.
          *
          * @returns {BitSet}
          */
-        remove: function(index) {
+        remove: function(___indices) {
         {
-            return this.add(index, 0);
+            for(var i = arguments.length; i--;)
+            {
+                this.set(arguments[i], 0);
+            }
+
+            return this
         }},
         /**
-         * Resizes the underlying bitvector to a specific length.
-         * Will trim any trailing bits in case length is smaller than the current length.
-         *
-         * @public
          * @method BitSet#resize
+         * @desc
+         *         Resizes the underlying bitvector to a specific length.
+         *         Will trim any trailing bits in case length is smaller than the current length.
          *
-         * @param {number} len - the new length
+         * @param {number} len - the new length.
          *
-         * @returns {BitSet} the resized bitset
+         * @returns {BitSet} the resized bitset.
          */
         resize: function(len) {
         {   if(this._length === (len |= 0)) {return this}
@@ -665,14 +634,38 @@
             return this
         }},
         /**
-         * Outputs the set as an array
+         * @method BitSet#set
+         * @desc
+         *         Adds a number(index) to the set. It will resize the set in case the index falls out of bounds.
          *
-         * @public
+         * @param {number}  index  - index/number to add to the set.
+         * @param {number=} val_=1 - value (0|1) to set.
+         *
+         * @returns {BitSet} this
+         */
+        set: function(index, val_) {
+        {
+            if((index |= 0) >= this._length && val_ !== 0) {this.resize(index+1)} // don't resize in case of a remove
+
+            if(val_ === 0)
+            {
+                this.words[index >>> WORD_LOG] &= ~(1 << index);
+            }
+            else
+            {
+                this.words[index >>> WORD_LOG] |=  (1 << index);
+            }
+
+            return this;
+        }},
+        /**
          * @method BitSet#toArray
+         * @desc
+         *         Outputs the set as an array.
          *
-         * @param {number=} type_ - optional type for the array Uint(8|16|32)Array. Default is a normal Array.
+         * @param {number=} type_ - type for the array Uint(8|16|32)Array.
          *
-         * @returns {Array|Uint8Array|Uint16Array|Uint32Array}
+         * @returns {Array<number>|Uint8Array<int>|Uint16Array<int>|Uint32Array<int>}
          */
         toArray: function(type_) {
         {
@@ -692,14 +685,13 @@
             return arr;
         }},
         /**
-         * Outputs the underlying bitvector, starting with the least significant bits
-         *
-         * @public
          * @method BitSet#toBitArray
+         * @desc
+         *         Outputs the underlying bitvector as an array, starting with the least significant bits.
          *
-         * @param {number=} type_ - optional type for the array Uint(8|16|32)Array. Default is a normal Array.
+         * @param {number=} type_ - type for the array Uint(8|16|32)Array.
          *
-         * @returns {Array|Uint8Array|Uint16Array|Uint32Array}
+         * @returns {Array<number>|Uint8Array<int>|Uint16Array<int>|Uint32Array<int>}
          */
         toBitArray: function(type_) {
         {
@@ -718,12 +710,11 @@
             return arr;
         }},
         /**
-         * Outputs the underlying bitvector as a boolean array, starting with the least significant bits
-         *
-         * @public
          * @method BitSet#toBooleanArray
+         * @desc
+         *         Outputs the underlying bitvector as a boolean array, starting with the least significant bits.
          *
-         * @returns {Array}
+         * @returns {Array<boolean>}
          */
         toBooleanArray: function() {
             {
@@ -734,14 +725,13 @@
                 return arr;
             }},
         /**
-         * Outputs the underlying bitvector as a bitstring, starting with the most significant bit
-         *
-         * @public
          * @method BitSet#toBitString
+         * @desc
+         *         Outputs the underlying bitvector as a bitstring, starting with the most significant bit.
          *
-         * @param {number} mode_ - optional mode for stringification. -1 is used to display the full string including trailing bits
+         * @param {number=} mode_ - mode for stringification. -1 is used to display the full string including trailing bits.
          *
-         * @returns {string} the stringified bitvector
+         * @returns {string} the stringified bitvector.
          */
         toBitString: function(mode_) {
         {
@@ -755,15 +745,14 @@
             return ~mode_ ? output.slice(-this._length) : output;
         }},
         /**
-         * Will output a string version of the bitset, bitstring
-         *
-         * @public
          * @method BitSet#toString
-         * @alias  stringify
+         * @desc   **aliases:** stringify
+         * #
+         *         Will output a string version of the bitset or bitstring.
          *
-         * @param {number} mode - mode of toString. undefined=bitset | 2=bitstring | -1=full bitstring
+         * @param {number} mode - mode of toString. undefined=bitset | 2=bitstring | -1=full bitstring.
          *
-         * @returns {string} stringified version of the bitset
+         * @returns {string} stringified version of the bitset.
          */
         toString: function(mode) { "@aliases: stringify";
         {
@@ -779,10 +768,9 @@
             return output
         }},
         /**
-         * Trims the bitset to the most significant bit to save space.
-         *
-         * @public
          * @method BitSet#trim
+         * @desc
+         *         Trims the bitset to the most significant bit to save space.
          *
          * @returns {BitSet} this
          */
@@ -791,11 +779,10 @@
             return this.resize(this.max()+1)
         }},
         /**
-         * Trims any trailing bits. That fall out of this.length but within this.words.length*WORD_SIZE.
-         * Assumes this.length is somewhere in the last word.
-         *
-         * @public
          * @method BitSet#trimTrailingBits
+         * @desc
+         *         Trims any trailing bits. That fall out of this.length but within this.words.length*WORD_SIZE.
+         *         Assumes this.length is somewhere in the last word.
          *
          * @returns {BitSet}
          */
@@ -809,15 +796,15 @@
             return this
         }},
         /**
-         * Calculates the union between 2 bitsets.
-         * The result is stored in this.
-         *
-         * @public
          * @method BitSet#union
+         * @desc   **aliases:** or
+         * #
+         *         Calculates the union between 2 bitsets.
+         *         The result is stored in this.
          *
-         * @param {BitSet} bitset - bitset to calculate the union with
+         * @param {BitSet} bitset - bitset to calculate the union with.
          *
-         * @returns {BitSet} the union of the two bitsets
+         * @returns {BitSet} the union of the two bitsets.
          */
         union: function(bitset) { "@aliases: or";
         {
@@ -831,15 +818,15 @@
             return this
         }},
         /**
-         * Calculates the union between 2 bitsets.
-         * The result is a new BitSet
-         *
-         * @public
          * @method BitSet#Union
+         * @desc   **aliases:** Or
+         * #
+         *         Calculates the union between 2 bitsets.
+         *         The result is a new BitSet.
          *
-         * @param {BitSet} bitset - bitset to calculate the union with
+         * @param {BitSet} bitset - bitset to calculate the union with.
          *
-         * @returns {BitSet} new BitSet of the union of the two bitsets
+         * @returns {BitSet} new BitSet of the union of the two bitsets.
          */
         Union: function(bitset) { "@aliases: Or";
         {
@@ -848,12 +835,14 @@
     });
 
     /**
-     * Very simple extend function including alias support
+     * @func extend
+     * @desc
+     *        Very simple extend function including alias support.
      *
      * @param {Object} obj        - object to extend.
-     * @param {Object} properties - object with the extend properties
+     * @param {Object} properties - object with the extend properties.
      *
-     * @returns {Object} the object after extension
+     * @returns {Object} the object after extension.
      */
     function extend(obj, properties)
     {
