@@ -29,21 +29,15 @@ module.exports = function (config) {
 		// test results reporter to use
 		// possible values: 'dots', 'progress', 'junit', 'growl', 'coverage'
 		reporters     : ['dots', 'coverage'],
-		// reporters     : ['dots', 'coverage', 'coveralls'],
-//		reporters     : ['dots'],
-
-//		// optionally, configure the reporter
+		
+		// optionally, configure the reporter
 		coverageReporter: {
-			dir : '.coverage/',
+			dir : '.cov/',
 			reporters: [
 				{ type: 'html', subdir: '' },
 				{ type: 'lcov', subdir: 'report-lcov' }
 			]
 		},
-		//coverageReporter: {
-		//	type : 'html',
-		//	dir : '.coverage/'
-		//},
 
 		// enable / disable colors in the output (reporters and logs)
 		colors        : true,

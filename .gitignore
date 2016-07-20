@@ -1,6 +1,6 @@
 #ignored folders
 .idea/
-.coverage/
+.cov/
 node_modules/
 bower_components/
 projectFilesBackup/
