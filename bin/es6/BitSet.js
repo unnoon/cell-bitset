@@ -5,7 +5,8 @@
  * @overview     Fast JS BitSet implementation. No worrying about 32bits restrictions.
  */
 !function(root, bitset) {
-    export default bitset(); /*<3*/
+    /*module_type*/
+    /*es6*/ export default bitset(); /*<3*/
 }(this, function bitset() { "use strict";
     /**
      * @property {Object} info - Info object to hold general module information
@@ -834,7 +835,7 @@
     /**
      * @func extend
      * @desc
-     *        Very simple extend function including alias support.
+     *       Very simple extend function including alias support.
      *
      * @param {Object} obj        - object to extend.
      * @param {Object} properties - object with the extend properties.

@@ -5,7 +5,7 @@
  * @overview     Fast JS BitSet implementation. No worrying about 32bits restrictions.
  */
 !function(root, bitset) {
- var module_type = true; /* istanbul ignore next */ switch(module_type) {
+    /*module_type*//* istanbul ignore next */ switch(true) {
     /*amd*/    case typeof(define) === 'function' && root.define === define && !!define.amd : define(bitset);                                                           break;
     /*node*/   case typeof(module) === 'object'   && root === module.exports                : module.exports = bitset();                                                break;
     /*global*/ case !root.BitSet                                                            : Object.defineProperty(root, 'BitSet', {value: bitset(), enumerable: !0}); break; default : console.error("'BitSet' is already defined on root object")}
@@ -838,7 +838,7 @@
     /**
      * @func extend
      * @desc
-     *        Very simple extend function including alias support.
+     *       Very simple extend function including alias support.
      *
      * @param {Object} obj        - object to extend.
      * @param {Object} properties - object with the extend properties.

@@ -11,7 +11,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
  * @overview     Fast JS BitSet implementation. No worrying about 32bits restrictions.
  */
 !function (root, bitset) {
-    var module_type = true; /* istanbul ignore next */switch (module_type) {
+    /*module_type*/ /* istanbul ignore next */switch (true) {
         /*amd*/case typeof define === 'function' && root.define === define && !!define.amd:
             define(bitset);break;
         /*node*/case (typeof module === 'undefined' ? 'undefined' : _typeof(module)) === 'object' && root === module.exports:
@@ -951,7 +951,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
     /**
      * @func extend
      * @desc
-     *        Very simple extend function including alias support.
+     *       Very simple extend function including alias support.
      *
      * @param {Object} obj        - object to extend.
      * @param {Object} properties - object with the extend properties.
