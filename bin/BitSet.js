@@ -117,15 +117,15 @@
          * @desc
          *         Adds numbers(indices) to the set. It will resize the set in case the index falls out of bounds.
          *
-         * @param {...number} ___indices - indices/numbers to add to the set.
+         * @param {...number} indices - indices/numbers to add to the set.
          *
          * @returns {BitSet} this
          */
-        add: function(___indices) {
+        add: function(...indices) {
         {
-            for(var i = arguments.length; i--;)
+            for(var i = indices.length; i--;)
             {
-                this.set(arguments[i]);
+                this.set(indices[i]);
             }
 
             return this
