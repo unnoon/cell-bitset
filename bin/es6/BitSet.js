@@ -5,18 +5,14 @@
  * @overview     Fast JS BitSet implementation. No worrying about 32bits restrictions.
  */
 !function(root, bitset) {
-    /*? if (MODULE_TYPE !== 'es6') { */ var module_type = true; /* istanbul ignore next */ switch(module_type) {
-    /*amd*/    case typeof(define) === 'function' && root.define === define && !!define.amd : define(bitset);                                                           break;
-    /*node*/   case typeof(module) === 'object'   && root === module.exports                : module.exports = bitset();                                                break;
-    /*global*/ case !root.BitSet                                                            : Object.defineProperty(root, 'BitSet', {value: bitset(), enumerable: !0}); break; default : console.error("'BitSet' is already defined on root object")}
-    /*es6*/    /*? } else { write('    export default bitset(); ') } *//*<3*/
+    export default bitset(); /*<3*/
 }(this, function bitset() { "use strict";
     /**
      * @property {Object} info - Info object to hold general module information
      */
     BitSet.info = {
         "name": "cell-bitset",
-        "version": "/*?= VERSION */",
+        "version": "0.0.2",
         "url": "https://github.com/unnoon/cell-bitset"
     };
 
@@ -177,7 +173,7 @@
          *
          * @returns {BitSet} clone
          */
-        clone: function() { 
+        clone: function() {
         {
             var clone = Object.create(BitSet.prototype);
 
@@ -193,7 +189,7 @@
          *
          * @returns {BitSet} this
          */
-        complement: function() { 
+        complement: function() {
         {
             for(var i = 0|0, max = this.words.length; i < max; i++)
             {
@@ -250,7 +246,7 @@
          *
          * @returns {BitSet} this
          */
-        difference: function(bitset) { 
+        difference: function(bitset) {
         {
             for(var i = 0|0, max = this.words.length; i < max; i++)
             {
@@ -332,7 +328,7 @@
          *
          * @returns {boolean} boolean indicating if the the 2 bitsets are equal.
          */
-        equals: function(bitset) { 
+        equals: function(bitset) {
         {
             for(var i = 0|0, max = this.words.length; i < max; i++)
             {
@@ -387,7 +383,7 @@
          *
          * @returns {BitSet} this
          */
-        flip: function(index) { 
+        flip: function(index) {
         {
             if((index |= 0) >= this._length) {this.resize(index+1)}
 
@@ -404,7 +400,7 @@
          *
          * @returns {number} the value of the bit at the given index.
          */
-        get: function(index) { 
+        get: function(index) {
         {   if((index |= 0) >= this._length) {return 0|0}
 
             return ((this.words[index >>> WORD_LOG] >>> index) & 1)|0;
@@ -505,7 +501,7 @@
          *
          * @returns {boolean} boolean indicating that the set is empty.
          */
-        isEmpty: function() { 
+        isEmpty: function() {
         {
             for(var i = 0|0, max = this.words.length; i < max; i++)
             {
@@ -775,7 +771,7 @@
          *
          * @returns {BitSet} this
          */
-        trim: function() { 
+        trim: function() {
         {
             return this.resize(this.max()+1)
         }},
@@ -787,7 +783,7 @@
          *
          * @returns {BitSet}
          */
-        trimTrailingBits: function() { 
+        trimTrailingBits: function() {
         {
             var wordsLength = this.words.length;
             var diff        = wordsLength*WORD_SIZE - this._length;

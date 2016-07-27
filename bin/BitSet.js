@@ -5,10 +5,11 @@
  * @overview     Fast JS BitSet implementation. No worrying about 32bits restrictions.
  */
 !function(root, bitset) {
-    var environments = true; /* istanbul ignore next */ switch(environments) {
+ var module_type = true; /* istanbul ignore next */ switch(module_type) {
     /*amd*/    case typeof(define) === 'function' && root.define === define && !!define.amd : define(bitset);                                                           break;
     /*node*/   case typeof(module) === 'object'   && root === module.exports                : module.exports = bitset();                                                break;
     /*global*/ case !root.BitSet                                                            : Object.defineProperty(root, 'BitSet', {value: bitset(), enumerable: !0}); break; default : console.error("'BitSet' is already defined on root object")}
+    /*es6*/    /*<3*/
 }(this, function bitset() { "use strict";
     /**
      * @property {Object} info - Info object to hold general module information
@@ -440,7 +441,7 @@
             Object.defineProperty(this,'_length', {value: len, writable: true});
             this.words = new Uint32Array(Math.ceil(this._length / WORD_SIZE));
 
-            this.add.apply(this, arr);
+            this.add(...arr);
 
             return this
         }},
@@ -584,15 +585,15 @@
          * @desc
          *         Removes indices/numbers from the bitset.
          *
-         * @param {...number} ___indices - the indices/numbers to be removed.
+         * @param {...number} indices - the indices/numbers to be removed.
          *
          * @returns {BitSet}
          */
-        remove: function(___indices) {
+        remove: function(...indices) {
         {
-            for(var i = arguments.length; i--;)
+            for(var i = indices.length; i--;)
             {
-                this.set(arguments[i], 0);
+                this.set(indices[i], 0);
             }
 
             return this
@@ -680,7 +681,7 @@
                 default : arr = [];
             }
 
-            this.each(function(val, index) {arr[i++] = index});
+            this.each((val, index) => {arr[i++] = index});
 
             return arr;
         }},
@@ -705,7 +706,7 @@
                 default : arr = [];
             }
 
-            this.each$(function(val, index) {arr[index] = val});
+            this.each$((val, index) => {arr[index] = val});
 
             return arr;
         }},
@@ -720,7 +721,7 @@
             {
                 var arr = [];
 
-                this.each$(function(val, index) {arr[index] = !!val});
+                this.each$((val, index) => {arr[index] = !!val});
 
                 return arr;
             }},
@@ -762,7 +763,7 @@
             {
                 case -1 /*binary full*/ :
                 case  2 /*binary*/      : output = this.toBitString(mode); break;
-                default /*set*/         : output += '{'; this.each(function(val, index) {output += (output !== '{' ? ', ' : '') + index}); output += '}'
+                default /*set*/         : output += '{'; this.each((val, index) => {output += (output !== '{' ? ', ' : '') + index}); output += '}'
             }
 
             return output
