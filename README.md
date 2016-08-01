@@ -17,8 +17,9 @@ Fast(est) & consistent JavaScript BitSet (AKA bitvector, bitarray, bitstring) im
 - Chaining
 - Lots of aliases
 - Prototypal & Classical inheritance ready
-- Supports amd, node, globals (es6 modules coming up in the near future)
+- Supports amd, node, globals, es6 modules
 - Lots of output options
+- ES6 & ES5 binaries (as well as intermittent version)
 - Made with bits of love!
 
 ## Installation
