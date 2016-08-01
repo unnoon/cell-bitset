@@ -32,7 +32,6 @@
   "license": "MIT",
   "devDependencies": {
     "babel-cli": "^6.11.4",
-    "babel-plugin-uglify": "^1.0.2",
     "babel-preset-es2015": "^6.9.0",
     "coveralls": "^2.11.9",
     "jaguarjs-jsdoc": "1.0.0",

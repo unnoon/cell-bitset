@@ -4,66 +4,43 @@
  * @license      {@link https://github.com/unnoon/cell-bitset/blob/master/LICENSE|MIT License}
  * @overview     Fast JS BitSet implementation. No worrying about 32bits restrictions.
  */
-!function(root, bitset) {
+/*? if(MODULE_TYPE === 'es6') {write('export default ')}*/(function(root, bitset) {
     /*module_type*//*? if(MODULE_TYPE !== 'es6') { *//* istanbul ignore next */ switch(true) {
     /*amd*/    case typeof(define) === 'function' && root.define === define && !!define.amd : define(bitset);                                                           break;
     /*node*/   case typeof(module) === 'object'   && root === module.exports                : module.exports = bitset();                                                break;
     /*global*/ case !root.BitSet                                                            : Object.defineProperty(root, 'BitSet', {value: bitset(), enumerable: !0}); break; default : console.error("'BitSet' is already defined on root object")}
-    /*es6*/    /*? } else { write('\n    \/*es6*\/ export default bitset(); ') } *//*<3*/
-}(this, function bitset() { "use strict";
-    /**
-     * @property {Object} info - Info object to hold general module information
-     */
-    BitSet.info = {
-        "name": "cell-bitset",
-        "version": "/*?= VERSION */",
-        "url": "https://github.com/unnoon/cell-bitset"
-    };
-
-    var WORD_SIZE = 32|0;
-    var WORD_LOG  =  5|0;
-    /**
-     * @class BitSet
-     * @desc
-     *        Fast JS BitSet implementation.
-     *        No worrying about 32bits restrictions.
-     *
-     * @param {number|Array=} length_array_=32 - length for the underlying bitvector or an array-like object with indices.
-     *
-     * @return {BitSet} new BitSet
-     */
-    function BitSet(length_array_) {
-    {
-        this.init(length_array_);
-    }}
-
-    /**
-     * @method BitSet.create
-     * @desc   **aliases:** spawn
-     * #
-     *         Alternative create method for people who hate the 'new' keyword.
-     *
-     * @param {number|Array=} length_array_=32 - length for the underlying bitvector or an array-like object with indices.
-     *
-     * @return {BitSet} new BitSet.
-     */
-    BitSet.create = BitSet.spawn = function(length_array_) {
-    {
-        return Object.create(BitSet.prototype).init(length_array_);
-    }};
+    /*es6*/    /*? } else { write('\n    \/*es6*\/ return bitset(); ') } *//*<3*/
+})(this, function bitset() { "use strict";
+    const WORD_SIZE = 32|0;
+    const WORD_LOG  =  5|0;
 
     extend(BitSet.prototype, {
+        /**
+         * @name BitSet#$info
+         * @desc
+         *       Info object to hold general module information
+         */
+        $info: {
+            "name"       : "cell-bitset",
+            "description": "Fast JS BitSet implementation. No worrying about 32bits restrictions.",
+            "version"    : "/*?= VERSION */",
+            "url"        : "https://github.com/unnoon/cell-bitset"
+        },
         /**
          * @method BitSet#$create
          * @desc   **aliases:** $spawn
          * #
-         *         Alternative create method for people who rather use prototypal inheritance.
+         *         Easy create method for people who use prototypal inheritance.
          *
          * @param {number|Array=} length_array_=32 - length for the underlying bitvector or an array-like object with indices.
          *
          * @return {BitSet} new BitSet.
          */
-        $create: BitSet.create, $spawn: BitSet.create,
+        $create: function(length_array_) {
+        "@aliases: $spawn";
+        {
+            return Object.create(BitSet.prototype).init(length_array_);
+        }},
         /**
          * @method BitSet#$hammingWeight
          * @desc   **aliases:** $popCount
@@ -74,7 +51,8 @@
          *
          * @returns {number} the number of set bits in the word.
          */
-        $hammingWeight: function(w) { "@aliases: $popCount";
+        $hammingWeight: function(w) {
+        "@aliases: $popCount";
         {
             w -= ((w >>> 1) & 0x55555555)|0;
             w  = (w & 0x33333333) + ((w >>> 2) & 0x33333333);
@@ -124,7 +102,7 @@
          */
         add: function(...indices) {
         {
-            for(var i = indices.length; i--;)
+            for(let i = indices.length; i--;)
             {
                 this.set(indices[i]);
             }
@@ -143,7 +121,7 @@
         {
             var output = 0|0;
 
-            for(var i = 0|0, max = this.words.length; i < max; i++)
+            for(let i = 0|0, max = this.words.length; i < max; i++)
             {
                 output += this.$hammingWeight(this.words[i]);
             }
@@ -163,7 +141,7 @@
          */
         clear: function() {
         {
-            for(var i = 0|0, max = this.words.length; i < max; i++)
+            for(let i = 0|0, max = this.words.length; i < max; i++)
             {
                 this.words[i] = 0;
             }
@@ -177,7 +155,7 @@
          *
          * @returns {BitSet} clone
          */
-        clone: function() { 
+        clone: function() {
         {
             var clone = Object.create(BitSet.prototype);
 
@@ -193,9 +171,9 @@
          *
          * @returns {BitSet} this
          */
-        complement: function() { 
+        complement: function() {
         {
-            for(var i = 0|0, max = this.words.length; i < max; i++)
+            for(let i = 0|0, max = this.words.length; i < max; i++)
             {
                 this.words[i] = ~this.words[i];
             }
@@ -227,11 +205,12 @@
          *
          * @returns {boolean} boolean indicating if the mask fits the bitset or is a subset.
          */
-        contains: function(mask) { "@aliases: fits";
+        contains: function(mask) {
+        "@aliases: fits";
         {
             var maskword;
 
-            for(var i = 0|0, max = mask.words.length; i < max; i++)
+            for(let i = 0|0, max = mask.words.length; i < max; i++)
             {
                 maskword = mask.words[i];
 
@@ -250,9 +229,9 @@
          *
          * @returns {BitSet} this
          */
-        difference: function(bitset) { 
+        difference: function(bitset) {
         {
-            for(var i = 0|0, max = this.words.length; i < max; i++)
+            for(let i = 0|0, max = this.words.length; i < max; i++)
             {
                 this.words[i] &= ~bitset.words[i];
             }
@@ -289,7 +268,7 @@
             var word;
             var tmp;
 
-            for(var i = 0|0, max = this.words.length; i < max; i++)
+            for(let i = 0|0, max = this.words.length; i < max; i++)
             {
                 word = this.words[i];
 
@@ -316,7 +295,7 @@
          */
         each$: function(cb, ctx_)
         {
-            for(var i = 0|0, max = this._length; i < max; i++)
+            for(let i = 0|0, max = this._length; i < max; i++)
             {
                 if(cb.call(ctx_, this.get(i), i, this) === false) {return false}
             }
@@ -332,9 +311,9 @@
          *
          * @returns {boolean} boolean indicating if the the 2 bitsets are equal.
          */
-        equals: function(bitset) { 
+        equals: function(bitset) {
         {
-            for(var i = 0|0, max = this.words.length; i < max; i++)
+            for(let i = 0|0, max = this.words.length; i < max; i++)
             {
                 if(this.words[i] !== bitset.words[i]) {return false}
             }
@@ -352,11 +331,12 @@
          *
          * @returns {BitSet} this
          */
-        exclusion: function(bitset) { "@aliases: symmetricDifference, xor";
+        exclusion: function(bitset) {
+        "@aliases: symmetricDifference, xor";
         {
             if(bitset.length > this._length) {this.resize(bitset.length)}
 
-            for(var i = 0|0, max = bitset.words.length; i < max; i++)
+            for(let i = 0|0, max = bitset.words.length; i < max; i++)
             {
                 this.words[i] ^= bitset.words[i];
             }
@@ -374,7 +354,8 @@
          *
          * @returns {BitSet} new BitSet of the exclusion.
          */
-        Exclusion: function(bitset) { "@aliases: SymmetricDifference, Xor";
+        Exclusion: function(bitset) {
+        "@aliases: SymmetricDifference, Xor";
         {
             return this.clone().exclusion(bitset)
         }},
@@ -387,7 +368,7 @@
          *
          * @returns {BitSet} this
          */
-        flip: function(index) { 
+        flip: function(index) {
         {
             if((index |= 0) >= this._length) {this.resize(index+1)}
 
@@ -404,7 +385,7 @@
          *
          * @returns {number} the value of the bit at the given index.
          */
-        get: function(index) { 
+        get: function(index) {
         {   if((index |= 0) >= this._length) {return 0|0}
 
             return ((this.words[index >>> WORD_LOG] >>> index) & 1)|0;
@@ -419,7 +400,8 @@
          *
          * @returns {boolean} boolean indicating if the bitset has the vale/index.
          */
-        has: function(index) { "@aliases: isMember";
+        has: function(index) {
+        "@aliases: isMember";
         {
             return !!this.get(index);
         }},
@@ -432,7 +414,6 @@
          *
          * @returns {BitSet} this
          */
-        // TODO use an array to init the bitset
         init: function(length_array_) {
         {
             var arr = length_array_ && length_array_.length ? length_array_ : [];
@@ -456,9 +437,10 @@
          *
          * @returns {BitSet} this
          */
-        intersection: function(bitset) { "@aliases: and";
+        intersection: function(bitset) {
+        "@aliases: and";
         {
-            for(var i = 0|0, max = this.words.length; i < max; i++)
+            for(let i = 0|0, max = this.words.length; i < max; i++)
             {
                 this.words[i] &= bitset.words[i] || 0;
             }
@@ -476,7 +458,8 @@
          *
          * @returns {BitSet} new bitset intersection.
          */
-        Intersection: function(bitset) { "@aliases: And";
+        Intersection: function(bitset) {
+        "@aliases: And";
         {
             return this.clone().intersection(bitset)
         }},
@@ -491,7 +474,7 @@
          */
         intersects: function(bitset) {
         {
-            for(var i = 0|0, max = Math.min(this.words.length, bitset.words.length)|0; i < max; i++)
+            for(let i = 0|0, max = Math.min(this.words.length, bitset.words.length)|0; i < max; i++)
             {
                 if(this.words[i] & bitset.words[i]) {return true}
             }
@@ -505,9 +488,9 @@
          *
          * @returns {boolean} boolean indicating that the set is empty.
          */
-        isEmpty: function() { 
+        isEmpty: function() {
         {
-            for(var i = 0|0, max = this.words.length; i < max; i++)
+            for(let i = 0|0, max = this.words.length; i < max; i++)
             {
                 if(this.words[i]) {return false}
             }
@@ -524,7 +507,8 @@
          *
          * @returns {boolean} boolean indicating if this is contained in bitset.
          */
-        isSubsetOf: function(bitset) { "@aliases: isContainedIn";
+        isSubsetOf: function(bitset) {
+        "@aliases: isContainedIn";
         {
             return bitset.contains(this);
         }},
@@ -552,11 +536,12 @@
          *
          * @returns {number} the max number/index in the set.
          */
-        max: function() { "@aliases: msb";
+        max: function() {
+        "@aliases: msb";
         {
             var word;
 
-            for(var i = this.words.length; i--;)
+            for(let i = this.words.length; i--;)
             {   if(!(word = this.words[i])) {continue}
 
                 return ((i << WORD_LOG) + this.$msb(word))|0;
@@ -570,11 +555,12 @@
          *
          * @returns {number} the minimum number/index in the set.
          */
-        min: function() { "@aliases: lsb";
+        min: function() {
+        "@aliases: lsb";
         {
             var word;
 
-            for(var i = 0|0, max = this.words.length; i < max; i++)
+            for(let i = 0|0, max = this.words.length; i < max; i++)
             {   if(!(word = this.words[i])) {continue}
 
                 return ((i << WORD_LOG) + this.$lsb(word))|0;
@@ -591,7 +577,7 @@
          */
         remove: function(...indices) {
         {
-            for(var i = indices.length; i--;)
+            for(let i = indices.length; i--;)
             {
                 this.set(indices[i], 0);
             }
@@ -621,7 +607,7 @@
             {
                 newWords = new Uint32Array(newLength);
 
-                for(var i = 0|0, max = Math.min(newLength, this.words.length)|0; i < max; i++)
+                for(let i = 0|0, max = Math.min(newLength, this.words.length)|0; i < max; i++)
                 {
                     newWords[i] = this.words[i];
                 }
@@ -671,7 +657,7 @@
         toArray: function(type_) {
         {
             var arr;
-            var i = 0|0;
+            let i = 0|0;
 
             switch(type_)
             {
@@ -738,7 +724,7 @@
         {
             var output = '';
 
-            for(var i = this.words.length; i--;)
+            for(let i = this.words.length; i--;)
             {   // typed arrays will discard any leading zero's when using toString
                 output += ('0000000000000000000000000000000' + this.words[i].toString(2)).slice(-WORD_SIZE);
             }
@@ -755,7 +741,8 @@
          *
          * @returns {string} stringified version of the bitset.
          */
-        toString: function(mode) { "@aliases: stringify";
+        toString: function(mode) {
+        "@aliases: stringify";
         {
             var output = '';
 
@@ -775,7 +762,7 @@
          *
          * @returns {BitSet} this
          */
-        trim: function() { 
+        trim: function() {
         {
             return this.resize(this.max()+1)
         }},
@@ -787,7 +774,7 @@
          *
          * @returns {BitSet}
          */
-        trimTrailingBits: function() { 
+        trimTrailingBits: function() {
         {
             var wordsLength = this.words.length;
             var diff        = wordsLength*WORD_SIZE - this._length;
@@ -807,11 +794,12 @@
          *
          * @returns {BitSet} the union of the two bitsets.
          */
-        union: function(bitset) { "@aliases: or";
+        union: function(bitset) {
+        "@aliases: or";
         {
             if(bitset.length > this._length) {this.resize(bitset.length)}
 
-            for(var i = 0|0, max = bitset.words.length; i < max; i++)
+            for(let i = 0|0, max = bitset.words.length; i < max; i++)
             {
                 this.words[i] |= bitset.words[i];
             }
@@ -829,11 +817,27 @@
          *
          * @returns {BitSet} new BitSet of the union of the two bitsets.
          */
-        Union: function(bitset) { "@aliases: Or";
+        Union: function(bitset) {
+        "@aliases: Or";
         {
             return this.clone().union(bitset);
         }}
     });
+
+    /**
+     * @class BitSet
+     * @desc
+     *        Fast JS BitSet implementation.
+     *        No worrying about 32bits restrictions.
+     *
+     * @param {number|Array=} length_array_=32 - length for the underlying bitvector or an array-like object with indices.
+     *
+     * @return {BitSet} new BitSet
+     */
+    function BitSet(length_array_) {
+    {
+        this.init(length_array_);
+    }}
 
     /**
      * @func extend

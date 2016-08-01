@@ -16,7 +16,8 @@
   "moduleType": [
     "amd",
     "globals",
-    "node"
+    "node",
+    "es6"
   ],
   "homepage": "https://github.com/unnoon/cell-bitset",
   "ignore": [
@@ -24,5 +25,9 @@
     "node_modules",
     "bower_components",
     "test"
-  ]
+  ],
+  "devDependencies": {
+    "benchmark": "^2.1.1",
+    "lodash": "^4.14.0"
+  }
 }

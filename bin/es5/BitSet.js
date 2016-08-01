@@ -10,7 +10,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
  * @license      {@link https://github.com/unnoon/cell-bitset/blob/master/LICENSE|MIT License}
  * @overview     Fast JS BitSet implementation. No worrying about 32bits restrictions.
  */
-!function (root, bitset) {
+(function (root, bitset) {
     /*module_type*/ /* istanbul ignore next */switch (true) {
         /*amd*/case typeof define === 'function' && root.define === define && !!define.amd:
             define(bitset);break;
@@ -20,64 +20,41 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
             Object.defineProperty(root, 'BitSet', { value: bitset(), enumerable: !0 });break;default:
             console.error("'BitSet' is already defined on root object");}
     /*es6*/ /*<3*/
-}(undefined, function bitset() {
+})(undefined, function bitset() {
     "use strict";
-    /**
-     * @property {Object} info - Info object to hold general module information
-     */
-
-    BitSet.info = {
-        "name": "cell-bitset",
-        "version": "0.0.2",
-        "url": "https://github.com/unnoon/cell-bitset"
-    };
 
     var WORD_SIZE = 32 | 0;
     var WORD_LOG = 5 | 0;
-    /**
-     * @class BitSet
-     * @desc
-     *        Fast JS BitSet implementation.
-     *        No worrying about 32bits restrictions.
-     *
-     * @param {number|Array=} length_array_=32 - length for the underlying bitvector or an array-like object with indices.
-     *
-     * @return {BitSet} new BitSet
-     */
-    function BitSet(length_array_) {
-        {
-            this.init(length_array_);
-        }
-    }
-
-    /**
-     * @method BitSet.create
-     * @desc   **aliases:** spawn
-     * #
-     *         Alternative create method for people who hate the 'new' keyword.
-     *
-     * @param {number|Array=} length_array_=32 - length for the underlying bitvector or an array-like object with indices.
-     *
-     * @return {BitSet} new BitSet.
-     */
-    BitSet.create = BitSet.spawn = function (length_array_) {
-        {
-            return Object.create(BitSet.prototype).init(length_array_);
-        }
-    };
 
     extend(BitSet.prototype, {
+        /**
+         * @name BitSet#$info
+         * @desc
+         *       Info object to hold general module information
+         */
+        $info: {
+            "name": "cell-bitset",
+            "description": "Fast JS BitSet implementation. No worrying about 32bits restrictions.",
+            "version": "0.0.2",
+            "url": "https://github.com/unnoon/cell-bitset"
+        },
         /**
          * @method BitSet#$create
          * @desc   **aliases:** $spawn
          * #
-         *         Alternative create method for people who rather use prototypal inheritance.
+         *         Easy create method for people who use prototypal inheritance.
          *
          * @param {number|Array=} length_array_=32 - length for the underlying bitvector or an array-like object with indices.
          *
          * @return {BitSet} new BitSet.
          */
-        $create: BitSet.create, $spawn: BitSet.create,
+        $create: function $create(length_array_) {
+            "@aliases: $spawn";
+
+            {
+                return Object.create(BitSet.prototype).init(length_array_);
+            }
+        },
         /**
          * @method BitSet#$hammingWeight
          * @desc   **aliases:** $popCount
@@ -481,7 +458,6 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
          *
          * @returns {BitSet} this
          */
-        // TODO use an array to init the bitset
         init: function init(length_array_) {
             {
                 var arr = length_array_ && length_array_.length ? length_array_ : [];
@@ -751,26 +727,35 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
          * @returns {Array<number>|Uint8Array<int>|Uint16Array<int>|Uint32Array<int>}
          */
         toArray: function toArray(type_) {
+            var _this = this;
+
             {
                 var arr;
-                var i = 0 | 0;
 
-                switch (type_) {
-                    case 8:
-                        arr = new Uint8Array(this.cardinality);break;
-                    case 16:
-                        arr = new Uint16Array(this.cardinality);break;
-                    case 32:
-                        arr = new Uint32Array(this.cardinality);break;
-                    default:
-                        arr = [];
-                }
+                var _ret = function () {
+                    var i = 0 | 0;
 
-                this.each(function (val, index) {
-                    arr[i++] = index;
-                });
+                    switch (type_) {
+                        case 8:
+                            arr = new Uint8Array(_this.cardinality);break;
+                        case 16:
+                            arr = new Uint16Array(_this.cardinality);break;
+                        case 32:
+                            arr = new Uint32Array(_this.cardinality);break;
+                        default:
+                            arr = [];
+                    }
 
-                return arr;
+                    _this.each(function (val, index) {
+                        arr[i++] = index;
+                    });
+
+                    return {
+                        v: arr
+                    };
+                }();
+
+                if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
             }
         },
         /**
@@ -947,6 +932,22 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
             }
         }
     });
+
+    /**
+     * @class BitSet
+     * @desc
+     *        Fast JS BitSet implementation.
+     *        No worrying about 32bits restrictions.
+     *
+     * @param {number|Array=} length_array_=32 - length for the underlying bitvector or an array-like object with indices.
+     *
+     * @return {BitSet} new BitSet
+     */
+    function BitSet(length_array_) {
+        {
+            this.init(length_array_);
+        }
+    }
 
     /**
      * @func extend
