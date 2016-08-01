@@ -23,7 +23,7 @@
         $info: {
             "name"       : "cell-bitset",
             "description": "Fast JS BitSet implementation. No worrying about 32bits restrictions.",
-            "version"    : "0.0.2",
+            "version"    : "0.1.0",
             "url"        : "https://github.com/unnoon/cell-bitset"
         },
         /**
