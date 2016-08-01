@@ -2,47 +2,102 @@
  * @author       Rogier Geertzema
  * @copyright    2016 Rogier Geertzema
  * @license      {@link https://github.com/unnoon/cell-bitset/blob/master/LICENSE|MIT License}
- * @overview     Fast JS BitSet implementation. No worrying about 32bits restrictions.
+ * @overview     Fast JS BitSetASM implementation. No worrying about 32bits restrictions.
  */
-(function(root, bitset) {
-    /*module_type*//* istanbul ignore next */ switch(true) {
+/*? if(MODULE_TYPE === 'es6') {write('export default ')}*/(function(root, bitset) {
+    /*module_type*//*? if(MODULE_TYPE !== 'es6') { *//* istanbul ignore next */ switch(true) {
     /*amd*/    case typeof(define) === 'function' && root.define === define && !!define.amd : define(bitset);                                                           break;
     /*node*/   case typeof(module) === 'object'   && root === module.exports                : module.exports = bitset();                                                break;
-    /*global*/ case !root.BitSet                                                            : Object.defineProperty(root, 'BitSet', {value: bitset(), enumerable: !0}); break; default : console.error("'BitSet' is already defined on root object")}
-    /*es6*/    /*<3*/
+    /*global*/ case !root.BitSetASM                                                         : Object.defineProperty(root, 'BitSetASM', {value: bitset(), enumerable: !0}); break; default : console.error("'BitSetASM' is already defined on root object")}
+    /*es6*/    /*? } else { write('\n    \/*es6*\/ return bitset(); ') } *//*<3*/
 })(this, function bitset() { "use strict";
     const WORD_SIZE = 32|0;
     const WORD_LOG  =  5|0;
 
-    extend(BitSet.prototype, {
+    function asmmod(stdlib, foreign, heap) {
+        "use asm";
+        var imul = stdlib.Math.imul;
+
+        function $hammingWeight(w) {
+            w = w|0;
+            w = w - (w >>> 1)&0x55555555;
+            w = ((w&0x33333333) + ((w >>> 2)&0x33333333))|0;
+
+            return (imul(((w + (w >>> 4))&0x0F0F0F0F), 0x01010101) >>> 24)|0
+        }
+
         /**
-         * @name BitSet#$info
+         * @method BitSetASM#$lsb
+         * @desc
+         *         Returns the least significant bit in a word. Returns 32 in case the word is 0.
+         *
+         * @param {number} w - the word to get the least significant bit from.
+         *
+         * @returns {number} the least significant bit in w.
+         */
+        function $lsb(w) {
+            w = w|0;
+            return ($hammingWeight(((w & -w) - 1)|0)|0);
+        }
+
+        /**
+         * @method BitSetASM#$msb
+         * @desc
+         *         Returns the most significant bit in a word.
+         *
+         * @param {number} w - the word to get the most significant bit from.
+         *
+         * @returns {number} the most significant bit in w.
+         */
+        function $msb(w) {
+            w = w|0;
+            w = w|(w >> 1);
+            w = w|(w >> 2);
+            w = w|(w >> 4);
+            w = w|(w >> 8);
+            w = w|(w >> 16);
+            w = ((w >> 1) + 1)|0;
+            return ($hammingWeight((w - 1)|0)|0);
+        }
+
+        return {
+            $hammingWeight2: $hammingWeight,
+            $lsb: $lsb,
+            $msb: $msb
+        };
+    }
+
+    var asm = asmmod({Math});
+    
+    extend(BitSetASM.prototype, {
+        /**
+         * @name BitSetASM#$info
          * @desc
          *       Info object to hold general module information
          */
         $info: {
             "name"       : "cell-bitset",
-            "description": "Fast JS BitSet implementation. No worrying about 32bits restrictions.",
-            "version"    : "0.0.2",
+            "description": "Fast JS BitSetASM implementation. No worrying about 32bits restrictions.",
+            "version"    : "/*?= VERSION */",
             "url"        : "https://github.com/unnoon/cell-bitset"
         },
         /**
-         * @method BitSet#$create
+         * @method BitSetASM#$create
          * @desc   **aliases:** $spawn
          * #
          *         Easy create method for people who use prototypal inheritance.
          *
          * @param {number|Array=} length_array_=32 - length for the underlying bitvector or an array-like object with indices.
          *
-         * @return {BitSet} new BitSet.
+         * @return {BitSetASM} new BitSetASM.
          */
         $create: function(length_array_) {
         "@aliases: $spawn";
         {
-            return Object.create(BitSet.prototype).init(length_array_);
+            return Object.create(BitSetASM.prototype).init(length_array_);
         }},
         /**
-         * @method BitSet#$hammingWeight
+         * @method BitSetASM#$hammingWeight
          * @desc   **aliases:** $popCount
          * #
          *         Calculate the hamming weight i.e. the number of ones in a bitstring/word.
@@ -60,7 +115,7 @@
             return (((w + (w >>> 4) & 0xF0F0F0F) * 0x1010101) >>> 24)|0;
         }},
         /**
-         * @method BitSet#$lsb
+         * @method BitSetASM#$lsb
          * @desc
          *         Returns the least significant bit in a word. Returns 32 in case the word is 0.
          *
@@ -73,7 +128,7 @@
             return this.$hammingWeight((w & -w) - 1);
         }},
         /**
-         * @method BitSet#$msb
+         * @method BitSetASM#$msb
          * @desc
          *         Returns the most significant bit in a word.
          *
@@ -92,13 +147,13 @@
             return this.$hammingWeight(w - 1);
         }},
         /**
-         * @method BitSet#add
+         * @method BitSetASM#add
          * @desc
          *         Adds numbers(indices) to the set. It will resize the set in case the index falls out of bounds.
          *
          * @param {...number} indices - indices/numbers to add to the set.
          *
-         * @returns {BitSet} this
+         * @returns {BitSetASM} this
          */
         add: function(...indices) {
         {
@@ -111,7 +166,7 @@
         }},
         /**
          * @readonly
-         * @name BitSet#cardinality
+         * @name BitSetASM#cardinality
          * @type number
          * @desc
          *       Getter for the cardinality of the set.
@@ -133,11 +188,11 @@
             console.warn('Cardinality is read only')
         }},
         /**
-         * @method BitSet#clear
+         * @method BitSetASM#clear
          * @desc
          *         Clears the bitset. Length will be maintained.
          *
-         * @returns {BitSet} this
+         * @returns {BitSetASM} this
          */
         clear: function() {
         {
@@ -149,15 +204,15 @@
             return this
         }},
         /**
-         * @method BitSet#clone
+         * @method BitSetASM#clone
          * @desc
          *         Creates a clone of the bitset.
          *
-         * @returns {BitSet} clone
+         * @returns {BitSetASM} clone
          */
         clone: function() {
         {
-            var clone = Object.create(BitSet.prototype);
+            var clone = Object.create(BitSetASM.prototype);
 
             clone._length = this._length|0;
             clone.words   = new Uint32Array(this.words);
@@ -165,11 +220,11 @@
             return clone;
         }},
         /**
-         * @method BitSet#complement
+         * @method BitSetASM#complement
          * @desc
          *         Calculates the inverse of the set. Any trailing bits outside the length bound will be set to 0.
          *
-         * @returns {BitSet} this
+         * @returns {BitSetASM} this
          */
         complement: function() {
         {
@@ -183,25 +238,25 @@
             return this
         }},
         /**
-         * @method BitSet#Complement
+         * @method BitSetASM#Complement
          * @desc
          *         Calculates the inverse of the set. Any trailing bits outside the length bound will be set to 0.
-         *         The result will be a new instance of a BitSet.
+         *         The result will be a new instance of a BitSetASM.
          *
-         * @returns {BitSet} new BitSet of the complement.
+         * @returns {BitSetASM} new BitSetASM of the complement.
          */
         Complement: function() {
         {
             return this.clone().complement();
         }},
         /**
-         * @method BitSet#contains
+         * @method BitSetASM#contains
          * @desc   **aliases:** fits
          * #
          *         Calculates if the bitset contains a certain bitset.
          *         In bitmask terms it will calculate if a bitmask fits a bitset.
          *
-         * @param {BitSet} mask - bitset mask to test fit. i.e. subset to test containment.
+         * @param {BitSetASM} mask - bitset mask to test fit. i.e. subset to test containment.
          *
          * @returns {boolean} boolean indicating if the mask fits the bitset or is a subset.
          */
@@ -220,14 +275,14 @@
             return true
         }},
         /**
-         * @method BitSet#difference
+         * @method BitSetASM#difference
          * @desc
          *         Calculates the difference between 2 bitsets.
          *         The result is stored in this.
          *
-         * @param {BitSet} bitset - the bit set to subtract from the current one.
+         * @param {BitSetASM} bitset - the bit set to subtract from the current one.
          *
-         * @returns {BitSet} this
+         * @returns {BitSetASM} this
          */
         difference: function(bitset) {
         {
@@ -239,21 +294,21 @@
             return this
         }},
         /**
-         * @method BitSet#Difference
+         * @method BitSetASM#Difference
          * @desc
          *         Calculates the difference between 2 bitsets.
-         *         The result will be a new instance of BitSet.
+         *         The result will be a new instance of BitSetASM.
          *
-         * @param {BitSet} bitset - the bit set to subtract from the current one.
+         * @param {BitSetASM} bitset - the bit set to subtract from the current one.
          *
-         * @returns {BitSet} new BitSet of the difference.
+         * @returns {BitSetASM} new BitSetASM of the difference.
          */
         Difference: function(bitset) {
         {
             return this.clone().difference(bitset)
         }},
         /**
-         * @method BitSet#each
+         * @method BitSetASM#each
          * @desc
          *         Iterates over the set bits and calls the callback function with: value=1, index, this.
          *         Can be broken prematurely by returning false.
@@ -283,7 +338,7 @@
             return true
         },
         /**
-         * @method BitSet#each$
+         * @method BitSetASM#each$
          * @desc
          *         Iterates over all bits and calls the callback function with: value, index, this.
          *         Can be broken prematurely by returning false.
@@ -303,11 +358,11 @@
             return true
         },
         /**
-         * @method BitSet#equals
+         * @method BitSetASM#equals
          * @desc
          *         Tests if 2 bitsets are equal.
          *
-         * @param {BitSet} bitset - bitset to compare to this.
+         * @param {BitSetASM} bitset - bitset to compare to this.
          *
          * @returns {boolean} boolean indicating if the the 2 bitsets are equal.
          */
@@ -321,15 +376,15 @@
             return true
         }},
         /**
-         * @method BitSet#exclusion
+         * @method BitSetASM#exclusion
          * @desc   **aliases:** symmetricDifference, xor
          * #
          *         Calculates the exclusion/symmetric difference between to bitsets.
          *         The result is stored in this.
          *
-         * @param {BitSet} bitset - the bitset to calculate the symmetric difference with.
+         * @param {BitSetASM} bitset - the bitset to calculate the symmetric difference with.
          *
-         * @returns {BitSet} this
+         * @returns {BitSetASM} this
          */
         exclusion: function(bitset) {
         "@aliases: symmetricDifference, xor";
@@ -344,15 +399,15 @@
             return this
         }},
         /**
-         * @method BitSet#Exclusion
+         * @method BitSetASM#Exclusion
          * @desc   **aliases:** SymmetricDifference, Xor
          * #
          *         Calculates the exclusion/symmetric difference between to bitsets.
-         *         The result is a new instance of BitSet.
+         *         The result is a new instance of BitSetASM.
          *
-         * @param {BitSet} bitset - the bitset to calculate the symmetric difference with.
+         * @param {BitSetASM} bitset - the bitset to calculate the symmetric difference with.
          *
-         * @returns {BitSet} new BitSet of the exclusion.
+         * @returns {BitSetASM} new BitSetASM of the exclusion.
          */
         Exclusion: function(bitset) {
         "@aliases: SymmetricDifference, Xor";
@@ -360,13 +415,13 @@
             return this.clone().exclusion(bitset)
         }},
         /**
-         * @method BitSet#flip
+         * @method BitSetASM#flip
          * @desc
          *         Flips a bit in the bitset. In case index will fall out of bounds the bitset is enlarged.
          *
          * @param {number} index - index of the bit to be flipped.
          *
-         * @returns {BitSet} this
+         * @returns {BitSetASM} this
          */
         flip: function(index) {
         {
@@ -377,7 +432,7 @@
             return this
         }},
         /**
-         * @method BitSet#get
+         * @method BitSetASM#get
          * @desc
          *         Gets a specific bit from the bitset.
          *
@@ -391,7 +446,7 @@
             return ((this.words[index >>> WORD_LOG] >>> index) & 1)|0;
         }},
         /**
-         * @method BitSet#has
+         * @method BitSetASM#has
          * @desc   **aliases:** isMember
          * #
          *         Checks is the bitsets has a value/index.
@@ -406,13 +461,13 @@
             return !!this.get(index);
         }},
         /**
-         * @method BitSet#init
+         * @method BitSetASM#init
          * @desc
-         *         Initializes the BitSet. Useful in case one wants to use 'Object.create' instead of 'new'.
+         *         Initializes the BitSetASM. Useful in case one wants to use 'Object.create' instead of 'new'.
          *
          * @param {number|Array=} length_array_=32 - length for the underlying bitvector or an array-like object with indices.
          *
-         * @returns {BitSet} this
+         * @returns {BitSetASM} this
          */
         init: function(length_array_) {
         {
@@ -427,15 +482,15 @@
             return this
         }},
         /**
-         * @method BitSet#intersection
+         * @method BitSetASM#intersection
          * @desc   **aliases:** and
          * #
          *         Calculates the intersection between two bitsets.
          *         The result is stored in this.
          *
-         * @param {BitSet} bitset - the bitset to calculate the intersection with.
+         * @param {BitSetASM} bitset - the bitset to calculate the intersection with.
          *
-         * @returns {BitSet} this
+         * @returns {BitSetASM} this
          */
         intersection: function(bitset) {
         "@aliases: and";
@@ -448,15 +503,15 @@
             return this
         }},
         /**
-         * @method BitSet#Intersection
+         * @method BitSetASM#Intersection
          * @desc   **aliases:** And
          * #
          *         Calculates the intersection between two bitsets.
-         *         The result is a new instance of BitSet.
+         *         The result is a new instance of BitSetASM.
          *
-         * @param {BitSet} bitset - the bitset to calculate the intersection with.
+         * @param {BitSetASM} bitset - the bitset to calculate the intersection with.
          *
-         * @returns {BitSet} new bitset intersection.
+         * @returns {BitSetASM} new bitset intersection.
          */
         Intersection: function(bitset) {
         "@aliases: And";
@@ -464,11 +519,11 @@
             return this.clone().intersection(bitset)
         }},
         /**
-         * @method BitSet#intersects
+         * @method BitSetASM#intersects
          * @desc
          *         Calculates if two bitsets intersect.
          *
-         * @param {BitSet} bitset - the bitset to check intersection with.
+         * @param {BitSetASM} bitset - the bitset to check intersection with.
          *
          * @returns {boolean} boolean indicating if the two bitsets intersects.
          */
@@ -482,7 +537,7 @@
             return false
         }},
         /**
-         * @method BitSet#isEmpty
+         * @method BitSetASM#isEmpty
          * @desc
          *         Returns if a set is empty i.e. all words are 0.
          *
@@ -498,12 +553,12 @@
             return true
         }},
         /**
-         * @method BitSet#isSubsetOf
+         * @method BitSetASM#isSubsetOf
          * @desc   **aliases:** isContainedIn
          * #
          *         Checks if a bitset is contained in another.
          *
-         * @param {BitSet} bitset - to check for containment.
+         * @param {BitSetASM} bitset - to check for containment.
          *
          * @returns {boolean} boolean indicating if this is contained in bitset.
          */
@@ -514,7 +569,7 @@
         }},
         /**
          * @readonly
-         * @name BitSet#length
+         * @name BitSetASM#length
          * @type number
          * @desc
          *       Getter for the length of the underlying bitvector.
@@ -529,7 +584,7 @@
             console.warn('Length is read only')
         }},
         /**
-         * @method BitSet#max
+         * @method BitSetASM#max
          * @desc   **aliases:** msb
          * #
          *         Returns the max index in a set.
@@ -548,7 +603,7 @@
             }
         }},
         /**
-         * @method BitSet#min
+         * @method BitSetASM#min
          * @desc   **aliases:** lsb
          * #
          *         Returns the minimum index in a set.
@@ -567,13 +622,13 @@
             }
         }},
         /**
-         * @method BitSet#remove
+         * @method BitSetASM#remove
          * @desc
          *         Removes indices/numbers from the bitset.
          *
          * @param {...number} indices - the indices/numbers to be removed.
          *
-         * @returns {BitSet}
+         * @returns {BitSetASM}
          */
         remove: function(...indices) {
         {
@@ -585,14 +640,14 @@
             return this
         }},
         /**
-         * @method BitSet#resize
+         * @method BitSetASM#resize
          * @desc
          *         Resizes the underlying bitvector to a specific length.
          *         Will trim any trailing bits in case length is smaller than the current length.
          *
          * @param {number} len - the new length.
          *
-         * @returns {BitSet} the resized bitset.
+         * @returns {BitSetASM} the resized bitset.
          */
         resize: function(len) {
         {   if(this._length === (len |= 0)) {return this}
@@ -621,14 +676,14 @@
             return this
         }},
         /**
-         * @method BitSet#set
+         * @method BitSetASM#set
          * @desc
          *         Adds a number(index) to the set. It will resize the set in case the index falls out of bounds.
          *
          * @param {number}  index  - index/number to add to the set.
          * @param {number=} val_=1 - value (0|1) to set.
          *
-         * @returns {BitSet} this
+         * @returns {BitSetASM} this
          */
         set: function(index, val_) {
         {
@@ -646,7 +701,7 @@
             return this;
         }},
         /**
-         * @method BitSet#toArray
+         * @method BitSetASM#toArray
          * @desc
          *         Outputs the set as an array.
          *
@@ -672,7 +727,7 @@
             return arr;
         }},
         /**
-         * @method BitSet#toBitArray
+         * @method BitSetASM#toBitArray
          * @desc
          *         Outputs the underlying bitvector as an array, starting with the least significant bits.
          *
@@ -697,7 +752,7 @@
             return arr;
         }},
         /**
-         * @method BitSet#toBooleanArray
+         * @method BitSetASM#toBooleanArray
          * @desc
          *         Outputs the underlying bitvector as a boolean array, starting with the least significant bits.
          *
@@ -712,7 +767,7 @@
                 return arr;
             }},
         /**
-         * @method BitSet#toBitString
+         * @method BitSetASM#toBitString
          * @desc
          *         Outputs the underlying bitvector as a bitstring, starting with the most significant bit.
          *
@@ -732,7 +787,7 @@
             return ~mode_ ? output.slice(-this._length) : output;
         }},
         /**
-         * @method BitSet#toString
+         * @method BitSetASM#toString
          * @desc   **aliases:** stringify
          * #
          *         Will output a string version of the bitset or bitstring.
@@ -756,23 +811,23 @@
             return output
         }},
         /**
-         * @method BitSet#trim
+         * @method BitSetASM#trim
          * @desc
          *         Trims the bitset to the most significant bit to save space.
          *
-         * @returns {BitSet} this
+         * @returns {BitSetASM} this
          */
         trim: function() {
         {
             return this.resize(this.max()+1)
         }},
         /**
-         * @method BitSet#trimTrailingBits
+         * @method BitSetASM#trimTrailingBits
          * @desc
          *         Trims any trailing bits. That fall out of this.length but within this.words.length*WORD_SIZE.
          *         Assumes this.length is somewhere in the last word.
          *
-         * @returns {BitSet}
+         * @returns {BitSetASM}
          */
         trimTrailingBits: function() {
         {
@@ -784,15 +839,15 @@
             return this
         }},
         /**
-         * @method BitSet#union
+         * @method BitSetASM#union
          * @desc   **aliases:** or
          * #
          *         Calculates the union between 2 bitsets.
          *         The result is stored in this.
          *
-         * @param {BitSet} bitset - bitset to calculate the union with.
+         * @param {BitSetASM} bitset - bitset to calculate the union with.
          *
-         * @returns {BitSet} the union of the two bitsets.
+         * @returns {BitSetASM} the union of the two bitsets.
          */
         union: function(bitset) {
         "@aliases: or";
@@ -807,15 +862,15 @@
             return this
         }},
         /**
-         * @method BitSet#Union
+         * @method BitSetASM#Union
          * @desc   **aliases:** Or
          * #
          *         Calculates the union between 2 bitsets.
-         *         The result is a new BitSet.
+         *         The result is a new BitSetASM.
          *
-         * @param {BitSet} bitset - bitset to calculate the union with.
+         * @param {BitSetASM} bitset - bitset to calculate the union with.
          *
-         * @returns {BitSet} new BitSet of the union of the two bitsets.
+         * @returns {BitSetASM} new BitSetASM of the union of the two bitsets.
          */
         Union: function(bitset) {
         "@aliases: Or";
@@ -824,17 +879,19 @@
         }}
     });
 
+    extend(BitSetASM.prototype, asm);
+
     /**
-     * @class BitSet
+     * @class BitSetASM
      * @desc
-     *        Fast JS BitSet implementation.
+     *        Fast JS BitSetASM implementation.
      *        No worrying about 32bits restrictions.
      *
      * @param {number|Array=} length_array_=32 - length for the underlying bitvector or an array-like object with indices.
      *
-     * @return {BitSet} new BitSet
+     * @return {BitSetASM} new BitSetASM
      */
-    function BitSet(length_array_) {
+    function BitSetASM(length_array_) {
     {
         this.init(length_array_);
     }}
@@ -864,5 +921,5 @@
         return obj
     }
 
-    return BitSet
+    return BitSetASM
 });
