@@ -35,17 +35,17 @@ define([
         describe("@hammingWeight/$popCount", function() {
 
             it("should calculate the hamming weight of a word", function() {
-                var bs = BitSet.create(234).add(6).add(14).add(62);
+                var bs = BitSet.prototype.$create(234).add(6).add(14).add(62);
 
                 expect(bs.$hammingWeight(bs.words[0])).to.eql(2);
                 expect(bs.$popCount(bs.words[0])).to.eql(2); // alias
             });
         });
 
-        describe("@static create", function() {
+        describe("@static $create/$spawn", function() {
 
-            it("should create a new BitSet using the static BitSet.create using an array", function() {
-                var bs = BitSet.create([6,14,62]);
+            it("should create a new BitSet using the static BitSet.prototype.$create using an array", function() {
+                var bs = BitSet.prototype.$create([6,14,62]);
 
                 expect(bs.has(6)).to.be.true;
                 expect(bs.has(14)).to.be.true;
@@ -53,14 +53,7 @@ define([
                 expect(bs.length).to.eql(63);
             });
 
-            it("should create a new BitSet using the static BitSet.create", function() {
-                var bs = BitSet.create(234).add(6).add(14).add(62);
-
-                expect(bs.has(14)).to.be.true;
-                expect(bs.length).to.eql(234);
-            });
-
-            it("should create a new BitSet using the prototype static $create", function() {
+            it("should create a new BitSet using the static BitSet.prototype.$create", function() {
                 var bs = BitSet.prototype.$create(234).add(6).add(14).add(62);
 
                 expect(bs.has(14)).to.be.true;
