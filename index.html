@@ -7,17 +7,19 @@
         <title>Just to run some tests</title>
     </head>
     <body>
-        <!--<script src="src/BitSet.js"></script>-->
+        <script src="src/BitSet.js"></script>
         <!--<script src="src/index.js"></script>-->
-        <script src="test/prototypes/BitSet-asm.js"></script>
+        <!--<script src="test/prototypes/BitSet-asm.js"></script>-->
         <!--<script src="bin/es6/BitSet.js"></script>-->
         <script>
-            var BitSet = BitSetASM.prototype;
+//            import BitSetClass from 'bin/es6/BitSet.js';
 
-            var bs = BitSet.$create(234).add(6, 14, 62);
+//            var BitSet = BitSetClass.prototype;
+
+            var bs = BitSet.create(234).add(6, 14, 62);
 
             var c1 = bs.$popCount(bs.words[0]);
-            var c2 = bs.$hammingWeight(bs.words[0]);
+            var c2 = bs.hammingWeight(bs.words[0]);
 
 //            console.log(bs.$cardinality(532));
 //            alert(bs.$cardinality(532));

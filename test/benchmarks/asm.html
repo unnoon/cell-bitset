@@ -13,8 +13,8 @@
 
         var num = 666;
 
-        console.assert(BitSetP.$hammingWeight(num), 7);
-        console.assert(BitSetPASM.$hammingWeight(num), 7);
+        console.assert(BitSetP.hammingWeight(num), 7);
+        console.assert(BitSetPASM.hammingWeight(num), 7);
 
         var result = '';
         var suite = new Benchmark.Suite;
@@ -22,12 +22,12 @@
         // add tests
         suite
             .add('no asm', function() {
-                BitSetP.$hammingWeight(num);
+                BitSetP.hammingWeight(num);
                 BitSetP.$msb(num);
                 BitSetP.$lsb(num);
             })
             .add('asm', function() {
-                BitSetPASM.$hammingWeight(num);
+                BitSetPASM.hammingWeight(num);
                 BitSetPASM.$msb(num);
                 BitSetPASM.$lsb(num);
             })

@@ -97,7 +97,7 @@
             return Object.create(BitSetASM.prototype).init(length_array_);
         }},
         /**
-         * @method BitSetASM#$hammingWeight
+         * @method BitSetASM#hammingWeight
          * @desc   **aliases:** $popCount
          * #
          *         Calculate the hamming weight i.e. the number of ones in a bitstring/word.
@@ -106,7 +106,7 @@
          *
          * @returns {number} the number of set bits in the word.
          */
-        $hammingWeight: function(w) {
+        hammingWeight: function(w) {
         "@aliases: $popCount";
         {
             w -= ((w >>> 1) & 0x55555555)|0;
