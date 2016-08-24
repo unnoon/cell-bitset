@@ -10,54 +10,58 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
  * @license      {@link https://github.com/unnoon/cell-bitset/blob/master/LICENSE|MIT License}
  * @overview     Fast JS BitSet implementation. No worrying about 32bits restrictions.
  */
-(function (root, bitset) {
-    /*module_type*/ /* istanbul ignore next */switch (true) {
+!function (root, bitset) {
+    /* istanbul ignore next */switch (true) {
         /*amd*/case typeof define === 'function' && root.define === define && !!define.amd:
             define(bitset);break;
         /*node*/case (typeof module === 'undefined' ? 'undefined' : _typeof(module)) === 'object' && root === module.exports:
             module.exports = bitset();break;
         /*global*/case !root.BitSet:
-            Object.defineProperty(root, 'BitSet', { value: bitset(), enumerable: !0 });break;default:
+            Reflect.defineProperty(root, 'BitSet', { value: bitset(), enumerable: !0 });break;default:
             console.error("'BitSet' is already defined on root object");}
-    /*es6*/ /*<3*/
-})(undefined, function bitset() {
+}(undefined, function bitset() {
     "use strict";
+    /*es6*/ /*<3*/
+    // int32 consts
 
+    var zero = 0 | 0;
+    var one = 1 | 0;
     var WORD_SIZE = 32 | 0;
     var WORD_LOG = 5 | 0;
 
-    extend(BitSet.prototype, {
+    var properties = {
         /**
-         * @name BitSet#$info
+         * @name BitSet.info
          * @desc
          *       Info object to hold general module information
          */
-        $info: {
+        'static info': {
             "name": "cell-bitset",
             "description": "Fast JS BitSet implementation. No worrying about 32bits restrictions.",
             "version": "0.1.0",
             "url": "https://github.com/unnoon/cell-bitset"
         },
         /**
-         * @method BitSet#$create
-         * @desc   **aliases:** $spawn
+         * @method BitSet.create
+         * @desc   **aliases:** spawn
          * #
          *         Easy create method for people who use prototypal inheritance.
          *
-         * @param {number|Array=} length_array_=32 - length for the underlying bitvector or an array-like object with indices.
+         * @param {number|Iterable.<any>=} length_iterable=32 - length for the underlying bitvector or an iterable object with indices.
          *
          * @return {BitSet} new BitSet.
          */
-        $create: function $create(length_array_) {
-            "@aliases: $spawn";
+        'static create': function staticCreate() {
+            "@aliases: spawn";
 
+            var length_iterable = arguments.length <= 0 || arguments[0] === undefined ? void 0 : arguments[0];
             {
-                return Object.create(BitSet.prototype).init(length_array_);
+                return Object.create(BitSet.prototype).init(length_iterable);
             }
         },
         /**
-         * @method BitSet#$hammingWeight
-         * @desc   **aliases:** $popCount
+         * @method BitSet.hammingWeight
+         * @desc   **aliases:** popCount
          * #
          *         Calculate the hamming weight i.e. the number of ones in a bitstring/word.
          *
@@ -65,18 +69,18 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
          *
          * @returns {number} the number of set bits in the word.
          */
-        $hammingWeight: function $hammingWeight(w) {
-            "@aliases: $popCount";
-
+        'static hammingWeight': function staticHammingWeight(w) {
+            w = w | 0;
+            "@aliases: popCount";
             {
-                w -= w >>> 1 & 0x55555555 | 0;
+                w -= w >>> 1 & 0x55555555;
                 w = (w & 0x33333333) + (w >>> 2 & 0x33333333);
 
                 return (w + (w >>> 4) & 0xF0F0F0F) * 0x1010101 >>> 24 | 0;
             }
         },
         /**
-         * @method BitSet#$lsb
+         * @method BitSet.$lsb
          * @desc
          *         Returns the least significant bit in a word. Returns 32 in case the word is 0.
          *
@@ -84,13 +88,14 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
          *
          * @returns {number} the least significant bit in w.
          */
-        $lsb: function $lsb(w) {
+        'static $lsb': function static$lsb(w) {
+            w = w | 0;
             {
-                return this.$hammingWeight((w & -w) - 1);
+                return this.hammingWeight((w & -w) - 1) | 0;
             }
         },
         /**
-         * @method BitSet#$msb
+         * @method BitSet.$msb
          * @desc
          *         Returns the most significant bit in a word.
          *
@@ -98,7 +103,8 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
          *
          * @returns {number} the most significant bit in w.
          */
-        $msb: function $msb(w) {
+        'static $msb': function static$msb(w) {
+            w = w | 0;
             {
                 w |= w >> 1;
                 w |= w >> 2;
@@ -106,7 +112,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
                 w |= w >> 8;
                 w |= w >> 16;
                 w = (w >> 1) + 1;
-                return this.$hammingWeight(w - 1);
+                return this.hammingWeight(w - 1) | 0;
             }
         },
         /**
@@ -132,19 +138,25 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
             }
         },
         /**
-         * @readonly
          * @name BitSet#cardinality
-         * @type number
-         * @desc
+         * @desc **aliases:** size
+         * #
          *       Getter for the cardinality of the set.
          *       In case of a set it will return a warning.
+         *
+         * @readonly
+         * @type number
          */
         get cardinality() {
-            {
-                var output = 0 | 0;
+            "@aliases: size";
 
-                for (var i = 0 | 0, max = this.words.length; i < max; i++) {
-                    output += this.$hammingWeight(this.words[i]);
+            {
+                var max = this.words.length;
+                var i = void 0,
+                    output = zero;
+
+                for (i = zero; i < max; i++) {
+                    output += this.hammingWeight(this.words[i]);
                 }
 
                 return output | 0;
@@ -164,8 +176,9 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
          */
         clear: function clear() {
             {
-                for (var i = 0 | 0, max = this.words.length; i < max; i++) {
-                    this.words[i] = 0;
+                var max = this.words.length;
+                for (var i = zero; i < max; i++) {
+                    this.words[i] = zero;
                 }
 
                 return this;
@@ -197,7 +210,8 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
          */
         complement: function complement() {
             {
-                for (var i = 0 | 0, max = this.words.length; i < max; i++) {
+                var max = this.words.length;
+                for (var i = zero; i < max; i++) {
                     this.words[i] = ~this.words[i];
                 }
 
@@ -234,9 +248,11 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
             "@aliases: fits";
 
             {
-                var maskword;
+                var max = mask.words.length;
+                var i = void 0,
+                    maskword = void 0;
 
-                for (var i = 0 | 0, max = mask.words.length; i < max; i++) {
+                for (i = zero; i < max; i++) {
                     maskword = mask.words[i];
 
                     if (((this.words[i] || 0) & maskword) !== maskword) {
@@ -259,7 +275,8 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
          */
         difference: function difference(bitset) {
             {
-                for (var i = 0 | 0, max = this.words.length; i < max; i++) {
+                var max = this.words.length;
+                for (var i = zero; i < max; i++) {
                     this.words[i] &= ~bitset.words[i];
                 }
 
@@ -283,36 +300,44 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
         },
         /**
          * @method BitSet#each
-         * @desc
+         * @desc   **aliases:** forEach
+         * #
          *         Iterates over the set bits and calls the callback function with: value=1, index, this.
          *         Can be broken prematurely by returning false.
          *
-         * @param {function(value, index, bitset)} cb   - callback function o be called on each bit.
+         * @param {function(value, index, bitset)} cb   - callback function to be called on each bit.
          * @param {Object=}                        ctx_ - context to be called upon the callback function.
          *
          * @returns {boolean} boolean indicating if the loop finished completely=true or was broken=false
          */
         each: function each(cb, ctx_) {
-            var word;
-            var tmp;
+            "@aliases: forEach";
 
-            for (var i = 0 | 0, max = this.words.length; i < max; i++) {
-                word = this.words[i];
+            {
+                var max = this.words.length;
+                var i = void 0,
+                    word = void 0,
+                    tmp = void 0;
 
-                while (word !== 0) {
-                    tmp = word & -word | 0;
-                    if (cb.call(ctx_, 1, (i << WORD_LOG) + this.$hammingWeight(tmp - 1), this) === false) {
-                        return false;
+                for (i = zero; i < max; i++) {
+                    word = this.words[i];
+
+                    while (word !== 0) {
+                        tmp = word & -word | 0;
+                        if (cb.call(ctx_, one, (i << WORD_LOG) + this.hammingWeight(tmp - one), this) === false) {
+                            return false;
+                        }
+                        word ^= tmp;
                     }
-                    word ^= tmp;
                 }
-            }
 
-            return true;
+                return true;
+            }
         },
         /**
          * @method BitSet#each$
-         * @desc
+         * @desc   **aliases:** forEach$, eachAll, forEachAll
+         * #
          *         Iterates over all bits and calls the callback function with: value, index, this.
          *         Can be broken prematurely by returning false.
          *
@@ -322,13 +347,18 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
          * @returns {boolean} boolean indicating if the loop finished completely=true or was broken=false.
          */
         each$: function each$(cb, ctx_) {
-            for (var i = 0 | 0, max = this._length; i < max; i++) {
-                if (cb.call(ctx_, this.get(i), i, this) === false) {
-                    return false;
-                }
-            }
+            "@aliases: forEach$, eachAll, forEachAll";
 
-            return true;
+            {
+                var max = this._length;
+                for (var i = zero; i < max; i++) {
+                    if (cb.call(ctx_, this.get(i), i, this) === false) {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
         },
         /**
          * @method BitSet#equals
@@ -341,7 +371,8 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
          */
         equals: function equals(bitset) {
             {
-                for (var i = 0 | 0, max = this.words.length; i < max; i++) {
+                var max = this.words.length;
+                for (var i = zero; i < max; i++) {
                     if (this.words[i] !== bitset.words[i]) {
                         return false;
                     }
@@ -369,7 +400,8 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
                     this.resize(bitset.length);
                 }
 
-                for (var i = 0 | 0, max = bitset.words.length; i < max; i++) {
+                var max = bitset.words.length;
+                for (var i = zero; i < max; i++) {
                     this.words[i] ^= bitset.words[i];
                 }
 
@@ -454,19 +486,21 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
          * @desc
          *         Initializes the BitSet. Useful in case one wants to use 'Object.create' instead of 'new'.
          *
-         * @param {number|Array=} length_array_=32 - length for the underlying bitvector or an array-like object with indices.
+         * @param {number|Iterable.<any>=} length_iterable=32 - length for the underlying bitvector or an iterable object with indices.
          *
          * @returns {BitSet} this
          */
-        init: function init(length_array_) {
+        init: function init() {
+            var length_iterable = arguments.length <= 0 || arguments[0] === undefined ? void 0 : arguments[0];
+
             {
-                var arr = length_array_ && length_array_.length ? length_array_ : [];
-                var len = ((arr.length ? arr[arr.length - 1] : length_array_) || WORD_SIZE) | 0;
+                var itr = length_iterable && length_iterable.length ? length_iterable : [];
+                var len = ((itr.length ? itr[itr.length - 1] : length_iterable) || WORD_SIZE) | 0;
 
                 Object.defineProperty(this, '_length', { value: len, writable: true });
                 this.words = new Uint32Array(Math.ceil(this._length / WORD_SIZE));
 
-                this.add.apply(this, _toConsumableArray(arr));
+                this.add.apply(this, _toConsumableArray(itr));
 
                 return this;
             }
@@ -486,7 +520,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
             "@aliases: and";
 
             {
-                for (var i = 0 | 0, max = this.words.length; i < max; i++) {
+                for (var i = zero, max = this.words.length; i < max; i++) {
                     this.words[i] &= bitset.words[i] || 0;
                 }
 
@@ -522,7 +556,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
          */
         intersects: function intersects(bitset) {
             {
-                for (var i = 0 | 0, max = Math.min(this.words.length, bitset.words.length) | 0; i < max; i++) {
+                for (var i = zero, max = Math.min(this.words.length, bitset.words.length) | 0; i < max; i++) {
                     if (this.words[i] & bitset.words[i]) {
                         return true;
                     }
@@ -540,7 +574,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
          */
         isEmpty: function isEmpty() {
             {
-                for (var i = 0 | 0, max = this.words.length; i < max; i++) {
+                for (var i = zero, max = this.words.length; i < max; i++) {
                     if (this.words[i]) {
                         return false;
                     }
@@ -621,7 +655,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
             {
                 var word;
 
-                for (var i = 0 | 0, max = this.words.length; i < max; i++) {
+                for (var i = zero, max = this.words.length; i < max; i++) {
                     if (!(word = this.words[i])) {
                         continue;
                     }
@@ -640,6 +674,8 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
          * @returns {BitSet}
          */
         remove: function remove() {
+            "@aliases: delete";
+
             {
                 for (var _len2 = arguments.length, indices = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
                     indices[_key2] = arguments[_key2];
@@ -677,7 +713,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
                 if (newLength !== this.words.length) {
                     newWords = new Uint32Array(newLength);
 
-                    for (var i = 0 | 0, max = Math.min(newLength, this.words.length) | 0; i < max; i++) {
+                    for (var i = zero, max = Math.min(newLength, this.words.length) | 0; i < max; i++) {
                         newWords[i] = this.words[i];
                     }
 
@@ -727,13 +763,15 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
          * @returns {Array<number>|Uint8Array<int>|Uint16Array<int>|Uint32Array<int>}
          */
         toArray: function toArray(type_) {
+            "@aliases: entries";
+
             var _this = this;
 
             {
                 var arr;
 
                 var _ret = function () {
-                    var i = 0 | 0;
+                    var i = zero;
 
                     switch (type_) {
                         case 8:
@@ -906,7 +944,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
                     this.resize(bitset.length);
                 }
 
-                for (var i = 0 | 0, max = bitset.words.length; i < max; i++) {
+                for (var i = zero, max = bitset.words.length; i < max; i++) {
                     this.words[i] |= bitset.words[i];
                 }
 
@@ -931,7 +969,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
                 return this.clone().union(bitset);
             }
         }
-    });
+    };
 
     /**
      * @class BitSet
@@ -949,10 +987,12 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
         }
     }
 
+    extend(BitSet, properties);
+
     /**
      * @func extend
      * @desc
-     *       Very simple extend function including alias support.
+     *       Very simple extend function including alias, static support.
      *
      * @param {Object} obj        - object to extend.
      * @param {Object} properties - object with the extend properties.
@@ -960,22 +1000,29 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
      * @returns {Object} the object after extension.
      */
     function extend(obj, properties) {
-        for (var prop in properties) {
-            if (!properties.hasOwnProperty(prop)) {
-                continue;
-            }
-
+        Object.keys(properties).forEach(function (prop) {
             var dsc = Object.getOwnPropertyDescriptor(properties, prop);
-            var aliases = dsc.value && (dsc.value + '').match(/@aliases:(.*?);/);
+            var attrs = prop.match(/[\w\$\@]+/g);prop = attrs.pop();
+            var aliases = ('' + (dsc.value || dsc.get || dsc.set)).match(/@aliases:(.*?);/);
             var names = aliases ? aliases[1].match(/[\w\$]+/g) : [];names.unshift(prop);
+            var symbol = prop.match(/@@(.+)/);symbol = symbol ? symbol[1] : '';
+            var addProp = function addProp(obj, name) {
+                if (symbol) {
+                    obj[Symbol[symbol]] = dsc.value;
+                } else {
+                    Reflect.defineProperty(obj, name, dsc);
+                }
+            };
 
             names.forEach(function (name) {
-                Object.defineProperty(obj, name, dsc);
+                if (~attrs.indexOf('static')) {
+                    addProp(obj, name);
+                }
+                addProp(obj.prototype, name);
             });
-        }
+        });
 
         return obj;
     }
-
-    return BitSet;
+    return BitSet.prototype; // prefer prototypal inheritance
 });

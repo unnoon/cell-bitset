@@ -7,15 +7,15 @@ define([
         describe("basic usage", function() {
 
             it("should demonstrate the basic functions of cell-bitset", function() {
-                var bs1 = new BitSet() // default length is 32
+                var bs1 = BitSet.create() // default length is 32
                     .set(7)
                     .set(54) // the length of the underlying bitvector is automatically resized to 55
                     .set(23);
 
-                var bs2 = new BitSet(68) // create a bitvector with a specific size
+                var bs2 = BitSet.create(68) // create a bitvector with a specific size
                     .add(7, 67, 23);
 
-                var bs3 = new BitSet([7, 54, 23]); // use an array to initialize the bitset
+                var bs3 = BitSet.create([7, 54, 23]); // use an array to initialize the bitset
 
                 bs1.union(bs2);
 
@@ -32,22 +32,20 @@ define([
 
         });
 
-        describe("@hammingWeight/$popCount", function() {
-            var BitSetPrototypal = BitSet.prototype;
+        describe("hammingWeight/popCount", function() {
 
             it("should calculate the hamming weight of a word", function() {
-                var bs = BitSetPrototypal.$create(234).add(6).add(14).add(62);
+                var bs = BitSet.create(234).add(6).add(14).add(62);
 
-                expect(bs.$hammingWeight(bs.words[0])).to.eql(2);
-                expect(bs.$popCount(bs.words[0])).to.eql(2); // alias
+                expect(bs.hammingWeight(bs.words[0])).to.eql(2);
+                expect(bs.popCount(bs.words[0])).to.eql(2); // alias
             });
         });
 
-        describe("@static $create/$spawn", function() {
-            var BitSetPrototypal = BitSet.prototype;
+        describe("create/spawn", function() {
 
-            it("should create a new BitSet using the static BitSet.prototype.$create using an array", function() {
-                var bs = BitSetPrototypal.$create([6,14,62]);
+            it("should create a new BitSet using the static BitSet.prototype.create using an array", function() {
+                var bs = BitSet.create([6,14,62]);
 
                 expect(bs.has(6)).to.be.true;
                 expect(bs.has(14)).to.be.true;
@@ -55,15 +53,15 @@ define([
                 expect(bs.length).to.eql(63);
             });
 
-            it("should create a new BitSet using the static BitSet.prototype.$create", function() {
-                var bs = BitSetPrototypal.$create(234).add(6).add(14).add(62);
+            it("should create a new BitSet using the static BitSet.prototype.create", function() {
+                var bs = BitSet.create(234).add(6).add(14).add(62);
 
                 expect(bs.has(14)).to.be.true;
                 expect(bs.length).to.eql(234);
             });
 
-            it("should create a new BitSet using the prototype static $spawn alias", function() {
-                var bs = BitSetPrototypal.$spawn(234).add(6).add(14).add(62);
+            it("should create a new BitSet using the prototype static spawn alias", function() {
+                var bs = BitSet.spawn(234).add(6).add(14).add(62);
 
                 expect(bs.has(14)).to.be.true;
                 expect(bs.length).to.eql(234);
@@ -73,7 +71,7 @@ define([
         describe("add", function() {
 
             it("should be able to add a number/index", function() {
-                var bs = new BitSet().add(6).add(14);
+                var bs = BitSet.create().add(6).add(14);
 
                 var str = bs.toString(-1);
 
@@ -82,7 +80,7 @@ define([
             });
 
             it("should be able to add multiple number/indices at the same time", function() {
-                var bs = new BitSet().add(6, 14);
+                var bs = BitSet.create().add(6, 14);
 
                 var str = bs.toString(-1);
 
@@ -91,7 +89,7 @@ define([
             });
 
             it("should resize the bitset in case with the index falls out of bounds", function() {
-                var bs = new BitSet().add(6).add(14).add(63);
+                var bs = BitSet.create().add(6).add(14).add(63);
 
                 var str = bs.toString(-1);
 
@@ -100,22 +98,23 @@ define([
             });
         });
 
-        describe("cardinality", function() {
+        describe("cardinality/size/length", function() {
 
             it("should return the cardinality of a set", function() {
-                var bs  = new BitSet().add(6).add(14).add(63);
+                var bs  = BitSet.create().add(6).add(14).add(63);
 
                 expect(bs.cardinality).to.eql(3);
+                expect(bs.size).to.eql(3);
             });
 
             it("should return 0 if the bitset is empty", function() {
-                var bs  = new BitSet();
+                var bs  = BitSet.create();
 
                 expect(bs.cardinality).to.eql(0);
             });
 
             it("should return a warning in case one tries to set the cardinality", function() {
-                var bs  = new BitSet();
+                var bs  = BitSet.create();
 
                 bs.cardinality = 6;
 
@@ -126,7 +125,7 @@ define([
         describe("clear", function() {
 
             it("should clear a bitset retaining length", function() {
-                var bs  = new BitSet().add(6).add(14).add(63);
+                var bs  = BitSet.create().add(6).add(14).add(63);
                 var cln = bs.clear();
 
                 expect(bs.isEmpty()).to.be.true;
@@ -137,7 +136,7 @@ define([
         describe("clone", function() {
 
             it("should be able to make a clone", function() {
-                var bs  = new BitSet().add(6).add(14).add(63);
+                var bs  = BitSet.create().add(6).add(14).add(63);
                 var cln = bs.clone();
 
                 expect(bs.equals(cln)).to.be.true;
@@ -148,7 +147,7 @@ define([
         describe("complement", function() {
 
             it("should be able to calculate the complement and trim any trailing bits", function() {
-                var bs  = new BitSet().add(6).add(14).add(62);
+                var bs  = BitSet.create().add(6).add(14).add(62);
 
                 bs.complement();
 
@@ -167,7 +166,7 @@ define([
         describe("Complement", function() {
 
             it("should be able to calculate the Complement and trim any trailing bits", function() {
-                var bs  = new BitSet().add(6).add(14).add(62);
+                var bs  = BitSet.create().add(6).add(14).add(62);
 
                 var complement = bs.Complement();
 
@@ -188,23 +187,23 @@ define([
         describe("contains/fits", function() {
 
             it("should be able to positively test if a mask contains", function() {
-                var bs   = new BitSet().add(6).add(14).add(62).add(123);
-                var mask = new BitSet().add(6).add(14).add(62);
+                var bs   = BitSet.create().add(6).add(14).add(62).add(123);
+                var mask = BitSet.create().add(6).add(14).add(62);
 
                 expect(bs.contains(mask)).to.be.true;
                 expect(bs.fits(mask)).to.be.true;
             });
 
             it("should be able to positively test if a larger mask contains", function() {
-                var bs   = new BitSet().add(6).add(14).add(62).add(123);
-                var mask = new BitSet().add(6).add(14).add(62).set(367, 0);
+                var bs   = BitSet.create().add(6).add(14).add(62).add(123);
+                var mask = BitSet.create().add(6).add(14).add(62).set(367, 0);
 
                 expect(bs.contains(mask)).to.be.true;
             });
 
             it("should be able to negatively test if a mask don't fit", function() {
-                var bs   = new BitSet().add(6).add(14).add(62);
-                var mask = new BitSet().add(6).add(14).add(78);
+                var bs   = BitSet.create().add(6).add(14).add(62);
+                var mask = BitSet.create().add(6).add(14).add(78);
 
                 expect(bs.contains(mask)).to.be.false;
             });
@@ -213,8 +212,8 @@ define([
         describe("difference", function() {
 
             it("should be able to calculate a simple difference", function() {
-                var bs1  = new BitSet().add(6).add(14).add(62);
-                var bs2  = new BitSet().add(6).add(16);
+                var bs1  = BitSet.create().add(6).add(14).add(62);
+                var bs2  = BitSet.create().add(6).add(16);
 
                 bs1.difference(bs2);
 
@@ -230,8 +229,8 @@ define([
             });
 
             it("should be able to calculate the reverse case (first < second)", function() {
-                var bs1  = new BitSet().add(6).add(14).add(62);
-                var bs2  = new BitSet(20).add(6).add(16);
+                var bs1  = BitSet.create().add(6).add(14).add(62);
+                var bs2  = BitSet.create(20).add(6).add(16);
 
                 bs2.difference(bs1);
 
@@ -250,8 +249,8 @@ define([
         describe("Difference", function() {
 
             it("should be able to calculate a simple Difference", function() {
-                var bs1  = new BitSet().add(6).add(14).add(62);
-                var bs2  = new BitSet().add(6).add(16);
+                var bs1  = BitSet.create().add(6).add(14).add(62);
+                var bs2  = BitSet.create().add(6).add(16);
 
                 var diff = bs1.Difference(bs2);
 
@@ -269,10 +268,10 @@ define([
             });
         });
 
-        describe("each", function() {
+        describe("each/forEach", function() {
 
             it("should be able to iterate over the bitset", function() {
-                var bs      = new BitSet().add(6).add(14).add(62);
+                var bs      = BitSet.create().add(6).add(14).add(62);
                 var indices = [];
 
                 var result = bs.each(function(val, i, bsi) {
@@ -286,7 +285,7 @@ define([
             });
 
             it("should be able to prematurely break iteration", function() {
-                var bs      = new BitSet().add(6).add(14).add(62);
+                var bs      = BitSet.create().add(6).add(14).add(62);
                 var indices = [];
 
                 var result = bs.each(function(val, i, bsi) {
@@ -300,12 +299,26 @@ define([
                 expect(indices).to.have.members([6, 14]);
                 expect(result).to.be.false;
             });
+
+            it("should be able to use the alias forEach", function() {
+                var bs      = BitSet.create().add(6).add(14).add(62);
+                var indices = [];
+
+                var result = bs.forEach(function(val, i, bsi) {
+                    indices.push(i);
+                    expect(val).to.eql(1);
+                    expect(bsi).to.eql(bs);
+                });
+
+                expect(indices).to.have.members([6, 14, 62]);
+                expect(result).to.be.true;
+            });
         });
 
-        describe("each$", function() {
+        describe("each$/eachAll/forEach$/forEachAll", function() {
 
             it("should be able to iterate the complete bitarray", function() {
-                var bs      = new BitSet().add(6).add(14).add(62);
+                var bs      = BitSet.create().add(6).add(14).add(62);
                 var zeros = 0;
                 var ones  = 0;
 
@@ -321,7 +334,7 @@ define([
             });
 
             it("should be able to prematurely break iteration", function() {
-                var bs      = new BitSet().add(6).add(14).add(62);
+                var bs      = BitSet.create().add(6).add(14).add(62);
                 var zeros = 0;
                 var ones  = 0;
 
@@ -337,20 +350,48 @@ define([
                 expect(ones).to.eql(2);
                 expect(result).to.be.false;
             });
+
+            it("should be able to use the aliases eachAll, forEach$ & forEachAll", function() {
+                var bs      = BitSet.create().add(6).add(14).add(62);
+                var zeros = 0;
+                var ones  = 0;
+
+                var result = bs.eachAll(function(val, i, bsi) {
+                    zeros += val === 0;
+                    ones  += val === 1;
+                    expect(bsi).to.eql(bs);
+                });
+
+                bs.forEach$(function(val, i, bsi) {
+                    zeros += val === 0;
+                    ones  += val === 1;
+                    expect(bsi).to.eql(bs);
+                });
+
+                bs.forEachAll(function(val, i, bsi) {
+                    zeros += val === 0;
+                    ones  += val === 1;
+                    expect(bsi).to.eql(bs);
+                });
+
+                expect(zeros).to.eql(180);
+                expect(ones).to.eql(9);
+                expect(result).to.be.true;
+            });
         });        
         
         describe("equals", function() {
 
             it("should be able to positively compare two bitsets", function() {
-                var bs1 = new BitSet().add(6).add(14).add(62);
-                var bs2 = new BitSet().add(6).add(14).add(62);
+                var bs1 = BitSet.create().add(6).add(14).add(62);
+                var bs2 = BitSet.create().add(6).add(14).add(62);
 
                 expect(bs1.equals(bs2)).to.be.true;
             });
 
             it("should be able to positively compare two bitsets", function() {
-                var bs1 = new BitSet().add(6).add(14).add(62);
-                var bs2 = new BitSet().add(6).add(14).add(78);
+                var bs1 = BitSet.create().add(6).add(14).add(62);
+                var bs2 = BitSet.create().add(6).add(14).add(78);
 
                 expect(bs1.equals(bs2)).to.be.false;
             });
@@ -359,8 +400,8 @@ define([
         describe("exclusion/symmetricDifference", function() {
 
             it("should calculate the symmetric difference", function() {
-                var bs1  = new BitSet().add(6).add(14).add(62);
-                var bs2  = new BitSet().add(6).add(16);
+                var bs1  = BitSet.create().add(6).add(14).add(62);
+                var bs2  = BitSet.create().add(6).add(16);
 
                 bs1.exclusion(bs2);
 
@@ -376,8 +417,8 @@ define([
             });
 
             it("should calculate the symmetric difference in case the length of the bitsets is different)", function() {
-                var bs1  = new BitSet().add(6).add(14).add(62);
-                var bs2  = new BitSet(20).add(6).add(16);
+                var bs1  = BitSet.create().add(6).add(14).add(62);
+                var bs2  = BitSet.create(20).add(6).add(16);
 
                 bs2.exclusion(bs1);
 
@@ -393,8 +434,8 @@ define([
             });
 
             it("should be able to use the alias symmetricDifference", function() {
-                var bs1  = new BitSet().add(6).add(14).add(62);
-                var bs2  = new BitSet(20).add(6).add(16);
+                var bs1  = BitSet.create().add(6).add(14).add(62);
+                var bs2  = BitSet.create(20).add(6).add(16);
 
                 bs2.symmetricDifference(bs1);
 
@@ -410,8 +451,8 @@ define([
             });
 
             it("should be able to use the alias xor", function() {
-                var bs1  = new BitSet().add(6).add(14).add(62);
-                var bs2  = new BitSet(20).add(6).add(16);
+                var bs1  = BitSet.create().add(6).add(14).add(62);
+                var bs2  = BitSet.create(20).add(6).add(16);
 
                 bs2.xor(bs1);
 
@@ -430,8 +471,8 @@ define([
         describe("Exclusion/SymmetricDifference", function() {
 
             it("should calculate the symmetric difference and output a new bitset", function() {
-                var bs1  = new BitSet().add(6).add(14).add(62);
-                var bs2  = new BitSet().add(6).add(16);
+                var bs1  = BitSet.create().add(6).add(14).add(62);
+                var bs2  = BitSet.create().add(6).add(16);
 
                 var exc = bs1.Exclusion(bs2);
 
@@ -449,8 +490,8 @@ define([
             });
 
             it("should be possible to use the aliases SymmetricDifference/Xor", function() {
-                var bs1  = new BitSet().add(6).add(14).add(62);
-                var bs2  = new BitSet().add(6).add(16);
+                var bs1  = BitSet.create().add(6).add(14).add(62);
+                var bs2  = BitSet.create().add(6).add(16);
 
                 var exc = bs1.SymmetricDifference(bs2);
                 var exc2 = bs1.Xor(bs2);
@@ -474,7 +515,7 @@ define([
         describe("flip", function() {
 
             it("should be able to flip a bit in the bitset", function() {
-                var bs   = new BitSet().add(6).add(14).add(62).add(123);
+                var bs   = BitSet.create().add(6).add(14).add(62).add(123);
 
                 bs
                     .flip(16)
@@ -485,7 +526,7 @@ define([
             });
 
             it("should be able to enlarge the bitset in case the flipdex is out of bounds", function() {
-                var bs   = new BitSet().add(6).add(14).add(62);
+                var bs   = BitSet.create().add(6).add(14).add(62);
 
                 bs
                     .flip(16)
@@ -499,14 +540,14 @@ define([
         describe("get", function() {
 
             it("should get the value of bits in the bitset", function() {
-                var bs   = new BitSet().add(6).add(14).add(62).add(123);
+                var bs   = BitSet.create().add(6).add(14).add(62).add(123);
 
                 expect(bs.get(16)).to.eql(0);
                 expect(bs.get(14)).to.eql(1);
             });
 
             it("should return 0 if the index is out of bounds", function() {
-                var bs   = new BitSet().add(6).add(14).add(62);
+                var bs   = BitSet.create().add(6).add(14).add(62);
 
                 expect(bs.get(123)).to.eql(0);
             });
@@ -515,7 +556,7 @@ define([
         describe("has/isMember", function() {
 
             it("should return the correct boolean values for membership", function() {
-                var bs   = new BitSet().add(6).add(14).add(62);
+                var bs   = BitSet.create().add(6).add(14).add(62);
 
                 expect(bs.has(14)).to.be.true;
                 expect(bs.has(16)).to.be.false;
@@ -526,7 +567,7 @@ define([
         describe("init", function() {
 
             it("should be able to init a BitSet created by Object.create", function() {
-                var bs = Object.create(BitSet.prototype).init(234).add(6).add(14).add(62);
+                var bs = Object.create(BitSet).init(234).add(6).add(14).add(62);
 
                 expect(bs.has(14)).to.be.true;
                 expect(bs.length).to.eql(234);
@@ -536,8 +577,8 @@ define([
         describe("intersection", function() {
 
             it("should calculate the intersection between 2 sets", function() {
-                var bs1  = new BitSet().add(6).add(14).add(62);
-                var bs2  = new BitSet().add(6).add(14);
+                var bs1  = BitSet.create().add(6).add(14).add(62);
+                var bs2  = BitSet.create().add(6).add(14);
 
                 bs1.intersection(bs2);
 
@@ -547,8 +588,8 @@ define([
             });
 
             it("should be able to handle not intersecting sets", function() {
-                var bs1  = new BitSet().add(6).add(14).add(62);
-                var bs2  = new BitSet().add(8).add(345);
+                var bs1  = BitSet.create().add(6).add(14).add(62);
+                var bs2  = BitSet.create().add(8).add(345);
 
                 bs1.intersection(bs2);
 
@@ -558,8 +599,8 @@ define([
             });
 
             it("should calculate the intersection between 2 sets using alias and", function() {
-                var bs1  = new BitSet().add(6).add(14).add(62);
-                var bs2  = new BitSet().add(6).add(14);
+                var bs1  = BitSet.create().add(6).add(14).add(62);
+                var bs2  = BitSet.create().add(6).add(14);
 
                 bs1.and(bs2);
 
@@ -572,8 +613,8 @@ define([
         describe("Intersection", function() {
 
             it("should calculate the Intersection between 2 sets or its alias And", function() {
-                var bs1  = new BitSet().add(6).add(14).add(62);
-                var bs2  = new BitSet().add(6).add(14);
+                var bs1  = BitSet.create().add(6).add(14).add(62);
+                var bs2  = BitSet.create().add(6).add(14);
 
                 var ins  = bs1.Intersection(bs2);
                 var ins2 = bs1.And(bs2);
@@ -591,15 +632,15 @@ define([
         describe("intersects", function() {
 
             it("should calculate if two sets intersect", function() {
-                var bs1  = new BitSet().add(6).add(14).add(62);
-                var bs2  = new BitSet().add(6).add(14);
+                var bs1  = BitSet.create().add(6).add(14).add(62);
+                var bs2  = BitSet.create().add(6).add(14);
 
                 expect(bs1.intersects(bs2)).to.true;
             });
 
             it("should return in case two do not intersect", function() {
-                var bs1  = new BitSet().add(6).add(14).add(62);
-                var bs2  = new BitSet().add(8).add(345);
+                var bs1  = BitSet.create().add(6).add(14).add(62);
+                var bs2  = BitSet.create().add(8).add(345);
 
                 expect(bs1.intersects(bs2)).to.false;
             });
@@ -608,13 +649,13 @@ define([
         describe("isEmpty", function() {
 
             it("should return true is a set is empty", function() {
-                var bs  = new BitSet(588);
+                var bs  = BitSet.create(588);
 
                 expect(bs.isEmpty()).to.true;
             });
 
             it("should return false in case a set is non empty", function() {
-                var bs  = new BitSet().add(6).add(14).add(62);
+                var bs  = BitSet.create().add(6).add(14).add(62);
 
                 expect(bs.isEmpty()).to.false;
             });
@@ -623,8 +664,8 @@ define([
         describe("isSubsetOf/isContainedIn", function() {
 
             it("should be able to test if a bitset isSubsetOf of another or not", function() {
-                var bs   = new BitSet().add(6).add(14).add(62).add(123);
-                var bs2 = new BitSet().add(6).add(14).add(62);
+                var bs   = BitSet.create().add(6).add(14).add(62).add(123);
+                var bs2 = BitSet.create().add(6).add(14).add(62);
 
                 expect(bs2.isSubsetOf(bs)).to.be.true;
                 expect(bs.isSubsetOf(bs2)).to.be.false;
@@ -635,19 +676,19 @@ define([
         describe("length", function() {
 
             it("should return the length of the underlying bitvector", function() {
-                var bs  = new BitSet().add(6).add(14).add(63);
+                var bs  = BitSet.create().add(6).add(14).add(63);
 
                 expect(bs.length).to.eql(64);
             });
 
             it("should return 0 if the bitset is empty", function() {
-                var bs  = new BitSet().resize(0);
+                var bs  = BitSet.create().resize(0);
 
                 expect(bs.length).to.eql(0);
             });
 
             it("should give a waring if one tries to set the length", function() {
-                var bs  = new BitSet();
+                var bs  = BitSet.create();
 
                 bs.length = 6;
 
@@ -658,14 +699,14 @@ define([
         describe("max/msb", function() {
 
             it("should return the max index of a bitset", function() {
-                var bs  = new BitSet(588).add(9).add(14);
+                var bs  = BitSet.create(588).add(9).add(14);
 
                 expect(bs.max()).to.eql(14);
                 expect(bs.msb()).to.eql(14);
             });
 
             it("should return undefined in case the set is empty", function() {
-                var bs  = new BitSet(666);
+                var bs  = BitSet.create(666);
 
                 expect(bs.max()).to.be.undefined;
             });
@@ -674,20 +715,20 @@ define([
         describe("min/lsb", function() {
 
             it("should return the min index of a bitset", function() {
-                var bs  = new BitSet(588).add(9).add(14);
+                var bs  = BitSet.create(588).add(9).add(14);
 
                 expect(bs.min()).to.eql(9);
                 expect(bs.lsb()).to.eql(9);
             });
 
             it("should return the min index of a bitset", function() {
-                var bs  = new BitSet(588).add(400).add(324);
+                var bs  = BitSet.create(588).add(400).add(324);
 
                 expect(bs.min()).to.eql(324);
             });
 
             it("should return undefined in case the set is empty", function() {
-                var bs  = new BitSet(666);
+                var bs  = BitSet.create(666);
 
                 expect(bs.min()).to.be.undefined;
             });
@@ -696,7 +737,7 @@ define([
         describe("remove", function() {
 
             it("should be able to remove an index", function() {
-                var bs  = new BitSet().add(9).add(14).add(200);
+                var bs  = BitSet.create().add(9).add(14).add(200);
 
                 var str = bs.remove(14).remove(45).toString();
 
@@ -704,7 +745,7 @@ define([
             });
 
             it("should be able to remove multiple indices at the same time", function() {
-                var bs  = new BitSet().add(9).add(14).add(200);
+                var bs  = BitSet.create().add(9).add(14).add(200);
 
                 var str = bs.remove(14, 45).toString();
 
@@ -712,7 +753,7 @@ define([
             });
 
             it("should not increase the length in case the index falls out of bounds", function() {
-                var bs  = new BitSet().add(9).add(14).add(200);
+                var bs  = BitSet.create().add(9).add(14).add(200);
 
                 var str = bs.remove(14).remove(45).remove(400).toString();
 
@@ -724,7 +765,7 @@ define([
         describe("resize", function() {
 
             it("should be able to resize a bitset to a bigger size", function() {
-                var bs  = new BitSet().add(9).add(14).add(200);
+                var bs  = BitSet.create().add(9).add(14).add(200);
 
                 var self = bs.resize(456);
 
@@ -733,7 +774,7 @@ define([
             });
 
             it("should be able to decrease the length of the bitset, trimming any trailing bits", function() {
-                var bs  = new BitSet().add(9).add(63);
+                var bs  = BitSet.create().add(9).add(63);
 
                 bs.resize(60);
 
@@ -742,7 +783,7 @@ define([
             });
 
             it("should return the this (and in any other cases as well) in case the resize length is the same", function() {
-                var bs  = new BitSet().add(9).add(63);
+                var bs  = BitSet.create().add(9).add(63);
 
                 var self = bs.resize(64);
 
@@ -753,7 +794,7 @@ define([
         describe("set", function() {
 
             it("should be able to add a number/index", function() {
-                var bs = new BitSet().set(6).set(14);
+                var bs = BitSet.create().set(6).set(14);
 
                 var str = bs.toString(-1);
 
@@ -762,7 +803,7 @@ define([
             });
 
             it("should be able to set an index to 0", function() {
-                var bs = new BitSet().set(6).set(6, 0);
+                var bs = BitSet.create().set(6).set(6, 0);
 
                 var str = bs.toString(-1);
 
@@ -774,7 +815,7 @@ define([
         describe("toArray", function() {
 
             it("should return an array containing the indices", function() {
-                var bs  = new BitSet().add(9).add(14).add(60);
+                var bs  = BitSet.create().add(9).add(14).add(60);
 
                 var arr = bs.toArray();
                 expect(arr).to.have.members([9, 14, 60]);
@@ -782,7 +823,7 @@ define([
             });
 
             it("should return a typed array containing the indices depending on type", function() {
-                var bs  = new BitSet().add(9).add(14).add(60).add(789);
+                var bs  = BitSet.create().add(9).add(14).add(60).add(789);
 
                 var arr8 = bs.toArray(8);
 
@@ -803,7 +844,7 @@ define([
         describe("toBitArray", function() {
 
             it("should return an array containing all bits", function() {
-                var bs  = new BitSet().add(9).add(14).add(33);
+                var bs  = BitSet.create().add(9).add(14).add(33);
 
                 var expected = [0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1];
                 var arr      = bs.toBitArray();
@@ -828,7 +869,7 @@ define([
         describe("toBooleanArray", function() {
 
             it("should return an array containing all bits converted to booleans", function() {
-                var bs  = new BitSet().add(9).add(14).add(33);
+                var bs  = BitSet.create().add(9).add(14).add(33);
 
                 var expected = [false,false,false,false,false,false,false,false,false,true,false,false,false,false,true,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true];
                 var arr      = bs.toBooleanArray();
@@ -843,7 +884,7 @@ define([
         describe("toBitString", function() {
 
             it("should return set, bitstring or full bitstring depending on mode", function() {
-                var bs  = new BitSet().add(9).add(14).add(60);
+                var bs  = BitSet.create().add(9).add(14).add(60);
 
                 expect(bs.toBitString()).to.eql('1000000000000000000000000000000000000000000000100001000000000');
                 expect(bs.toBitString(-1)).to.eql('0001000000000000000000000000000000000000000000000100001000000000');
@@ -853,7 +894,7 @@ define([
         describe("toString/stringify", function() {
 
             it("should return set, bitstring or full bitstring depending on mode", function() {
-                var bs  = new BitSet().add(9).add(14).add(60);
+                var bs  = BitSet.create().add(9).add(14).add(60);
 
                 expect(bs.toString()).to.eql('{9, 14, 60}');
                 expect(bs.stringify()).to.eql('{9, 14, 60}');
@@ -865,7 +906,7 @@ define([
         describe("trim", function() {
 
             it("should trim a bitset to the most significant bit", function() {
-                var bs  = new BitSet(123).add(9).add(14).add(60);
+                var bs  = BitSet.create(123).add(9).add(14).add(60);
 
                 bs.trim();
 
@@ -877,7 +918,7 @@ define([
         describe("trimTrailingBits", function() {
 
             it("should return set, bitstring or full bitstring depending on mode", function() {
-                var bs  = new BitSet(55).add(9).add(14).add(50);
+                var bs  = BitSet.create(55).add(9).add(14).add(50);
 
                 bs.words[1] |= (1 << 60); // set a 1 at index 60 the unofficial way :-)
 
@@ -896,11 +937,11 @@ define([
         describe("union", function() {
 
             it("should calculate the union of 2 sets", function() {
-                var bs1 = new BitSet() // default length is 32
+                var bs1 = BitSet.create() // default length is 32
                     .add(7)
                     .add(54) // the length of the underlying bitvector is automatically resized to 55
                     .add(23);
-                var bs2 = new BitSet(68) // create a bitvector with a specific size
+                var bs2 = BitSet.create(68) // create a bitvector with a specific size
                     .add(7)
                     .add(67)
                     .add(23);
@@ -914,11 +955,11 @@ define([
             });
 
             it("should calculate the union of 2 sets using the alias or", function() {
-                var bs1  = new BitSet(32)
+                var bs1  = BitSet.create(32)
                     .add(7)
                     .add(54)
                     .add(23);
-                var bs2  = new BitSet(63)
+                var bs2  = BitSet.create(63)
                     .add(7)
                     .add(67)
                     .add(23);
@@ -935,11 +976,11 @@ define([
         describe("Union", function() {
 
             it("should calculate the Union/Or of 2 sets", function() {
-                var bs1  = new BitSet(32)
+                var bs1  = BitSet.create(32)
                     .add(7)
                     .add(54)
                     .add(23);
-                var bs2  = new BitSet(63)
+                var bs2  = BitSet.create(63)
                     .add(7)
                     .add(67)
                     .add(23);
