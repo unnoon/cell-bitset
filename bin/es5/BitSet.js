@@ -42,7 +42,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
         'static info': {
             "name": "cell-bitset",
             "description": "Fast JS BitSet implementation. No worrying about 32bits restrictions.",
-            "version": "0.1.0",
+            "version": "0.2.0",
             "url": "https://github.com/unnoon/cell-bitset"
         },
         /**

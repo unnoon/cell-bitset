@@ -23,7 +23,7 @@ const properties = {
     'static info': {
         "name"       : "cell-bitset",
         "description": "Fast JS BitSet implementation. No worrying about 32bits restrictions.",
-        "version"    : "0.1.0",
+        "version"    : "0.2.0",
         "url"        : "https://github.com/unnoon/cell-bitset"
     },
     /**
