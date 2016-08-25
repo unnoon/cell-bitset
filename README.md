@@ -62,7 +62,7 @@ For more usage example see the unit tests @ /test/unit/BitSet-spec.js
 
 ## Prototypal(OLOO) vs 'Classical' inheritance
 
-By default prototypal(OLOO) inheritance is supported. Practically this means that the default export will be the MultiSet prototype. Also all static properties will be directly available on the prototype (as well as on the constructor function). If you prefer 'classical' inheritance a CBitSet export is also provided.
+By default prototypal(OLOO) inheritance is supported. Practically this means that the default export will be the BitSet prototype. Also all static properties will be directly available on the prototype (as well as on the constructor function). If you prefer 'classical' inheritance a CBitSet export is also provided.
 
 ## Documentation
 
