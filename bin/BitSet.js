@@ -39,7 +39,7 @@ const properties = {
      *
      * @return {BitSet} new BitSet.
      */
-    'static create': function(length_iterable=void 0) {
+    'static create': function(length_iterable=WORD_SIZE) {
     "@aliases: spawn";
     {
         return Object.create(BitSet.prototype).init(length_iterable);
@@ -271,11 +271,11 @@ const properties = {
      *         Can be broken prematurely by returning false.
      *
      * @param {function(value, index, bitset)} cb   - callback function to be called on each bit.
-     * @param {Object=}                        ctx_ - context to be called upon the callback function.
+     * @param {Object=}                        ctx - context to be called upon the callback function.
      *
      * @returns {boolean} boolean indicating if the loop finished completely=true or was broken=false
      */
-    each: function(cb, ctx_) {
+    each: function(cb, ctx=null) {
     "@aliases: forEach";
     {
         const max = this.words.length;
@@ -288,7 +288,7 @@ const properties = {
             while (word !== 0)
             {
                 tmp = (word & -word)|0;
-                if(cb.call(ctx_, one, (i << WORD_LOG) + this.hammingWeight(tmp - one), this) === false) {return false}
+                if(cb.call(ctx, one, (i << WORD_LOG) + this.hammingWeight(tmp - one), this) === false) {return false}
                 word ^= tmp;
             }
         }
@@ -303,17 +303,17 @@ const properties = {
      *         Can be broken prematurely by returning false.
      *
      * @param {function(value, index, bitset)} cb   - callback function o be called on each bit.
-     * @param {Object=}                        ctx_ - context to be called upon the callback function.
+     * @param {Object=}                        ctx - context to be called upon the callback function.
      *
      * @returns {boolean} boolean indicating if the loop finished completely=true or was broken=false.
      */
-    each$: function(cb, ctx_) {
+    each$: function(cb, ctx=null) {
     "@aliases: forEach$, eachAll, forEachAll";
     {
         const max = this._length;
         for(let i = zero; i < max; i++)
         {
-            if(cb.call(ctx_, this.get(i), i, this) === false) {return false}
+            if(cb.call(ctx, this.get(i), i, this) === false) {return false}
         }
 
         return true
@@ -386,11 +386,11 @@ const properties = {
      *
      * @returns {BitSet} this
      */
-    flip: function(index) {
+    flip: function(index) { index = index|0;
     {
-        if((index |= 0) >= this._length) {this.resize(index+1)}
+        if(index >= this._length) {this.resize(index+one)}
 
-        this.words[index >>> WORD_LOG] ^= (1 << index);
+        this.words[index >>> WORD_LOG] ^= (one << index);
 
         return this
     }},
@@ -403,10 +403,9 @@ const properties = {
      *
      * @returns {number} the value of the bit at the given index.
      */
-    get: function(index) {
-    {   if((index |= 0) >= this._length) {return 0|0}
-
-        return ((this.words[index >>> WORD_LOG] >>> index) & 1)|0;
+    get: function(index) { index = index|0;
+    {
+        return (index >= this._length ? zero : (this.words[index >>> WORD_LOG] >>> index) & one)|0;
     }},
     /**
      * @method BitSet#has
@@ -418,7 +417,7 @@ const properties = {
      *
      * @returns {boolean} boolean indicating if the bitset has the vale/index.
      */
-    has: function(index) {
+    has: function(index) { index = index|0;
     "@aliases: isMember";
     {
         return !!this.get(index);
@@ -432,12 +431,12 @@ const properties = {
      *
      * @returns {BitSet} this
      */
-    init: function(length_iterable=void 0) {
+    init: function(length_iterable=WORD_SIZE) {
     {
-        var itr = length_iterable && length_iterable.length ? length_iterable : [];
-        var len = ((itr.length ? itr[itr.length-1] : length_iterable) || WORD_SIZE)|0;
+        const itr = Array.from(length_iterable);
+        const len = (typeof(length_iterable) === 'number' ? length_iterable : itr.length)|0;
 
-        Object.defineProperty(this,'_length', {value: len, writable: true});
+        Reflect.defineProperty(this,'_length', {value: len, writable: true});
         this.words = new Uint32Array(Math.ceil(this._length / WORD_SIZE));
 
         this.add(...itr);
@@ -458,9 +457,10 @@ const properties = {
     intersection: function(bitset) {
     "@aliases: and";
     {
-        for(let i = zero, max = this.words.length; i < max; i++)
+        const max = this.words.length;
+        for(let i = zero; i < max; i++)
         {
-            this.words[i] &= bitset.words[i] || 0;
+            this.words[i] &= bitset.words[i] || zero;
         }
 
         return this
@@ -492,7 +492,8 @@ const properties = {
      */
     intersects: function(bitset) {
     {
-        for(let i = zero, max = Math.min(this.words.length, bitset.words.length)|0; i < max; i++)
+        const max = Math.min(this.words.length, bitset.words.length);
+        for(let i = zero; i < max; i++)
         {
             if(this.words[i] & bitset.words[i]) {return true}
         }
@@ -508,7 +509,8 @@ const properties = {
      */
     isEmpty: function() {
     {
-        for(let i = zero, max = this.words.length; i < max; i++)
+        const max = this.words.length;
+        for(let i = zero; i < max; i++)
         {
             if(this.words[i]) {return false}
         }
@@ -557,7 +559,7 @@ const properties = {
     max: function() {
     "@aliases: msb";
     {
-        var word;
+        let word;
 
         for(let i = this.words.length; i--;)
         {   if(!(word = this.words[i])) {continue}
@@ -576,9 +578,9 @@ const properties = {
     min: function() {
     "@aliases: lsb";
     {
-        var word;
-
-        for(let i = zero, max = this.words.length; i < max; i++)
+        let   word;
+        const max = this.words.length;
+        for(let i = zero; i < max; i++)
         {   if(!(word = this.words[i])) {continue}
 
             return ((i << WORD_LOG) + this.$lsb(word))|0;
@@ -613,12 +615,12 @@ const properties = {
      *
      * @returns {BitSet} the resized bitset.
      */
-    resize: function(len) {
-    {   if(this._length === (len |= 0)) {return this}
+    resize: function(len) { len = len|0;
+    {   if(this._length === len) {return this}
 
-        var diff      =  (len - this._length)|0;
-        var newLength = ((len - 1 + WORD_SIZE) >>> WORD_LOG)|0;
-        var newWords;
+        const diff      = (len - this._length)|0;
+        const newLength = (len - 1 + WORD_SIZE >>> WORD_LOG)|0;
+        let   i, max, newWords;
 
         this._length = len;
 
@@ -626,7 +628,7 @@ const properties = {
         {
             newWords = new Uint32Array(newLength);
 
-            for(let i = zero, max = Math.min(newLength, this.words.length)|0; i < max; i++)
+            for(i = zero, max = Math.min(newLength, this.words.length)|0; i < max; i++)
             {
                 newWords[i] = this.words[i];
             }
@@ -644,22 +646,22 @@ const properties = {
      * @desc
      *         Adds a number(index) to the set. It will resize the set in case the index falls out of bounds.
      *
-     * @param {number}  index  - index/number to add to the set.
-     * @param {number=} val_=1 - value (0|1) to set.
+     * @param {number}  index - index/number to add to the set.
+     * @param {number=} val=1 - value (0|1) to set.
      *
      * @returns {BitSet} this
      */
-    set: function(index, val_) {
+    set: function(index, val=one) { index = index|0; val = val|0;
     {
-        if((index |= 0) >= this._length && val_ !== 0) {this.resize(index+1)} // don't resize in case of a remove
+        if(index >= this._length && val !== zero) {this.resize(index+one)} // don't resize in case of a remove
 
-        if(val_ === 0)
+        if(val === zero)
         {
-            this.words[index >>> WORD_LOG] &= ~(1 << index);
+            this.words[index >>> WORD_LOG] &= ~(one << index);
         }
         else
         {
-            this.words[index >>> WORD_LOG] |=  (1 << index);
+            this.words[index >>> WORD_LOG] |=  (one << index);
         }
 
         return this;
@@ -669,17 +671,17 @@ const properties = {
      * @desc
      *         Outputs the set as an array.
      *
-     * @param {number=} type_ - type for the array Uint(8|16|32)Array.
+     * @param {number=} type - type for the array Uint(8|16|32)Array.
      *
      * @returns {Array<number>|Uint8Array<int>|Uint16Array<int>|Uint32Array<int>}
      */
-    toArray: function(type_) {
+    toArray: function(type=void 0) {
     "@aliases: entries";
     {
-        var arr;
+        let arr;
         let i = zero;
 
-        switch(type_)
+        switch(type)
         {
             case  8 : arr = new Uint8Array(this.cardinality); break;
             case 16 : arr = new Uint16Array(this.cardinality); break;
@@ -696,15 +698,15 @@ const properties = {
      * @desc
      *         Outputs the underlying bitvector as an array, starting with the least significant bits.
      *
-     * @param {number=} type_ - type for the array Uint(8|16|32)Array.
+     * @param {number=} type - type for the array Uint(8|16|32)Array.
      *
      * @returns {Array<number>|Uint8Array<int>|Uint16Array<int>|Uint32Array<int>}
      */
-    toBitArray: function(type_) {
+    toBitArray: function(type=void 0) {
     {
-        var arr;
+        let arr;
 
-        switch(type_)
+        switch(type)
         {
             case  8 : arr = new Uint8Array(this._length); break;
             case 16 : arr = new Uint16Array(this._length); break;
@@ -725,7 +727,7 @@ const properties = {
      */
     toBooleanArray: function() {
     {
-        var arr = [];
+        const arr = [];
 
         this.each$((val, index) => {arr[index] = !!val});
 
@@ -736,20 +738,20 @@ const properties = {
      * @desc
      *         Outputs the underlying bitvector as a bitstring, starting with the most significant bit.
      *
-     * @param {number=} mode_ - mode for stringification. -1 is used to display the full string including trailing bits.
+     * @param {number=} mode - mode for stringification. -1 is used to display the full string including trailing bits.
      *
      * @returns {string} the stringified bitvector.
      */
-    toBitString: function(mode_) {
+    toBitString: function(mode=void 0) {
     {
-        var output = '';
+        let output = '';
 
-        for(let i = this.words.length; i--;)
+        for(let i = this.words.length|0; i--;)
         {   // typed arrays will discard any leading zero's when using toString
             output += ('0000000000000000000000000000000' + this.words[i].toString(2)).slice(-WORD_SIZE);
         }
 
-        return ~mode_ ? output.slice(-this._length) : output;
+        return ~mode ? output.slice(-this._length) : output;
     }},
     /**
      * @method BitSet#toString
@@ -757,14 +759,14 @@ const properties = {
      * #
      *         Will output a string version of the bitset or bitstring.
      *
-     * @param {number} mode - mode of toString. undefined=bitset | 2=bitstring | -1=full bitstring.
+     * @param {number=} mode - mode of toString. undefined=bitset | 2=bitstring | -1=full bitstring.
      *
      * @returns {string} stringified version of the bitset.
      */
-    toString: function(mode) {
+    toString: function(mode=void 0) {
     "@aliases: stringify";
     {
-        var output = '';
+        let output = '';
 
         switch(mode)
         {
@@ -784,7 +786,7 @@ const properties = {
      */
     trim: function() {
     {
-        return this.resize(this.max()+1)
+        return this.resize(this.max()+one)
     }},
     /**
      * @method BitSet#trimTrailingBits
@@ -796,8 +798,8 @@ const properties = {
      */
     trimTrailingBits: function() {
     {
-        var wordsLength = this.words.length;
-        var diff        = wordsLength*WORD_SIZE - this._length;
+        const wordsLength = this.words.length|0;
+        const diff        = (wordsLength*WORD_SIZE - this._length)|0;
 
         this.words[wordsLength-1] = this.words[wordsLength-1] << diff >>> diff;
 
@@ -819,7 +821,8 @@ const properties = {
     {
         if(bitset.length > this._length) {this.resize(bitset.length)}
 
-        for(let i = zero, max = bitset.words.length; i < max; i++)
+        const max = bitset.words.length;
+        for(let i = zero; i < max; i++)
         {
             this.words[i] |= bitset.words[i];
         }
@@ -850,13 +853,13 @@ const properties = {
  *        Fast JS BitSet implementation.
  *        No worrying about 32bits restrictions.
  *
- * @param {number|Array=} length_array_=32 - length for the underlying bitvector or an array-like object with indices.
+ * @param {number|Array=} length_array=32 - length for the underlying bitvector or an array-like object with indices.
  *
  * @return {BitSet} new BitSet
  */
-function BitSet(length_array_) {
+function BitSet(length_array=WORD_SIZE) {
 {
-    this.init(length_array_);
+    this.init(length_array);
 }}
 
 extend(BitSet, properties);
