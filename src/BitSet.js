@@ -320,6 +320,21 @@ const properties = {
         return true
     }},
     /**
+     * @method BitSet#entries
+     * @desc
+     *         Returns a new Iterator object that contains an array of [index, index] for each element in the BitSet object. This is kept similar to the Map object, so that each entry has the same value for its key and value here.
+     *
+     * @returns {Iterator.<Array.<int>>}
+     */
+    entries: function()
+    {
+        const data = [];
+
+        this.each((val, index) => data.push([index, index]));
+
+        return (function*(data) {yield* data})(data)
+    },
+    /**
      * @method BitSet#equals
      * @desc
      *         Tests if 2 bitsets are equal.
@@ -534,6 +549,17 @@ const properties = {
         return bitset.contains(this);
     }},
     /**
+     * @method BitSet#keys
+     * @desc
+     *         Returns a new Iterator object that contains the indices of the BitSet.
+     *
+     * @returns {Iterator.<int>}
+     */
+    keys: function()
+    {
+        return this.values()
+    },    
+    /**
      * @readonly
      * @name BitSet#length
      * @type number
@@ -677,7 +703,6 @@ const properties = {
      * @returns {Array<number>|Uint8Array<int>|Uint16Array<int>|Uint32Array<int>}
      */
     toArray: function(type=void 0) {
-    "@aliases: entries";
     {
         let arr;
         let i = zero;
@@ -690,7 +715,7 @@ const properties = {
             default : arr = [];
         }
 
-        this.each((val, index) => {arr[i++] = index});
+        this.each((val, index) => arr[i++] = index);
 
         return arr;
     }},
@@ -845,7 +870,44 @@ const properties = {
     "@aliases: Or";
     {
         return this.clone().union(bitset);
-    }}
+    }},
+    /**
+     * @method BitSet#values
+     * @desc
+     *         Returns a new Iterator object that contains the indices of the BitSet.
+     *
+     * @returns {Iterator.<int>}
+     */
+    values: function()
+    {
+        return (function*(data) {yield* data})(this.toArray())
+    },
+    /**
+     * @method BitSet#[@@iterator]
+     * @desc
+     *         Prototype Symbol.iterator to make BitSet iterable.
+     *         Returns a new Iterator object that contains the indices in the BitSet object.
+     *
+     * @returns {Iterator.<int>}
+     */
+    ["@@iterator"]: function()
+    {
+        return this.values();
+    },
+    /**
+     * @name BitSet.[@@species]
+     * @type function
+     * @desc
+     *       the species of the BitSet. Which is just the BitSet constructor.
+     */
+    ["static @@species"]: BitSet,
+    /**
+     * @name BitSet#[@@toStringTag]
+     * @type string
+     * @desc
+     *       Custom name for Object.prototype.toString.call(bitset) === [object BitSet]
+     */
+    ["@@toStringTag"]: 'BitSet'
 };
 
 /**

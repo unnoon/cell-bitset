@@ -19,7 +19,7 @@ Fast(est) & consistent JavaScript BitSet (AKA bitvector, bitarray, bitstring) im
 - Prototypal & Classical inheritance ready
 - Supports amd, node, globals, es6 modules
 - Lots of output options
-- ES6 & ES5 binaries (as well as intermittent version)
+- ES6 & ES5 binaries (as well as intermediary version)
 - Made with bits of love!
 
 ## Installation
@@ -35,15 +35,15 @@ Fast(est) & consistent JavaScript BitSet (AKA bitvector, bitarray, bitstring) im
 ## Usage
 
 ```js
-var bs1 = new BitSet() // default length is 32
+var bs1 = BitSet.create() // default length is 32
     .set(7)
     .set(54) // the length of the underlying bitvector is automatically resized to 55
     .set(23);
 
-var bs2 = new BitSet(68) // create a bitvector with a specific size
+var bs2 = BitSet.create(68) // create a bitvector with a specific size
     .add(7, 67, 23);
 
-var bs3 = new BitSet([7, 54, 23]); // use an array to initialize the bitset
+var bs3 = new CBitSet([7, 54, 23]); // use an array to initialize the bitset. Use the CBitSet export for classical inheritance.
 
 bs1.union(bs2);
 
@@ -59,6 +59,10 @@ expect(bs4.toString()).to.eql('{7, 23, 54, 67}');
 ```
 
 For more usage example see the unit tests @ /test/unit/BitSet-spec.js
+
+## Prototypal(OLOO) vs 'Classical' inheritance
+
+By default prototypal(OLOO) inheritance is supported. Practically this means that the default export will be the MultiSet prototype. Also all static properties will be directly available on the prototype (as well as on the constructor function). If you prefer 'classical' inheritance a CBitSet export is also provided.
 
 ## Documentation
 

@@ -2,6 +2,8 @@
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
 /*!
@@ -24,12 +26,14 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
     /*es6*/ /*<3*/
     // int32 consts
 
+    var _properties;
+
     var zero = 0 | 0;
     var one = 1 | 0;
     var WORD_SIZE = 32 | 0;
     var WORD_LOG = 5 | 0;
 
-    var properties = {
+    var properties = (_properties = {
         /**
          * @name BitSet.info
          * @desc
@@ -363,6 +367,35 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
             }
         },
         /**
+         * @method BitSet#entries
+         * @desc
+         *         Returns a new Iterator object that contains an array of [index, index] for each element in the BitSet object. This is kept similar to the Map object, so that each entry has the same value for its key and value here.
+         *
+         * @returns {Iterator.<Array.<int>>}
+         */
+        entries: function entries() {
+            var data = [];
+
+            this.each(function (val, index) {
+                return data.push([index, index]);
+            });
+
+            return regeneratorRuntime.mark(function _callee(data) {
+                return regeneratorRuntime.wrap(function _callee$(_context) {
+                    while (1) {
+                        switch (_context.prev = _context.next) {
+                            case 0:
+                                return _context.delegateYield(data, 't0', 1);
+
+                            case 1:
+                            case 'end':
+                                return _context.stop();
+                        }
+                    }
+                }, _callee, this);
+            })(data);
+        },
+        /**
          * @method BitSet#equals
          * @desc
          *         Tests if 2 bitsets are equal.
@@ -604,6 +637,16 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
             }
         },
         /**
+         * @method BitSet#keys
+         * @desc
+         *         Returns a new Iterator object that contains the indices of the BitSet.
+         *
+         * @returns {Iterator.<int>}
+         */
+        keys: function keys() {
+            return this.values();
+        },
+        /**
          * @readonly
          * @name BitSet#length
          * @type number
@@ -771,11 +814,10 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
          * @returns {Array<number>|Uint8Array<int>|Uint16Array<int>|Uint32Array<int>}
          */
         toArray: function toArray() {
-            "@aliases: entries";
-
             var _this = this;
 
             var type = arguments.length <= 0 || arguments[0] === undefined ? void 0 : arguments[0];
+
             {
                 var _ret = function () {
                     var arr = void 0;
@@ -793,7 +835,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
                     }
 
                     _this.each(function (val, index) {
-                        arr[i++] = index;
+                        return arr[i++] = index;
                     });
 
                     return {
@@ -1006,8 +1048,33 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
             {
                 return this.clone().union(bitset);
             }
+        },
+        /**
+         * @method BitSet#values
+         * @desc
+         *         Returns a new Iterator object that contains the indices of the BitSet.
+         *
+         * @returns {Iterator.<int>}
+         */
+        values: function values() {
+            return regeneratorRuntime.mark(function _callee2(data) {
+                return regeneratorRuntime.wrap(function _callee2$(_context2) {
+                    while (1) {
+                        switch (_context2.prev = _context2.next) {
+                            case 0:
+                                return _context2.delegateYield(data, 't0', 1);
+
+                            case 1:
+                            case 'end':
+                                return _context2.stop();
+                        }
+                    }
+                }, _callee2, this);
+            })(this.toArray());
         }
-    };
+    }, _defineProperty(_properties, "@@iterator", function iterator() {
+        return this.values();
+    }), _defineProperty(_properties, "static @@species", BitSet), _defineProperty(_properties, "@@toStringTag", 'BitSet'), _properties);
 
     /**
      * @class BitSet

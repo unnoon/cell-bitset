@@ -3,6 +3,7 @@ define([
 ], function(BitSet) {
 
     describe("BitSet", function() {
+        var CBitSet = BitSet.constructor;
 
         describe("basic usage", function() {
 
@@ -15,7 +16,7 @@ define([
                 var bs2 = BitSet.create(68) // create a bitvector with a specific size
                     .add(7, 67, 23);
 
-                var bs3 = BitSet.create([7, 54, 23]); // use an array to initialize the bitset
+                var bs3 = new CBitSet([7, 54, 23]); // use an array to initialize the bitset. Use the CBitSet export for classical inheritance.
 
                 bs1.union(bs2);
 
@@ -65,6 +66,18 @@ define([
 
                 expect(bs.has(14)).to.be.true;
                 expect(bs.length).to.eql(234);
+            });
+        });
+
+        describe("constructor", function() {
+
+            it("should create a new BitSet using the constructor", function() {
+                var bs = new CBitSet([6,14,62]);
+
+                expect(bs.has(6)).to.be.true;
+                expect(bs.has(14)).to.be.true;
+                expect(bs.has(62)).to.be.true;
+                expect(bs.length).to.eql(63);
             });
         });
 
@@ -378,8 +391,22 @@ define([
                 expect(ones).to.eql(9);
                 expect(result).to.be.true;
             });
-        });        
-        
+        });
+
+        describe("entries", function() {
+
+            it("should return all indices", function() {
+
+                var bs = BitSet.create([7, 67, 23]);
+
+                var setIter = bs.entries();
+
+                expect(setIter.next().value).to.eql([7, 7]);
+                expect(setIter.next().value).to.eql([23, 23]);
+                expect(setIter.next().value).to.eql([67, 67]);
+            });
+        });
+
         describe("equals", function() {
 
             it("should be able to positively compare two bitsets", function() {
@@ -696,6 +723,20 @@ define([
             });
         });
 
+        describe("keys", function() {
+
+            it("should return all indices", function() {
+
+                var bs = BitSet.create([7, 67, 23]);
+
+                var setIter = bs.keys();
+
+                expect(setIter.next().value).to.eql(7);
+                expect(setIter.next().value).to.eql(23);
+                expect(setIter.next().value).to.eql(67);
+            });
+        });        
+        
         describe("max/msb", function() {
 
             it("should return the max index of a bitset", function() {
@@ -734,12 +775,12 @@ define([
             });
         });
 
-        describe("remove", function() {
+        describe("remove/delete", function() {
 
             it("should be able to remove an index", function() {
                 var bs  = BitSet.create().add(9).add(14).add(200);
 
-                var str = bs.remove(14).remove(45).toString();
+                var str = bs.remove(14).delete(45).toString();
 
                 expect(str).to.eql('{9, 200}');
             });
@@ -997,6 +1038,62 @@ define([
 
                 expect(un).to.not.equal(bs1);
             });
-        });        
+        });
+
+        describe("values", function() {
+
+            it("should return all indices", function() {
+
+                var bs = BitSet.create([7, 67, 23]);
+
+                var setIter = bs.values();
+
+                expect(setIter.next().value).to.eql(7);
+                expect(setIter.next().value).to.eql(23);
+                expect(setIter.next().value).to.eql(67);
+            });
+        });
+
+        describe("[@@iterator]", function() {
+
+            it("should return all indices", function() {
+
+                var bs = BitSet.create([7, 67, 23]);
+
+                var values = [];
+
+                for(let value of bs)
+                {
+                    values.push(value)
+                }
+
+                expect(values).to.eql([7, 23, 67]);
+            });
+        });
+
+        describe("[@@species]", function() {
+
+            it("should return the BitSet constructor if the species is requested (static/non-static)", function() {
+
+                var bs = BitSet.create([7, 67, 23]);
+
+                expect(bs[Symbol.species]).to.eql(BitSet.constructor);
+                expect(bs.constructor[Symbol.species]).to.eql(BitSet.constructor);
+            });
+        });
+
+        if(window.chrome)
+        {
+            // disabled because this does not work in firefox yet
+            describe("[@@toStringTag]", function() {
+
+                it("should return the custom type [object BitSet] in case Object.prototype.toString.call(bs) is used", function() {
+
+                    var bs = BitSet.create([7, 67, 23]);
+
+                    expect(Object.prototype.toString.call(bs)).to.eql('[object BitSet]');
+                });
+            });
+        }        
     });
 });
