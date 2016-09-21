@@ -12,19 +12,9 @@
         <!--<script src="test/prototypes/BitSet-asm.js"></script>-->
         <!--<script src="bin/es6/BitSet.js"></script>-->
         <script>
-//            import BitSetClass from 'bin/es6/BitSet.js';
+            var bs = BitSet.create([7, 67, 23]);
 
-//            var BitSet = BitSetClass.prototype;
-
-            var bs = BitSet.create(234).add(6, 14, 62);
-
-            var c1 = bs.$popCount(bs.words[0]);
-            var c2 = bs.hammingWeight(bs.words[0]);
-
-//            console.log(bs.$cardinality(532));
-//            alert(bs.$cardinality(532));
-//            console.log(BitSetModule.cardinality(532));
-            console.log(c1, c2);
+            console.assert(bs[Symbol.species] === BitSet.constructor, "Symbol.species should equal BitSet.constructor");
         </script>
     </body>
 </html>
