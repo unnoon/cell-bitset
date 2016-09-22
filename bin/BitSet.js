@@ -12,10 +12,12 @@
 }(this, function bitset() { "use strict";
 /*es6*//*<3*/
 // int32 consts
-const zero      =  0|0;
-const one       =  1|0;
+const ZERO      =  0|0;
+const ONE       =  1|0;
 const WORD_SIZE = 32|0;
 const WORD_LOG  =  5|0;
+
+const $attrs = Symbol.for('cell-type.attrs');
 
 const properties = {
     /**
@@ -23,12 +25,12 @@ const properties = {
      * @desc
      *       Info object to hold general module information
      */
-    'static info': {
+    info: {[$attrs]: 'static !configurable !writable', value: {
         "name"       : "cell-bitset",
         "description": "Fast JS BitSet implementation. No worrying about 32bits restrictions.",
-        "version"    : "0.2.0",
+        "version"    : "0.2.1",
         "url"        : "https://github.com/unnoon/cell-bitset"
-    },
+    }},
     /**
      * @method BitSet.create
      * @desc   **aliases:** spawn
@@ -39,8 +41,8 @@ const properties = {
      *
      * @return {BitSet} new BitSet.
      */
-    'static create': function(length_iterable=WORD_SIZE) {
-    "@aliases: spawn";
+    create(length_iterable=WORD_SIZE) {
+    "<$attrs alias=spawn>";
     {
         return Object.create(BitSet.prototype).init(length_iterable);
     }},
@@ -54,8 +56,8 @@ const properties = {
      *
      * @returns {number} the number of set bits in the word.
      */
-    'static hammingWeight': function(w) { w = w|0;
-    "@aliases: popCount";
+    hammingWeight(w) { w = w|0;
+    "<$attrs static alias=popCount>";
     {
         w -= (w >>> 1) & 0x55555555;
         w  = (w & 0x33333333) + ((w >>> 2) & 0x33333333);
@@ -71,7 +73,8 @@ const properties = {
      *
      * @returns {number} the least significant bit in w.
      */
-    'static $lsb': function(w) { w = w|0;
+    $lsb(w) { w = w|0;
+    "<$attrs static>";
     {
         return this.hammingWeight((w & -w) - 1)|0;
     }},
@@ -84,7 +87,8 @@ const properties = {
      *
      * @returns {number} the most significant bit in w.
      */
-    'static $msb': function(w) { w = w|0;
+    $msb(w) { w = w|0;
+    "<$attrs static>";
     {
         w |= w >> 1;
         w |= w >> 2;
@@ -103,7 +107,7 @@ const properties = {
      *
      * @returns {BitSet} this
      */
-    add: function(...indices) {
+    add(...indices) {
     {
         for(let i = indices.length; i--;)
         {
@@ -123,12 +127,12 @@ const properties = {
      * @type number
      */
     get cardinality() {
-    "@aliases: size";
+    "<$attrs alias=size>";
     {
         const max       = this.words.length;
-        let   i, output = zero;
+        let   i, output = ZERO;
 
-        for(i = zero; i < max; i++)
+        for(i = ZERO; i < max; i++)
         {
             output += this.hammingWeight(this.words[i]);
         }
@@ -146,12 +150,12 @@ const properties = {
      *
      * @returns {BitSet} this
      */
-    clear: function() {
+    clear() {
     {
         const max = this.words.length;
-        for(let i = zero; i < max; i++)
+        for(let i = ZERO; i < max; i++)
         {
-            this.words[i] = zero;
+            this.words[i] = ZERO;
         }
 
         return this
@@ -163,7 +167,7 @@ const properties = {
      *
      * @returns {BitSet} clone
      */
-    clone: function() {
+    clone() {
     {
         const clone = Object.create(BitSet.prototype);
 
@@ -179,10 +183,10 @@ const properties = {
      *
      * @returns {BitSet} this
      */
-    complement: function() {
+    complement() {
     {
         const max = this.words.length;
-        for(let i = zero; i < max; i++)
+        for(let i = ZERO; i < max; i++)
         {
             this.words[i] = ~this.words[i];
         }
@@ -199,7 +203,7 @@ const properties = {
      *
      * @returns {BitSet} new BitSet of the complement.
      */
-    Complement: function() {
+    Complement() {
     {
         return this.clone().complement();
     }},
@@ -214,13 +218,13 @@ const properties = {
      *
      * @returns {boolean} boolean indicating if the mask fits the bitset or is a subset.
      */
-    contains: function(mask) {
-    "@aliases: fits";
+    contains(mask) {
+    "<$attrs alias=fits>";
     {
         const max = mask.words.length;
         let   i, maskword;
 
-        for(i = zero; i < max; i++)
+        for(i = ZERO; i < max; i++)
         {
             maskword = mask.words[i];
 
@@ -239,10 +243,10 @@ const properties = {
      *
      * @returns {BitSet} this
      */
-    difference: function(bitset) {
+    difference(bitset) {
     {
         const max = this.words.length;
-        for(let i = zero; i < max; i++)
+        for(let i = ZERO; i < max; i++)
         {
             this.words[i] &= ~bitset.words[i];
         }
@@ -259,7 +263,7 @@ const properties = {
      *
      * @returns {BitSet} new BitSet of the difference.
      */
-    Difference: function(bitset) {
+    Difference(bitset) {
     {
         return this.clone().difference(bitset)
     }},
@@ -275,20 +279,20 @@ const properties = {
      *
      * @returns {boolean} boolean indicating if the loop finished completely=true or was broken=false
      */
-    each: function(cb, ctx=null) {
-    "@aliases: forEach";
+    each(cb, ctx=null) {
+    "<$attrs alias=forEach>";
     {
         const max = this.words.length;
         let   i, word, tmp;
 
-        for(i = zero; i < max; i++)
+        for(i = ZERO; i < max; i++)
         {
             word = this.words[i];
 
             while (word !== 0)
             {
                 tmp = (word & -word)|0;
-                if(cb.call(ctx, one, (i << WORD_LOG) + this.hammingWeight(tmp - one), this) === false) {return false}
+                if(cb.call(ctx, ONE, (i << WORD_LOG) + this.hammingWeight(tmp - ONE), this) === false) {return false}
                 word ^= tmp;
             }
         }
@@ -307,11 +311,11 @@ const properties = {
      *
      * @returns {boolean} boolean indicating if the loop finished completely=true or was broken=false.
      */
-    each$: function(cb, ctx=null) {
-    "@aliases: forEach$, eachAll, forEachAll";
+    each$(cb, ctx=null) {
+    "<$attrs alias=forEach$|eachAll|forEachAll>";
     {
         const max = this._length;
-        for(let i = zero; i < max; i++)
+        for(let i = ZERO; i < max; i++)
         {
             if(cb.call(ctx, this.get(i), i, this) === false) {return false}
         }
@@ -325,7 +329,7 @@ const properties = {
      *
      * @returns {Iterator.<Array.<int>>}
      */
-    entries: function()
+    entries()
     {
         const data = [];
 
@@ -342,10 +346,10 @@ const properties = {
      *
      * @returns {boolean} boolean indicating if the the 2 bitsets are equal.
      */
-    equals: function(bitset) {
+    equals(bitset) {
     {
         const max = this.words.length;
-        for(let i = zero; i < max; i++)
+        for(let i = ZERO; i < max; i++)
         {
             if(this.words[i] !== bitset.words[i]) {return false}
         }
@@ -363,13 +367,13 @@ const properties = {
      *
      * @returns {BitSet} this
      */
-    exclusion: function(bitset) {
-    "@aliases: symmetricDifference, xor";
+    exclusion(bitset) {
+    "<$attrs alias=symmetricDifference|xor>";
     {
         if(bitset.length > this._length) {this.resize(bitset.length)}
 
         const max = bitset.words.length;
-        for(let i = zero; i < max; i++)
+        for(let i = ZERO; i < max; i++)
         {
             this.words[i] ^= bitset.words[i];
         }
@@ -387,8 +391,8 @@ const properties = {
      *
      * @returns {BitSet} new BitSet of the exclusion.
      */
-    Exclusion: function(bitset) {
-    "@aliases: SymmetricDifference, Xor";
+    Exclusion(bitset) {
+    "<$attrs alias=SymmetricDifference|Xor>";
     {
         return this.clone().exclusion(bitset)
     }},
@@ -401,11 +405,11 @@ const properties = {
      *
      * @returns {BitSet} this
      */
-    flip: function(index) { index = index|0;
+    flip(index) { index = index|0;
     {
-        if(index >= this._length) {this.resize(index+one)}
+        if(index >= this._length) {this.resize(index+ONE)}
 
-        this.words[index >>> WORD_LOG] ^= (one << index);
+        this.words[index >>> WORD_LOG] ^= (ONE << index);
 
         return this
     }},
@@ -418,9 +422,9 @@ const properties = {
      *
      * @returns {number} the value of the bit at the given index.
      */
-    get: function(index) { index = index|0;
+    get(index) { index = index|0;
     {
-        return (index >= this._length ? zero : (this.words[index >>> WORD_LOG] >>> index) & one)|0;
+        return (index >= this._length ? ZERO : (this.words[index >>> WORD_LOG] >>> index) & ONE)|0;
     }},
     /**
      * @method BitSet#has
@@ -432,8 +436,8 @@ const properties = {
      *
      * @returns {boolean} boolean indicating if the bitset has the vale/index.
      */
-    has: function(index) { index = index|0;
-    "@aliases: isMember";
+    has(index) { index = index|0;
+    "<$attrs alias=isMember>";
     {
         return !!this.get(index);
     }},
@@ -446,7 +450,7 @@ const properties = {
      *
      * @returns {BitSet} this
      */
-    init: function(length_iterable=WORD_SIZE) {
+    init(length_iterable=WORD_SIZE) {
     {
         const itr = Array.from(length_iterable);
         const len = (typeof(length_iterable) === 'number' ? length_iterable : itr.length)|0;
@@ -469,13 +473,13 @@ const properties = {
      *
      * @returns {BitSet} this
      */
-    intersection: function(bitset) {
-    "@aliases: and";
+    intersection(bitset) {
+    "<$attrs alias=and>";
     {
         const max = this.words.length;
-        for(let i = zero; i < max; i++)
+        for(let i = ZERO; i < max; i++)
         {
-            this.words[i] &= bitset.words[i] || zero;
+            this.words[i] &= bitset.words[i] || ZERO;
         }
 
         return this
@@ -491,8 +495,8 @@ const properties = {
      *
      * @returns {BitSet} new bitset intersection.
      */
-    Intersection: function(bitset) {
-    "@aliases: And";
+    Intersection(bitset) {
+    "<$attrs alias=And>";
     {
         return this.clone().intersection(bitset)
     }},
@@ -505,10 +509,10 @@ const properties = {
      *
      * @returns {boolean} boolean indicating if the two bitsets intersects.
      */
-    intersects: function(bitset) {
+    intersects(bitset) {
     {
         const max = Math.min(this.words.length, bitset.words.length);
-        for(let i = zero; i < max; i++)
+        for(let i = ZERO; i < max; i++)
         {
             if(this.words[i] & bitset.words[i]) {return true}
         }
@@ -522,10 +526,10 @@ const properties = {
      *
      * @returns {boolean} boolean indicating that the set is empty.
      */
-    isEmpty: function() {
+    isEmpty() {
     {
         const max = this.words.length;
-        for(let i = zero; i < max; i++)
+        for(let i = ZERO; i < max; i++)
         {
             if(this.words[i]) {return false}
         }
@@ -542,8 +546,8 @@ const properties = {
      *
      * @returns {boolean} boolean indicating if this is contained in bitset.
      */
-    isSubsetOf: function(bitset) {
-    "@aliases: isContainedIn";
+    isSubsetOf(bitset) {
+    "<$attrs alias=isContainedIn>";
     {
         return bitset.contains(this);
     }},
@@ -554,7 +558,7 @@ const properties = {
      *
      * @returns {Iterator.<int>}
      */
-    keys: function()
+    keys()
     {
         return this.values()
     },
@@ -582,8 +586,8 @@ const properties = {
      *
      * @returns {number} the max number/index in the set.
      */
-    max: function() {
-    "@aliases: msb";
+    max() {
+    "<$attrs alias=msb>";
     {
         let word;
 
@@ -601,12 +605,12 @@ const properties = {
      *
      * @returns {number} the minimum number/index in the set.
      */
-    min: function() {
-    "@aliases: lsb";
+    min() {
+    "<$attrs alias=lsb>";
     {
         let   word;
         const max = this.words.length;
-        for(let i = zero; i < max; i++)
+        for(let i = ZERO; i < max; i++)
         {   if(!(word = this.words[i])) {continue}
 
             return ((i << WORD_LOG) + this.$lsb(word))|0;
@@ -621,8 +625,8 @@ const properties = {
      *
      * @returns {BitSet}
      */
-    remove: function(...indices) {
-    "@aliases: delete";
+    remove(...indices) {
+    "<$attrs alias=delete>";
     {
         for(let i = indices.length; i--;)
         {
@@ -641,7 +645,7 @@ const properties = {
      *
      * @returns {BitSet} the resized bitset.
      */
-    resize: function(len) { len = len|0;
+    resize(len) { len = len|0;
     {   if(this._length === len) {return this}
 
         const diff      = (len - this._length)|0;
@@ -654,7 +658,7 @@ const properties = {
         {
             newWords = new Uint32Array(newLength);
 
-            for(i = zero, max = Math.min(newLength, this.words.length)|0; i < max; i++)
+            for(i = ZERO, max = Math.min(newLength, this.words.length)|0; i < max; i++)
             {
                 newWords[i] = this.words[i];
             }
@@ -677,17 +681,17 @@ const properties = {
      *
      * @returns {BitSet} this
      */
-    set: function(index, val=one) { index = index|0; val = val|0;
+    set(index, val=ONE) { index = index|0; val = val|0;
     {
-        if(index >= this._length && val !== zero) {this.resize(index+one)} // don't resize in case of a remove
+        if(index >= this._length && val !== ZERO) {this.resize(index+ONE)} // don't resize in case of a remove
 
-        if(val === zero)
+        if(val === ZERO)
         {
-            this.words[index >>> WORD_LOG] &= ~(one << index);
+            this.words[index >>> WORD_LOG] &= ~(ONE << index);
         }
         else
         {
-            this.words[index >>> WORD_LOG] |=  (one << index);
+            this.words[index >>> WORD_LOG] |=  (ONE << index);
         }
 
         return this;
@@ -701,10 +705,10 @@ const properties = {
      *
      * @returns {Array<number>|Uint8Array<int>|Uint16Array<int>|Uint32Array<int>}
      */
-    toArray: function(type=void 0) {
+    toArray(type=void 0) {
     {
         let arr;
-        let i = zero;
+        let i = ZERO;
 
         switch(type)
         {
@@ -727,7 +731,7 @@ const properties = {
      *
      * @returns {Array<number>|Uint8Array<int>|Uint16Array<int>|Uint32Array<int>}
      */
-    toBitArray: function(type=void 0) {
+    toBitArray(type=void 0) {
     {
         let arr;
 
@@ -750,7 +754,7 @@ const properties = {
      *
      * @returns {Array<boolean>}
      */
-    toBooleanArray: function() {
+    toBooleanArray() {
     {
         const arr = [];
 
@@ -767,7 +771,7 @@ const properties = {
      *
      * @returns {string} the stringified bitvector.
      */
-    toBitString: function(mode=void 0) {
+    toBitString(mode=void 0) {
     {
         let output = '';
 
@@ -788,8 +792,8 @@ const properties = {
      *
      * @returns {string} stringified version of the bitset.
      */
-    toString: function(mode=void 0) {
-    "@aliases: stringify";
+    toString(mode=void 0) {
+    "<$attrs alias=stringify>";
     {
         let output = '';
 
@@ -809,9 +813,9 @@ const properties = {
      *
      * @returns {BitSet} this
      */
-    trim: function() {
+    trim() {
     {
-        return this.resize(this.max()+one)
+        return this.resize(this.max()+ONE)
     }},
     /**
      * @method BitSet#trimTrailingBits
@@ -821,7 +825,7 @@ const properties = {
      *
      * @returns {BitSet}
      */
-    trimTrailingBits: function() {
+    trimTrailingBits() {
     {
         const wordsLength = this.words.length|0;
         const diff        = (wordsLength*WORD_SIZE - this._length)|0;
@@ -841,13 +845,13 @@ const properties = {
      *
      * @returns {BitSet} the union of the two bitsets.
      */
-    union: function(bitset) {
-    "@aliases: or";
+    union(bitset) {
+    "<$attrs alias=or>";
     {
         if(bitset.length > this._length) {this.resize(bitset.length)}
 
         const max = bitset.words.length;
-        for(let i = zero; i < max; i++)
+        for(let i = ZERO; i < max; i++)
         {
             this.words[i] |= bitset.words[i];
         }
@@ -865,8 +869,8 @@ const properties = {
      *
      * @returns {BitSet} new BitSet of the union of the two bitsets.
      */
-    Union: function(bitset) {
-    "@aliases: Or";
+    Union(bitset) {
+    "<$attrs alias=Or>";
     {
         return this.clone().union(bitset);
     }},
@@ -877,7 +881,7 @@ const properties = {
      *
      * @returns {Iterator.<int>}
      */
-    values: function()
+    values()
     {
         return (function*(data) {yield* data})(this.toArray())
     },
@@ -889,7 +893,7 @@ const properties = {
      *
      * @returns {Iterator.<int>}
      */
-    ["@@iterator"]: function()
+    [Symbol.iterator]()
     {
         return this.values();
     },
@@ -899,14 +903,14 @@ const properties = {
      * @desc
      *       the species of the BitSet. Which is just the BitSet constructor.
      */
-    ["static @@species"]: BitSet,
+    [Symbol.species]: {[$attrs]: 'static', value: BitSet},
     /**
      * @name BitSet#[@@toStringTag]
      * @type string
      * @desc
      *       Custom name for Object.prototype.toString.call(bitset) === [object BitSet]
      */
-    ["@@toStringTag"]: 'BitSet'
+    [Symbol.toStringTag]: 'BitSet'
 };
 
 /**
@@ -924,12 +928,12 @@ function BitSet(length_array=WORD_SIZE) {
     this.init(length_array);
 }}
 
-extend(BitSet, properties);
+extend(BitSet.prototype, properties);
 
 /**
  * @func extend
  * @desc
- *       Very simple extend function including alias, static support.
+ *       Very simple extend function including alias, static and basic attribute support.
  *
  * @param {Object} obj        - object to extend.
  * @param {Object} properties - object with the extend properties.
@@ -938,21 +942,62 @@ extend(BitSet, properties);
  */
 function extend(obj, properties)
 {
-    Object.keys(properties).forEach(prop => {
-        let dsc      = Object.getOwnPropertyDescriptor(properties, prop);
-        let attrs    = prop.match(/[\w\$\@]+/g); prop = attrs.pop();
-        let aliases  = `${dsc.value || dsc.get || dsc.set}`.match(/@aliases:(.*?);/);
-        let names    = aliases? aliases[1].match(/[\w\$]+/g) : []; names.unshift(prop);
-        let symbol   = prop.match(/@@(.+)/); symbol = symbol ? symbol[1] : '';
-        let addProp  = function(obj, name) {if(symbol) {obj[Symbol[symbol]] = dsc.value} else {Reflect.defineProperty(obj, name, dsc)}};
+    [...Object.getOwnPropertySymbols(properties), ...Object.keys(properties)].forEach(prop => {
+        let dsc   = processDescAttrs(Object.getOwnPropertyDescriptor(properties, prop));
+        let names = dsc.alias || []; names.unshift(prop);
 
         names.forEach(name => {
-            if(~attrs.indexOf('static')) {addProp(obj, name)}
-            addProp(obj.prototype, name);
+            Object.defineProperty(obj, name, dsc);
+            if(dsc.static && obj.hasOwnProperty('constructor')) {Object.defineProperty(obj.constructor, name, dsc)}
         });
     });
 
     return obj
 }
+/**
+ * @func processDescAttrs
+ * @desc
+ *       processes any attributes passed to a function or on the $attrs symbol, in case of a property, and adds these to the descriptor.
+
+ * @param {Object} dsc - Property descriptor to be processed.
+ *
+ * @returns {Object} The processed descriptor.
+ */
+function processDescAttrs(dsc)
+{
+    let tmp        = `${dsc.value || dsc.get || dsc.set}`.match(/<\$attrs(.*?)>/);
+    let tmp2       = `${tmp? tmp[1] : dsc.value && dsc.value[$attrs] || ''}`.replace(/[\s]*([=\|\s])[\s]*/g, '$1'); // prettify: remove redundant white spaces
+    let attributes = tmp2.match(/[!\$\w]+(=[\$\w]+(\|[\$\w]+)*)?/g)  || []; // filter attributes including values
+
+    assignAttrsToDsc(attributes, dsc);
+
+    // if value is a descriptor set the value to the descriptor value
+    if(dsc.value && dsc.value[$attrs] !== undefined) {dsc.value = dsc.value.value}
+
+    return dsc
+}
+/**
+ * @func assignAttrsToDsc
+ *
+ * @param {Array<string>} attributes - Array containing the attributes.
+ * @param {Object}        dsc        - The descriptor to be extended with the attributes.
+ */
+function assignAttrsToDsc(attributes, dsc)
+{
+    dsc.enumerable = false; // default set enumerable to false
+
+    for(let attr of attributes)
+    {   let value;
+        switch(true)
+        {
+            case(  !attr.indexOf('!')) : value = false;                  attr = attr.slice(1); break;
+            case(!!~attr.indexOf('=')) : value = attr.match(/[\$\w]+/g); attr = value.shift(); break;
+            default                    : value = true;
+        }
+
+        dsc[attr] = value;
+    }
+}
+
 return BitSet.prototype; // prefer prototypal inheritance
 });
