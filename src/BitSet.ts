@@ -4,17 +4,12 @@
  * @license      {@link https://github.com/unnoon/cell-bitset/blob/master/LICENSE|MIT License}
  * @overview     Fast JS BitSet implementation. Beyond 32bit restrictions.
  */
-import * as is         from 'bottom_line/bin/lang/is';
+import * as is         from 'bottom_line/lang/is';
 
-import aliases         from 'bottom_line/bin/decorators/aliases';
-import nonconfigurable from 'bottom_line/bin/decorators/nonconfigurable';
-import nonenumerable   from 'bottom_line/bin/decorators/nonenumerable';
-import readonly        from 'bottom_line/bin/decorators/readonly';
-
-// import aliases         from 'bottom_line/decorators/aliases';
-// import readonly        from 'bottom_line/decorators/readonly';
-// import nonconfigurable from 'bottom_line/decorators/nonconfigurable';
-// import nonenumerable   from 'bottom_line/decorators/nonenumerable';
+import aliases         from 'bottom_line/decorators/aliases';
+import readonly        from 'bottom_line/decorators/readonly';
+import nonconfigurable from 'bottom_line/decorators/nonconfigurable';
+import nonenumerable   from 'bottom_line/decorators/nonenumerable';
 
 // int32 consts
 const ZERO      =  0|0;
