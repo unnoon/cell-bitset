@@ -1,0 +1,11 @@
+{
+    "files": {
+        "included": [
+            "bin/es6/**/*.js"
+        ],
+        "excluded": [
+            "src/**/*",
+            "test/**/*"
+        ]
+    }
+}
