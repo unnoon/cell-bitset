@@ -1,0 +1,24 @@
+{
+  "defaultSeverity": "error",
+  "extends": [
+    "tslint:recommended",
+    "tslint-eslint-rules"
+  ],
+  "rules": {
+    "brace-style":     [true, "allman", {"allowSingleLine": true}],
+    "import-spacing": false,
+    "max-line-length": [false],
+    "no-conditional-assignment": false,
+    "no-string-literal": false,
+    "no-trailing-whitespace": false,
+    "no-bitwise": false,
+    "object-literal-sort-keys": false,
+    "one-line":        [true, "check-whitespace"],
+    "quotemark":       [true, "single", "jsx-single", "avoid-escape"],
+    "semicolon":       [true, "always", "ignore-interfaces", "ignore-bound-class-methods"],
+    "typedef-whitespace": [true, {"property-declaration": "nospace"}],
+    "unified-signatures": false,
+    "variable-name":   [true, "allow-snake-case", "allow-leading-underscore", "allow-trailing-underscore"],
+    "whitespace":      [true, "check-decl", "check-module", "check-type", "check-typecast", "check-preblock"]
+  }
+}
