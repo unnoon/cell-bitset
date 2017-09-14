@@ -1,6 +1,6 @@
-const tsconfig = require('./tsconfig.json');
+const compilerOptions = require('./tsconfig.json').compilerOptions;
 
-tsconfig.compilerOptions.noEmit = false;
+compilerOptions.noEmit = false;
 
 module.exports = function(config) {
     config.set({
@@ -20,7 +20,7 @@ module.exports = function(config) {
                     require("karma-typescript-es6-transform")()
                 ]
             },
-            compilerOptions: tsconfig.compilerOptions,
+            compilerOptions: compilerOptions,
             reports: {
                 'html': '.coverage',
                 'text-summary': '',
