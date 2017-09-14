@@ -37,7 +37,6 @@
     "@types/reflect-metadata": "^0.0.5",
     "bottom_line": "^0.8.0",
     "core-js": "^2.5.1",
-    "lodash-decorators": "^4.4.1",
     "reflect-metadata": "^0.1.10"
   },
   "devDependencies": {
