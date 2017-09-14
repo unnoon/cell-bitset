@@ -33,7 +33,6 @@
     "update": "ncu -u -a && npm install"
   },
   "dependencies": {
-    "@types/bottom_line": "latest",
     "@types/reflect-metadata": "^0.0.5",
     "bottom_line": "^0.8.0",
     "core-js": "^2.5.1",
