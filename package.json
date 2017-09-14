@@ -23,19 +23,19 @@
     "build": "npm run build:clean && npm run build:es6 && npm run build:ts && ncp package.json bin/package.json",
     "docs": "rimraf -rf doc && typedoc --options .typedoc.json --out doc/ src/",
     "release": "npm version",
-    "prepush": "npm test && npm run build && git add -A bin/ && git commit -m \"new build\"",
+    "prepush": "npm test",
     "preversion": "npm test && npm run docs",
-    "version": "",
+    "version": "npm run build && git add -A bin/",
     "postversion": "git push && git push --tags && npm publish bin/",
     "preprocess:es6": "rimraf bin/BitSet.js && metascript tmp/src/BitSet.js > bin/BitSet.js     -VERSION=%npm_package_version%",
-    "preprocess:ts":  "mkdirp bin/.ts/      && metascript src/BitSet.ts     > bin/.ts/BitSet.ts -VERSION=%npm_package_version%",
+    "preprocess:ts": "mkdirp bin/.ts/      && metascript src/BitSet.ts     > bin/.ts/BitSet.ts -VERSION=%npm_package_version%",
     "test": "karma start --single-run",
     "update": "ncu -u -a && npm install"
   },
   "dependencies": {
     "@types/bottom_line": "latest",
     "@types/reflect-metadata": "^0.0.5",
-    "bottom_line": "git://github.com/unnoon/bottom_line.git#dev",
+    "bottom_line": "^0.8.0",
     "core-js": "^2.5.1",
     "lodash-decorators": "^4.4.1",
     "reflect-metadata": "^0.1.10"
