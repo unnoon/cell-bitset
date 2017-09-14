@@ -2,7 +2,6 @@
   "name": "cell-bitset",
   "version": "0.2.1",
   "description": "Fast JS BitSet implementation. Beyond 32bit restrictions.",
-  "main": "src/BitSet.ts",
   "repository": {
     "type": "git",
     "url": "https://github.com/unnoon/cell-bitset.git"
@@ -12,20 +11,24 @@
     "bitvector",
     "bitarray",
     "bitstring",
-    "fast"
+    "fast",
+    "typescript"
   ],
   "author": "Rogier Geertzema",
   "license": "MIT",
   "scripts": {
-    "build": "rimraf -rf bin/es6 && tsc --rootDir src/ --outDir bin/es6/ -p tsconfig.json --module ES6",
+    "build:clean": "rimraf -rf bin/ && rimraf -rf tmp/",
+    "build:es6": "tsc --outDir tmp/ -p tsconfig.json --declaration --sourceMap --module ES6 --noEmit false && ncp tmp/src/ bin/ && npm run preprocess:es6",
+    "build:ts": "npm run preprocess:ts",
+    "build": "npm run build:clean && npm run build:es6 && npm run build:ts && ncp package.json bin/package.json",
     "docs": "rimraf -rf doc && typedoc --options .typedoc.json --out doc/ src/",
     "release": "npm version",
     "prepush": "npm test && npm run build && git add -A bin/ && git commit -m \"new build\"",
     "preversion": "npm test && npm run docs",
     "version": "",
     "postversion": "git push && git push --tags && npm publish bin/",
-    "preprocess": "metascript src/BitSet.js > bin/BitSet.js -MODULE_TYPE=non-es6 -VERSION=%npm_package_version%",
-    "preprocess:es6": "metascript src/BitSet.js > bin/es6/BitSet.js -MODULE_TYPE=es6 -VERSION=%npm_package_version%",
+    "preprocess:es6": "rimraf bin/BitSet.js && metascript tmp/src/BitSet.js > bin/BitSet.js     -VERSION=%npm_package_version%",
+    "preprocess:ts":  "mkdirp bin/.ts/      && metascript src/BitSet.ts     > bin/.ts/BitSet.ts -VERSION=%npm_package_version%",
     "test": "karma start --single-run",
     "update": "ncu -u -a && npm install"
   },
