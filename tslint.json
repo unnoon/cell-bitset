@@ -15,7 +15,7 @@
     "object-literal-sort-keys": false,
     "one-line":        [true, "check-whitespace"],
     "quotemark":       [true, "single", "jsx-single", "avoid-escape"],
-    "semicolon":       [true, "always", "ignore-interfaces", "ignore-bound-class-methods"],
+    "semicolon":       [false],
     "typedef-whitespace": [true, {"property-declaration": "nospace"}],
     "unified-signatures": false,
     "variable-name":   [true, "allow-snake-case", "allow-leading-underscore", "allow-trailing-underscore"],
