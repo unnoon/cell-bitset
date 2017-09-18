@@ -782,7 +782,7 @@ export default class BitSet {
 BitSet.info = {
     "name": "cell-bitset",
     "description": "Fast JS BitSet implementation. Beyond 32bit restrictions.",
-    "version": "0.3.3",
+    "version": "0.3.4",
     "url": "https://github.com/unnoon/cell-bitset",
 };
 /* tslint:enable:quotemark object-literal-key-quotes */
