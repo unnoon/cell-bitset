@@ -4,12 +4,11 @@
  * @license      {@link https://github.com/unnoon/cell-bitset/blob/master/LICENSE|MIT License}
  * @overview     Fast JS BitSet implementation. Beyond 32bit restrictions.
  */
-import * as is         from 'bottom_line/lang/is';
-
 import aliases         from 'bottom_line/decorators/aliases';
-import readonly        from 'bottom_line/decorators/readonly';
 import nonconfigurable from 'bottom_line/decorators/nonconfigurable';
 import nonenumerable   from 'bottom_line/decorators/nonenumerable';
+import readonly        from 'bottom_line/decorators/readonly';
+import * as is         from 'bottom_line/lang/is';
 
 // int32 consts
 const ZERO      =  0|0;
@@ -50,11 +49,11 @@ export default class BitSet
      * @returns a new BitSet.
      */
     @aliases('spawn')
-    public static create(indices_length: Iterable<number>|number = WORD_SIZE): BitSet {return;}
+    public static create(indices_length: Iterable<number>|number = WORD_SIZE): BitSet {return}
     /** Alias of [[create]] */
     public static spawn(indices_length: Iterable<number>|number = WORD_SIZE)
     {
-        return new BitSet(indices_length);
+        return new BitSet(indices_length)
     }
 
     /**
@@ -66,7 +65,7 @@ export default class BitSet
      * @returns the number of set bits in the word.
      */
     @aliases('popCount')
-    public static hammingWeight(w: number): number {return;}
+    public static hammingWeight(w: number): number {return}
     /** Alias of [[hammingWeight]] */
     public static popCount(w: number): number
     {
@@ -75,7 +74,7 @@ export default class BitSet
         w -= (w >>> 1) & 0x55555555;
         w  = (w & 0x33333333) + ((w >>> 2) & 0x33333333);
 
-        return (((w + (w >>> 4) & 0xF0F0F0F) * 0x1010101) >>> 24)|0;
+        return (((w + (w >>> 4) & 0xF0F0F0F) * 0x1010101) >>> 24)|0
     }
 
     /**
@@ -89,7 +88,7 @@ export default class BitSet
     {
         w = w|0;
 
-        return BitSet.hammingWeight((w & -w) - 1)|0;
+        return BitSet.hammingWeight((w & -w) - 1)|0
     }
 
     /**
@@ -110,7 +109,7 @@ export default class BitSet
         w |= w >> 16;
         w = (w >> 1) + 1;
 
-        return BitSet.hammingWeight(w - 1)|0;
+        return BitSet.hammingWeight(w - 1)|0
     }
 
     /**
@@ -146,7 +145,7 @@ export default class BitSet
      */
     public [Symbol.iterator](): IterableIterator<number>
     {
-        return this.values();
+        return this.values()
     }
 
     /**
@@ -157,7 +156,7 @@ export default class BitSet
      * @type number
      */
     @aliases('size')
-    public get cardinality(): number {return;} public set cardinality(v: number) {/**/}
+    public get cardinality(): number {return} public set cardinality(v: number) {/**/}
     /** Alias of [[cardinality]] */
     public get size(): number
     {
@@ -170,7 +169,7 @@ export default class BitSet
             output += BitSet.hammingWeight(this.words[i]);
         }
 
-        return output|0;
+        return output|0
     }
     public set size(v: number)
     {   /* tslint:disable-next-line:no-console */
@@ -191,7 +190,7 @@ export default class BitSet
             this.set(indices[i]);
         }
 
-        return this;
+        return this
     }
 
     /**
@@ -207,7 +206,7 @@ export default class BitSet
             this.words[i] = ZERO;
         }
 
-        return this;
+        return this
     }
 
     /**
@@ -222,7 +221,7 @@ export default class BitSet
         clone._length = this._length|0;
         clone.words   = new Uint32Array(this.words);
 
-        return clone;
+        return clone
     }
 
     /**
@@ -240,7 +239,7 @@ export default class BitSet
 
         this.trimTrailingBits();
 
-        return this;
+        return this
     }
 
     /**
@@ -251,7 +250,7 @@ export default class BitSet
      */
     public Complement(): BitSet
     {
-        return this.clone().complement();
+        return this.clone().complement()
     }
 
     /**
@@ -264,7 +263,7 @@ export default class BitSet
      * @returns a boolean indicating if the mask fits the bitset (i.e. is a subset).
      */
     @aliases('fits')
-    public contains(mask: BitSet): boolean {return;}
+    public contains(mask: BitSet): boolean {return}
     /** Alias of [[contains]] */
     public fits(mask: BitSet): boolean
     {
@@ -276,10 +275,10 @@ export default class BitSet
         {
             maskword = mask.words[i];
 
-            if(((this.words[i] || 0) & maskword) !== maskword) {return false;}
+            if(((this.words[i] || 0) & maskword) !== maskword) {return false}
         }
 
-        return true;
+        return true
     }
 
     /**
@@ -300,7 +299,7 @@ export default class BitSet
             this.words[i] &= ~bitset.words[i];
         }
 
-        return this;
+        return this
     }
 
     /**
@@ -313,7 +312,7 @@ export default class BitSet
      */
     public Difference(bitset: BitSet): BitSet
     {
-        return this.clone().difference(bitset);
+        return this.clone().difference(bitset)
     }
 
     /**
@@ -327,7 +326,7 @@ export default class BitSet
      * @returns a boolean indicating if the loop finished completely=true or was broken=false.
      */
     @aliases('forEach')
-    public each(cb: (value: number, index: number, bitset: BitSet) => any|boolean, ctx?: object): boolean {return;}
+    public each(cb: (value: number, index: number, bitset: BitSet) => any|boolean, ctx?: object): boolean {return}
     /** Alias of [[each]] */
     public forEach(cb: (value: number, index: number, bitset: BitSet) => any|boolean, ctx?: object): boolean
     {
@@ -343,12 +342,12 @@ export default class BitSet
             while (word !== 0)
             {
                 tmp = (word & -word)|0;
-                if(cb.call(ctx, ONE, (i << WORD_LOG) + BitSet.hammingWeight(tmp - ONE), this) === false) {return false;}
+                if(cb.call(ctx, ONE, (i << WORD_LOG) + BitSet.hammingWeight(tmp - ONE), this) === false) {return false}
                 word ^= tmp;
             }
         }
 
-        return true;
+        return true
     }
 
     /**
@@ -361,18 +360,20 @@ export default class BitSet
      *
      * @returns a boolean indicating if the loop finished completely=true or was broken=false.
      */
-    @aliases('forEach$', 'eachAll', 'forEachAll')
-    public eachAll(cb: (value: number, index: number, bitset: BitSet) => any|boolean, ctx?: object): boolean {return;}
+    @aliases('eachAll', 'forEachAll')
+    public eachAll(cb: (value: number, index: number, bitset: BitSet) => any|boolean, ctx?: object): boolean {return}
     /** Alias of [[eachAll]] */
     public forEachAll(cb: (value: number, index: number, bitset: BitSet) => any|boolean, ctx?: object): boolean
     {
         const max = this._length;
-        for(let i = ZERO; i < max; i++)
+        let   i   = ZERO;
+
+        for(; i < max; i++)
         {
-            if(cb.call(ctx, this.get(i), i, this) === false) {return false;}
+            if(cb.call(ctx, this.get(i), i, this) === false) {return false}
         }
 
-        return true;
+        return true
     }
 
     /**
@@ -386,7 +387,7 @@ export default class BitSet
 
         this.each((val, index) => data.push([index, index]));
 
-        return (function*(d) {yield* d;})(data);
+        return (function*(d) {yield* d;})(data)
     }
 
     /**
@@ -399,13 +400,14 @@ export default class BitSet
     public equals(bitset: BitSet): boolean
     {
         const max = this.words.length;
+        let  i    = ZERO;
 
-        for(let i = ZERO; i < max; i++)
+        for(; i < max; i++)
         {
-            if(this.words[i] !== bitset.words[i]) {return false;}
+            if(this.words[i] !== bitset.words[i]) {return false}
         }
 
-        return true;
+        return true
     }
 
     /**
@@ -418,13 +420,13 @@ export default class BitSet
      * @returns this.
      */
     @aliases('symmetricDifference', 'xor')
-    public exclusion(bitset: BitSet): BitSet {return;}
-    /** Alias of [[exclusion]] */
-    public symmetricDifference(bitset: BitSet): BitSet {return;}
+    public exclusion(bitset: BitSet): BitSet {return}
+    /** Alias of [[exclusion]] */ 
+    public symmetricDifference(bitset: BitSet): BitSet {return}
     /** Alias of [[exclusion]] */
     public xor(bitset: BitSet): BitSet
     {
-        if(bitset.length > this._length) {this.resize(bitset.length);}
+        if(bitset.length > this._length) {this.resize(bitset.length)}
 
         const max = bitset.words.length;
         let   i   = ZERO;
@@ -434,7 +436,7 @@ export default class BitSet
             this.words[i] ^= bitset.words[i];
         }
 
-        return this;
+        return this
     }
 
     /**
@@ -447,13 +449,13 @@ export default class BitSet
      * @returns a new BitSet of the exclusion.
      */
     @aliases('SymmetricDifference', 'XOR')
-    public Exclusion(bitset: BitSet): BitSet {return;}
-    /** Alias of [[Exclusion]] */
-    public SymmetricDifference(bitset: BitSet): BitSet {return;}
+    public Exclusion(bitset: BitSet): BitSet {return}
+    /** Alias of [[Exclusion]] */ 
+    public SymmetricDifference(bitset: BitSet): BitSet {return}
     /** Alias of [[Exclusion]] */
     public XOR(bitset: BitSet): BitSet
     {
-        return this.clone().exclusion(bitset);
+        return this.clone().exclusion(bitset)
     }
 
     /**
@@ -467,11 +469,11 @@ export default class BitSet
     {
         index = index|0;
 
-        if(index >= this._length) {this.resize(index+ONE);}
+        if(index >= this._length) {this.resize(index+ONE)}
 
         this.words[index >>> WORD_LOG] ^= (ONE << index);
 
-        return this;
+        return this
     }
 
     /**
@@ -485,7 +487,7 @@ export default class BitSet
     {
         index = index|0;
 
-        return (index >= this._length ? ZERO : (this.words[index >>> WORD_LOG] >>> index) & ONE)|0;
+        return (index >= this._length ? ZERO : (this.words[index >>> WORD_LOG] >>> index) & ONE)|0
     }
 
     /**
@@ -497,13 +499,13 @@ export default class BitSet
      * @returns a boolean indicating if the bitset has the vale/index.
      */
     @aliases('isMember')
-    public has(index: number): boolean {return;}
+    public has(index: number): boolean {return}
     /** Alias of [[has]] */
     public isMember(index: number): boolean
     {
         index = index|0;
 
-        return !!this.get(index);
+        return !!this.get(index)
     }
 
     /**
@@ -523,7 +525,7 @@ export default class BitSet
 
         this.add(...arr);
 
-        return this;
+        return this
     }
 
     /**
@@ -536,7 +538,7 @@ export default class BitSet
      * @returns this.
      */
     @aliases('and')
-    public intersection(bitset: BitSet): BitSet {return;}
+    public intersection(bitset: BitSet): BitSet {return}
     /** Alias of [[intersection]] */
     public and(bitset: BitSet): BitSet
     {
@@ -548,7 +550,7 @@ export default class BitSet
             this.words[i] &= bitset.words[i] || ZERO;
         }
 
-        return this;
+        return this
     }
 
     /**
@@ -561,7 +563,7 @@ export default class BitSet
      * @returns a new bitset intersection.
      */
     @aliases('And')
-    public Intersection(bitset: BitSet): BitSet {return;}
+    public Intersection(bitset: BitSet): BitSet {return}
     /** Alias of [[Intersection]] */
     public And(bitset: BitSet): BitSet
     {
@@ -600,7 +602,7 @@ export default class BitSet
 
         for(; i < max; i++)
         {
-            if(this.words[i]) {return false;}
+            if(this.words[i]) {return false}
         }
 
         return true;
@@ -615,11 +617,11 @@ export default class BitSet
      * @returns a boolean indicating if this is contained in bitset.
      */
     @aliases('isContainedIn')
-    public isSubsetOf(bitset: BitSet): boolean {return;}
+    public isSubsetOf(bitset: BitSet): boolean {return}
     /** Alias of [[isSubsetOf]] */
     public isContainedIn(bitset: BitSet): boolean
     {
-        return bitset.contains(this);
+        return bitset.contains(this)
     }
 
     /**
@@ -629,7 +631,7 @@ export default class BitSet
      */
     public keys(): IterableIterator<number>
     {
-        return this.values();
+        return this.values()
     }
 
     /**
@@ -638,7 +640,7 @@ export default class BitSet
      */
     get length(): number
     {
-        return this._length|0;
+        return this._length|0
     }
     set length(v: number)
     {   /* tslint:disable-next-line:no-console */
@@ -652,17 +654,18 @@ export default class BitSet
      * @returns the max number/index in the set.
      */
     @aliases('msb')
-    public max(): number {return;}
+    public max(): number {return}
     /** Alias of [[max]] */
     public msb(): number
     {
         let word;
+        let i = this.words.length;
 
-        for(let i = this.words.length; i--;)
+        for(; i--;)
         {
             if(!(word = this.words[i])) {continue;}
 
-            return ((i << WORD_LOG) + BitSet.msb(word))|0;
+            return ((i << WORD_LOG) + BitSet.msb(word))|0
         }
     }
 
@@ -673,7 +676,7 @@ export default class BitSet
      * @returns the minimum number/index in the set.
      */
     @aliases('lsb')
-    public min(): number {return;}
+    public min(): number {return}
     /** Alias of [[min]] */
     public lsb(): number
     {
@@ -684,7 +687,7 @@ export default class BitSet
         {
             if(!(word = this.words[i])) {continue;}
 
-            return ((i << WORD_LOG) + BitSet.lsb(word))|0;
+            return ((i << WORD_LOG) + BitSet.lsb(word))|0
         }
     }
 
@@ -697,16 +700,18 @@ export default class BitSet
      * @returns this.
      */
     @aliases('del')
-    public remove(...indices: number[]): BitSet {return;}
+    public remove(...indices: number[]): BitSet {return}
     /** Alias of [[remove]] */
     public del(...indices: number[]): BitSet
     {
-        for(let i = indices.length; i--;)
+        let i = indices.length;
+
+        for(; i--;)
         {
             this.set(indices[i], 0);
         }
 
-        return this;
+        return this
     }
 
     /**
@@ -721,7 +726,7 @@ export default class BitSet
     {
         length = length|0;
 
-        if(this._length === length) {return this;}
+        if(this._length === length) {return this}
 
         const diff      = (length - this._length)|0;
         const newLength = (length - 1 + WORD_SIZE >>> WORD_LOG)|0;
@@ -745,7 +750,7 @@ export default class BitSet
         // trim trailing bits
         if(diff < 0) {this.trimTrailingBits();}
 
-        return this;
+        return this
     }
 
     /**
@@ -771,7 +776,7 @@ export default class BitSet
             this.words[index >>> WORD_LOG] |=  (ONE << index);
         }
 
-        return this;
+        return this
     }
 
     /**
@@ -788,7 +793,7 @@ export default class BitSet
 
         switch(type)
         {
-            case  8 : arr = new Uint8Array(this.cardinality); break;
+            case  8 : arr = new Uint8Array(this.cardinality);  break;
             case 16 : arr = new Uint16Array(this.cardinality); break;
             case 32 : arr = new Uint32Array(this.cardinality); break;
             default : arr = [];
@@ -796,7 +801,7 @@ export default class BitSet
 
         this.each((val, index) => arr[i++] = index);
 
-        return arr;
+        return arr
     }
 
     /**
@@ -820,7 +825,7 @@ export default class BitSet
 
         this.eachAll((val, index) => {arr[index] = val;});
 
-        return arr;
+        return arr
     }
 
     /**
@@ -834,7 +839,7 @@ export default class BitSet
 
         this.eachAll((val, index) => {arr[index] = !!val;});
 
-        return arr;
+        return arr
     }
 
     /**
@@ -847,13 +852,14 @@ export default class BitSet
     public toBitString(mode?: number): string
     {
         let output = '';
+        let i      = this.words.length|0;
 
-        for(let i = this.words.length|0; i--;)
+        for(; i--;)
         {   // typed arrays will discard any leading zero's when using toString
             output += ('0000000000000000000000000000000' + this.words[i].toString(2)).slice(-WORD_SIZE);
         }
 
-        return ~mode ? output.slice(-this._length) : output;
+        return ~mode ? output.slice(-this._length) : output
     }
 
     /**
@@ -865,7 +871,7 @@ export default class BitSet
      * @returns stringified version of the bitset.
      */
     @aliases('stringify')
-    public toString(mode?: number): string {return;}
+    public toString(mode?: number): string {return}
     /** Alias of [[toString]] */
     public stringify(mode?: number): string
     {
@@ -878,7 +884,7 @@ export default class BitSet
             default /*set*/         : output += '{'; this.each((val, index) => {output += (output !== '{' ? ', ' : '') + index;}); output += '}';
         }
 
-        return output;
+        return output
     }
 
     /**
@@ -888,7 +894,7 @@ export default class BitSet
      */
     public trim(): BitSet
     {
-        return this.resize(this.max()+ONE);
+        return this.resize(this.max()+ONE)
     }
 
     /**
@@ -904,7 +910,7 @@ export default class BitSet
 
         this.words[wordsLength-1] = this.words[wordsLength-1] << diff >>> diff;
 
-        return this;
+        return this
     }
 
     /**
@@ -917,11 +923,11 @@ export default class BitSet
      * @returns the union of the two bitsets.
      */
     @aliases('or')
-    public union(bitset: BitSet): BitSet {return;}
+    public union(bitset: BitSet): BitSet {return}
     /** Alias of [[union]] */
     public or(bitset: BitSet): BitSet
     {
-        if(bitset.length > this._length) {this.resize(bitset.length);}
+        if(bitset.length > this._length) {this.resize(bitset.length)}
 
         const max = bitset.words.length;
         let   i   = ZERO;
@@ -931,7 +937,7 @@ export default class BitSet
             this.words[i] |= bitset.words[i];
         }
 
-        return this;
+        return this
     }
 
     /**
@@ -944,11 +950,11 @@ export default class BitSet
      * @returns a new BitSet of the union of the two bitsets.
      */
     @aliases('Or')
-    public Union(bitset: BitSet): BitSet {return;}
+    public Union(bitset: BitSet): BitSet {return}
     /** Alias of [[Union]] */
     public Or(bitset: BitSet): BitSet
     {
-        return this.clone().union(bitset);
+        return this.clone().union(bitset)
     }
 
     /**
@@ -958,6 +964,6 @@ export default class BitSet
      */
     public values(): IterableIterator<number>
     {
-        return (function*(data) {yield* data;})(this.toArray());
+        return (function*(data) {yield* data;})(this.toArray())
     }
 }
