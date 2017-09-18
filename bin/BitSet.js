@@ -13,11 +13,11 @@ var __metadata = (this && this.__metadata) || function (k, v) {
  * @license      {@link https://github.com/unnoon/cell-bitset/blob/master/LICENSE|MIT License}
  * @overview     Fast JS BitSet implementation. Beyond 32bit restrictions.
  */
-import * as is from 'bottom_line/lang/is';
 import aliases from 'bottom_line/decorators/aliases';
-import readonly from 'bottom_line/decorators/readonly';
 import nonconfigurable from 'bottom_line/decorators/nonconfigurable';
 import nonenumerable from 'bottom_line/decorators/nonenumerable';
+import readonly from 'bottom_line/decorators/readonly';
+import * as is from 'bottom_line/lang/is';
 // int32 consts
 const ZERO = 0 | 0;
 const ONE = 1 | 0;
@@ -280,7 +280,8 @@ export default class BitSet {
     /** Alias of [[eachAll]] */
     forEachAll(cb, ctx) {
         const max = this._length;
-        for (let i = ZERO; i < max; i++) {
+        let i = ZERO;
+        for (; i < max; i++) {
             if (cb.call(ctx, this.get(i), i, this) === false) {
                 return false;
             }
@@ -306,7 +307,8 @@ export default class BitSet {
      */
     equals(bitset) {
         const max = this.words.length;
-        for (let i = ZERO; i < max; i++) {
+        let i = ZERO;
+        for (; i < max; i++) {
             if (this.words[i] !== bitset.words[i]) {
                 return false;
             }
@@ -514,7 +516,8 @@ export default class BitSet {
     /** Alias of [[max]] */
     msb() {
         let word;
-        for (let i = this.words.length; i--;) {
+        let i = this.words.length;
+        for (; i--;) {
             if (!(word = this.words[i])) {
                 continue;
             }
@@ -550,7 +553,8 @@ export default class BitSet {
     remove(...indices) { return; }
     /** Alias of [[remove]] */
     del(...indices) {
-        for (let i = indices.length; i--;) {
+        let i = indices.length;
+        for (; i--;) {
             this.set(indices[i], 0);
         }
         return this;
@@ -676,7 +680,8 @@ export default class BitSet {
      */
     toBitString(mode) {
         let output = '';
-        for (let i = this.words.length | 0; i--;) {
+        let i = this.words.length | 0;
+        for (; i--;) {
             output += ('0000000000000000000000000000000' + this.words[i].toString(2)).slice(-WORD_SIZE);
         }
         return ~mode ? output.slice(-this._length) : output;
@@ -777,7 +782,7 @@ export default class BitSet {
 BitSet.info = {
     "name": "cell-bitset",
     "description": "Fast JS BitSet implementation. Beyond 32bit restrictions.",
-    "version": "0.3.2",
+    "version": "0.3.3",
     "url": "https://github.com/unnoon/cell-bitset",
 };
 /* tslint:enable:quotemark object-literal-key-quotes */
@@ -807,7 +812,7 @@ __decorate([
     __metadata("design:returntype", Boolean)
 ], BitSet.prototype, "each", null);
 __decorate([
-    aliases('forEach$', 'eachAll', 'forEachAll'),
+    aliases('eachAll', 'forEachAll'),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Function, Object]),
     __metadata("design:returntype", Boolean)

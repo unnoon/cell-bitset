@@ -1,6 +1,6 @@
 {
   "name": "cell-bitset",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "Fast JS BitSet implementation. Beyond 32bit restrictions.",
   "main": "BitSet.js",
   "repository": {
