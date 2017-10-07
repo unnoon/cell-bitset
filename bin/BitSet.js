@@ -17,7 +17,7 @@ import aliases from 'bottom_line/decorators/aliases';
 import nonconfigurable from 'bottom_line/decorators/nonconfigurable';
 import nonenumerable from 'bottom_line/decorators/nonenumerable';
 import readonly from 'bottom_line/decorators/readonly';
-import * as is from 'bottom_line/lang/is';
+import is from 'bottom_line/lang/is';
 // int32 consts
 const ZERO = 0 | 0;
 const ONE = 1 | 0;
@@ -782,7 +782,7 @@ export default class BitSet {
 BitSet.info = {
     "name": "cell-bitset",
     "description": "Fast JS BitSet implementation. Beyond 32bit restrictions.",
-    "version": "0.3.4",
+    "version": "0.3.5",
     "url": "https://github.com/unnoon/cell-bitset",
 };
 /* tslint:enable:quotemark object-literal-key-quotes */
