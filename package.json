@@ -37,7 +37,7 @@
   },
   "dependencies": {
     "@types/reflect-metadata": "^0.0.5",
-    "bottom_line": "^0.8.1",
+    "bottom_line": "^0.9.0",
     "core-js": "^2.5.1",
     "reflect-metadata": "^0.1.10"
   },

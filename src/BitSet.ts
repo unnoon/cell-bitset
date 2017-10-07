@@ -8,7 +8,7 @@ import aliases         from 'bottom_line/decorators/aliases';
 import nonconfigurable from 'bottom_line/decorators/nonconfigurable';
 import nonenumerable   from 'bottom_line/decorators/nonenumerable';
 import readonly        from 'bottom_line/decorators/readonly';
-import * as is         from 'bottom_line/lang/is';
+import is              from 'bottom_line/lang/is';
 
 // int32 consts
 const ZERO      =  0|0;
