@@ -64,13 +64,15 @@
 	<div class="row">
 		<div class="col-8 col-content">
 			<div class="tsd-panel tsd-typography">
-				<p><img src="https://github.com/unnoon/cell-bitset/raw/master/rsc/img/cell-bitset.png"></p>
+				<img src="https://github.com/unnoon/cell-bitset/raw/master/rsc/img/cell-bitset.png">
 				<p><a href="https://travis-ci.org/unnoon/cell-bitset?branch=dev"><img src="https://travis-ci.org/unnoon/cell-bitset.svg?branch=dev" alt="Build Status"></a>
 					<a href="https://coveralls.io/github/unnoon/cell-bitset?branch=dev"><img src="https://coveralls.io/repos/github/unnoon/cell-bitset/badge.svg?branch=dev" alt="Coverage Status"></a>
 					<a href="http://inch-ci.org/github/unnoon/cell-bitset?branch=dev"><img src="http://inch-ci.org/github/unnoon/cell-bitset.svg?branch=dev" alt="Inline docs"></a>
 				<a href="http://opensource.org/licenses/MIT"><img src="http://img.shields.io/badge/license-MIT-brightgreen.svg" alt="MIT license"></a></p>
 				<p>Fast(est) &amp; consistent JavaScript BitSet (AKA bitvector, bitarray, bitstring) implementation. Implemented as part of my upcoming(...loading...) cell game engine, but perfectly usable as a standalone lib.</p>
-				<h2 id="features">Features</h2>
+				<a href="#features" id="features" style="color: inherit; text-decoration: none;">
+					<h2>Features</h2>
+				</a>
 				<ul>
 					<li>Fast! </li>
 					<li>Fully tested</li>
@@ -83,11 +85,15 @@
 					<li>ES6 binaries</li>
 					<li>Made with bits of love!</li>
 				</ul>
-				<h2 id="installation">Installation</h2>
+				<a href="#installation" id="installation" style="color: inherit; text-decoration: none;">
+					<h2>Installation</h2>
+				</a>
 				<p><a href="https://www.npmjs.com">npm</a></p>
 				<p><code>npm install cell-bitset</code></p>
-				<h2 id="usage">Usage</h2>
-				<pre><code class="lang-js"><span class="hljs-keyword">const</span> bs1 = BitSet.create() <span class="hljs-comment">// default length is 32</span>
+				<a href="#usage" id="usage" style="color: inherit; text-decoration: none;">
+					<h2>Usage</h2>
+				</a>
+				<pre><code class="language-js"><span class="hljs-keyword">const</span> bs1 = BitSet.create() <span class="hljs-comment">// default length is 32</span>
     .set(<span class="hljs-number">7</span>)
     .set(<span class="hljs-number">54</span>) <span class="hljs-comment">// the length of the underlying bitvector is automatically resized to 55</span>
     .set(<span class="hljs-number">23</span>);
@@ -107,8 +113,7 @@ expect(bs1.cardinality).to.eql(<span class="hljs-number">4</span>); <span class=
 <span class="hljs-keyword">const</span> bs4 = bs3.Union(bs2); <span class="hljs-comment">// use Pascal case Union to output a new bitset and leave bs3 unchanged</span>
 
 expect(bs3.toString()).to.eql(<span class="hljs-string">'{7, 23, 54}'</span>);
-expect(bs4.toString()).to.eql(<span class="hljs-string">'{7, 23, 54, 67}'</span>);
-</code></pre>
+expect(bs4.toString()).to.eql(<span class="hljs-string">'{7, 23, 54, 67}'</span>);</code></pre>
 				<p>For more usage example see the <a href="test/unit/BitSet.spec.ts">unit tests</a>.</p>
 			</div>
 		</div>
@@ -142,6 +147,7 @@ expect(bs4.toString()).to.eql(<span class="hljs-string">'{7, 23, 54, 67}'</span>
 				<li class="tsd-kind-function tsd-has-type-parameter"><span class="tsd-kind-icon">Function with type parameter</span></li>
 				<li class="tsd-kind-index-signature"><span class="tsd-kind-icon">Index signature</span></li>
 				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
+				<li class="tsd-kind-type-alias tsd-has-type-parameter"><span class="tsd-kind-icon">Type alias with type parameter</span></li>
 			</ul>
 			<ul class="tsd-legend">
 				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
@@ -190,7 +196,7 @@ expect(bs4.toString()).to.eql(<span class="hljs-string">'{7, 23, 54, 67}'</span>
 	</div>
 </footer>
 <div class="container tsd-generator">
-	<p>Generated using <a href="http://typedoc.org/" target="_blank">TypeDoc</a></p>
+	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
 </div>
 <div class="overlay"></div>
 <script src="assets/js/main.js"></script>

@@ -162,7 +162,7 @@ export default class BitSet {
     clone() {
         const clone = Object.create(BitSet.prototype);
         clone._length = this._length | 0;
-        clone.words = new Uint32Array(this.words);
+        clone.words = new Int32Array(this.words);
         return clone;
     }
     /**
@@ -172,7 +172,8 @@ export default class BitSet {
      */
     complement() {
         const max = this.words.length;
-        for (let i = ZERO; i < max; i++) {
+        let i = ZERO;
+        for (; i < max; i++) {
             this.words[i] = ~this.words[i];
         }
         this.trimTrailingBits();
@@ -192,7 +193,7 @@ export default class BitSet {
      * In bitmask terms it will calculate if a bitmask fits a bitset.
      * @aliases: [[fits]]
      *
-     * @param mask - Tests is a bitset mask fits. i.e. subset to test containment.
+     * @param mask - Tests if a bitset mask fits. i.e. subset to test containment.
      *
      * @returns a boolean indicating if the mask fits the bitset (i.e. is a subset).
      */
@@ -204,7 +205,7 @@ export default class BitSet {
         let maskword;
         for (; i < max; i++) {
             maskword = mask.words[i];
-            if (((this.words[i] || 0) & maskword) !== maskword) {
+            if (((this.words[i] || ZERO) & maskword) !== maskword) {
                 return false;
             }
         }
@@ -256,7 +257,7 @@ export default class BitSet {
         let tmp;
         for (; i < max; i++) {
             word = this.words[i];
-            while (word !== 0) {
+            while (word !== ZERO) {
                 tmp = (word & -word) | 0;
                 if (cb.call(ctx, ONE, (i << WORD_LOG) + BitSet.hammingWeight(tmp - ONE), this) === false) {
                     return false;
@@ -379,7 +380,7 @@ export default class BitSet {
      */
     get(index) {
         index = index | 0;
-        return (index >= this._length ? ZERO : (this.words[index >>> WORD_LOG] >>> index) & ONE) | 0;
+        return ((this.words[index >>> WORD_LOG] >>> index) & ONE) | 0;
     }
     /**
      * Checks is the bitsets has a value/index.
@@ -406,7 +407,7 @@ export default class BitSet {
         const arr = is.number(indices_length) ? [] : Array.from(indices_length);
         const len = is.number(indices_length) ? indices_length : arr.length;
         this._length = len;
-        this.words = new Uint32Array(Math.ceil(len / WORD_SIZE));
+        this.words = new Int32Array(Math.ceil(len / WORD_SIZE));
         this.add(...arr);
         return this;
     }
@@ -555,7 +556,7 @@ export default class BitSet {
     del(...indices) {
         let i = indices.length;
         for (; i--;) {
-            this.set(indices[i], 0);
+            this.set(indices[i], ZERO);
         }
         return this;
     }
@@ -577,7 +578,7 @@ export default class BitSet {
         this._length = length;
         if (newLength !== this.words.length) {
             const max = Math.min(newLength, this.words.length) | 0;
-            const newWords = new Uint32Array(newLength);
+            const newWords = new Int32Array(newLength);
             let i = ZERO;
             for (; i < max; i++) {
                 newWords[i] = this.words[i];
@@ -585,7 +586,7 @@ export default class BitSet {
             this.words = newWords;
         }
         // trim trailing bits
-        if (diff < 0) {
+        if (diff < ZERO) {
             this.trimTrailingBits();
         }
         return this;
@@ -601,9 +602,9 @@ export default class BitSet {
     set(index, val = ONE) {
         index = index | 0;
         val = val | 0;
-        if (index >= this._length && val !== ZERO) {
+        if (index >= this._length && val !== ZERO) { // don't resize in case of a remove
             this.resize(index + ONE);
-        } // don't resize in case of a remove
+        }
         if (val === ZERO) {
             this.words[index >>> WORD_LOG] &= ~(ONE << index);
         }
@@ -680,11 +681,13 @@ export default class BitSet {
      */
     toBitString(mode) {
         let output = '';
-        let i = this.words.length | 0;
-        for (; i--;) {
-            output += ('0000000000000000000000000000000' + this.words[i].toString(2)).slice(-WORD_SIZE);
+        let i = (~mode)
+            ? this._length
+            : this.words.length * WORD_SIZE;
+        while (i--) {
+            output += this.get(i);
         }
-        return ~mode ? output.slice(-this._length) : output;
+        return output;
     }
     /**
      * Will output a string version of the bitset or bitstring.
@@ -703,7 +706,7 @@ export default class BitSet {
             case 2 /*binary*/:
                 output = this.toBitString(mode);
                 break;
-            default:
+            default /*set*/:
                 output += '{';
                 this.each((val, index) => { output += (output !== '{' ? ', ' : '') + index; });
                 output += '}';
@@ -719,7 +722,7 @@ export default class BitSet {
         return this.resize(this.max() + ONE);
     }
     /**
-     * Trims any trailing bits. That fall out of this.length but within this.words.length*WORD_SIZE.
+     * Trims (sets to zero) any trailing bits that fall out of this._length but within this.words.length*WORD_SIZE.
      * Assumes this.length is somewhere in the last word.
      *
      * @returns this.
@@ -782,7 +785,7 @@ export default class BitSet {
 BitSet.info = {
     "name": "cell-bitset",
     "description": "Fast JS BitSet implementation. Beyond 32bit restrictions.",
-    "version": "0.3.5",
+    "version": "0.3.6",
     "url": "https://github.com/unnoon/cell-bitset",
 };
 /* tslint:enable:quotemark object-literal-key-quotes */

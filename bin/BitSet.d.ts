@@ -60,7 +60,7 @@ export default class BitSet {
     /**
      * Array of 32bit words.
      */
-    words: Uint32Array;
+    words: Int32Array;
     private _length;
     /**
      * BitSet constructor.
@@ -125,7 +125,7 @@ export default class BitSet {
      * In bitmask terms it will calculate if a bitmask fits a bitset.
      * @aliases: [[fits]]
      *
-     * @param mask - Tests is a bitset mask fits. i.e. subset to test containment.
+     * @param mask - Tests if a bitset mask fits. i.e. subset to test containment.
      *
      * @returns a boolean indicating if the mask fits the bitset (i.e. is a subset).
      */
@@ -408,7 +408,7 @@ export default class BitSet {
      */
     trim(): BitSet;
     /**
-     * Trims any trailing bits. That fall out of this.length but within this.words.length*WORD_SIZE.
+     * Trims (sets to zero) any trailing bits that fall out of this._length but within this.words.length*WORD_SIZE.
      * Assumes this.length is somewhere in the last word.
      *
      * @returns this.

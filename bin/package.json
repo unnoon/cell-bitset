@@ -1,6 +1,6 @@
 {
   "name": "cell-bitset",
-  "version": "0.3.5",
+  "version": "0.3.6",
   "description": "Fast JS BitSet implementation. Beyond 32bit restrictions.",
   "main": "BitSet.js",
   "repository": {
@@ -64,7 +64,7 @@
     "sinon": "^3.2.1",
     "tslint": "^5.7.0",
     "tslint-eslint-rules": "^4.1.1",
-    "typescript": "^2.5.2",
+    "typescript": "^3.6.4",
     "webpack": "^3.6.0"
   }
 }
