@@ -2,7 +2,7 @@
 import BitSet from '../../src/BitSet';
 import { expect } from './test-utils.spec';
 
-describe('basic usage', () => 
+describe('basic usage', () =>
 {
     it('should demonstrate the basic functions of cell-bitset', () =>
     {
@@ -43,7 +43,7 @@ describe('hammingWeight/popCount', () =>
     });
 });
 
-describe('create/spawn', () => 
+describe('create/spawn', () =>
 {
     it('should create a new BitSet using the static BitSet.prototype.create using an array', () =>
     {
@@ -237,6 +237,17 @@ describe('contains/fits', () =>
         const mask = BitSet.create().add(6).add(14).add(78);
 
         expect(bs.contains(mask)).to.be.false;
+    });
+
+    it('should fix issue #1', () =>
+    {
+        const bitset1 = new BitSet();
+        bitset1.set(95);
+
+        const bitset2 = new BitSet();
+        bitset2.set(95);
+
+        expect(bitset1.contains(bitset2)).to.be.true;
     });
 });
 

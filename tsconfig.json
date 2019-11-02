@@ -3,7 +3,7 @@
     {
         "noEmit": true,
         "target": "es6",
-        "lib": ["es6", "dom", "es2017.object"],
+        "lib": ["es6", "dom", "es2017.object", "esnext"],
         "types": ["reflect-metadata"],
         "module": "commonjs",
         "moduleResolution": "node",

@@ -120,7 +120,7 @@ export default class BitSet
     /**
      * Array of 32bit words.
      */
-    public words: Uint32Array;
+    public words: Int32Array;
 
     @nonconfigurable @nonenumerable
     private _length: number;
@@ -219,7 +219,7 @@ export default class BitSet
         const clone = Object.create(BitSet.prototype);
 
         clone._length = this._length|0;
-        clone.words   = new Uint32Array(this.words);
+        clone.words   = new Int32Array(this.words);
 
         return clone
     }
@@ -232,7 +232,9 @@ export default class BitSet
     public complement(): BitSet
     {
         const max = this.words.length;
-        for(let i = ZERO; i < max; i++)
+        let   i   = ZERO
+
+        for(; i < max; i++)
         {
             this.words[i] = ~this.words[i];
         }
@@ -258,7 +260,7 @@ export default class BitSet
      * In bitmask terms it will calculate if a bitmask fits a bitset.
      * @aliases: [[fits]]
      *
-     * @param mask - Tests is a bitset mask fits. i.e. subset to test containment.
+     * @param mask - Tests if a bitset mask fits. i.e. subset to test containment.
      *
      * @returns a boolean indicating if the mask fits the bitset (i.e. is a subset).
      */
@@ -275,7 +277,7 @@ export default class BitSet
         {
             maskword = mask.words[i];
 
-            if(((this.words[i] || 0) & maskword) !== maskword) {return false}
+            if(((this.words[i] || ZERO) & maskword) !== maskword) {return false}
         }
 
         return true
@@ -339,7 +341,7 @@ export default class BitSet
         {
             word = this.words[i];
 
-            while (word !== 0)
+            while (word !== ZERO)
             {
                 tmp = (word & -word)|0;
                 if(cb.call(ctx, ONE, (i << WORD_LOG) + BitSet.hammingWeight(tmp - ONE), this) === false) {return false}
@@ -421,7 +423,7 @@ export default class BitSet
      */
     @aliases('symmetricDifference', 'xor')
     public exclusion(bitset: BitSet): BitSet {return}
-    /** Alias of [[exclusion]] */ 
+    /** Alias of [[exclusion]] */
     public symmetricDifference(bitset: BitSet): BitSet {return}
     /** Alias of [[exclusion]] */
     public xor(bitset: BitSet): BitSet
@@ -450,7 +452,7 @@ export default class BitSet
      */
     @aliases('SymmetricDifference', 'XOR')
     public Exclusion(bitset: BitSet): BitSet {return}
-    /** Alias of [[Exclusion]] */ 
+    /** Alias of [[Exclusion]] */
     public SymmetricDifference(bitset: BitSet): BitSet {return}
     /** Alias of [[Exclusion]] */
     public XOR(bitset: BitSet): BitSet
@@ -487,7 +489,7 @@ export default class BitSet
     {
         index = index|0;
 
-        return (index >= this._length ? ZERO : (this.words[index >>> WORD_LOG] >>> index) & ONE)|0
+        return ((this.words[index >>> WORD_LOG] >>> index) & ONE)|0
     }
 
     /**
@@ -521,7 +523,7 @@ export default class BitSet
         const len = is.number(indices_length) ? indices_length : arr.length;
 
         this._length = len;
-        this.words   = new Uint32Array(Math.ceil(len / WORD_SIZE));
+        this.words   = new Int32Array(Math.ceil(len / WORD_SIZE));
 
         this.add(...arr);
 
@@ -708,7 +710,7 @@ export default class BitSet
 
         for(; i--;)
         {
-            this.set(indices[i], 0);
+            this.set(indices[i], ZERO);
         }
 
         return this
@@ -736,7 +738,7 @@ export default class BitSet
         if(newLength !== this.words.length)
         {
             const max      = Math.min(newLength, this.words.length)|0;
-            const newWords = new Uint32Array(newLength);
+            const newWords = new Int32Array(newLength);
             let i          = ZERO;
 
             for(; i < max; i++)
@@ -748,7 +750,7 @@ export default class BitSet
         }
 
         // trim trailing bits
-        if(diff < 0) {this.trimTrailingBits();}
+        if(diff < ZERO) {this.trimTrailingBits();}
 
         return this
     }
@@ -765,7 +767,9 @@ export default class BitSet
     {
         index = index|0; val = val|0;
 
-        if(index >= this._length && val !== ZERO) {this.resize(index+ONE);} // don't resize in case of a remove
+        if(index >= this._length && val !== ZERO) { // don't resize in case of a remove
+            this.resize(index+ONE);
+        }
 
         if(val === ZERO)
         {
@@ -852,14 +856,17 @@ export default class BitSet
     public toBitString(mode?: number): string
     {
         let output = '';
-        let i      = this.words.length|0;
+        let i      = (~mode)
+            ? this._length
+            : this.words.length * WORD_SIZE;
 
-        for(; i--;)
-        {   // typed arrays will discard any leading zero's when using toString
-            output += ('0000000000000000000000000000000' + this.words[i].toString(2)).slice(-WORD_SIZE);
+
+        while(i--)
+        {
+            output += this.get(i)
         }
 
-        return ~mode ? output.slice(-this._length) : output
+        return output
     }
 
     /**
@@ -898,7 +905,7 @@ export default class BitSet
     }
 
     /**
-     * Trims any trailing bits. That fall out of this.length but within this.words.length*WORD_SIZE.
+     * Trims (sets to zero) any trailing bits that fall out of this._length but within this.words.length*WORD_SIZE.
      * Assumes this.length is somewhere in the last word.
      *
      * @returns this.
