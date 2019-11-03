@@ -489,7 +489,7 @@ export default class BitSet
     {
         index = index|0;
 
-        return ((this.words[index >>> WORD_LOG] >>> index) & ONE)|0
+        return (index >= this._length ? ZERO : (this.words[index >>> WORD_LOG] >>> index) & ONE)|0
     }
 
     /**
@@ -910,7 +910,7 @@ export default class BitSet
      *
      * @returns this.
      */
-    public trimTrailingBits(): BitSet
+    private trimTrailingBits(): BitSet
     {
         const wordsLength = this.words.length|0;
         const diff        = (wordsLength*WORD_SIZE - this._length)|0;

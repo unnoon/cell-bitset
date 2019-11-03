@@ -1046,26 +1046,6 @@ describe('trim', () =>
     });
 });
 
-describe('trimTrailingBits', () =>
-{
-    it('should return set, bitstring or full bitstring depending on mode', () =>
-    {
-        const bs  = BitSet.create(55).add(9).add(14).add(50);
-
-        bs.words[1] |= (1 << 60); // set a 1 at index 60 the unofficial way :-)
-
-        const str = bs.toString(-1);
-
-        expect(str).to.eql('0001000000000100000000000000000000000000000000000100001000000000');
-        expect(str.length).to.eql(64);
-        expect(bs.length).to.eql(55);
-
-        bs.trimTrailingBits();
-
-        expect(bs.toString(-1)).to.eql('0000000000000100000000000000000000000000000000000100001000000000');
-    });
-});
-
 describe('union', () =>
 {
     it('should calculate the union of 2 sets', () =>
