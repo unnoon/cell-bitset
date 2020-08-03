@@ -1,7 +1,7 @@
 {
   "name": "cell-bitset",
   "version": "0.3.6",
-  "description": "Fast JS BitSet implementation. Beyond 32bit restrictions.",
+  "description": "Fast JS BitSet implementation.",
   "main": "BitSet.js",
   "repository": {
     "type": "git",
@@ -18,6 +18,7 @@
   "author": "Rogier Geertzema",
   "license": "MIT",
   "scripts": {
+    "linter": "eslint src/**",
     "build:clean": "rimraf -rf bin/ && rimraf -rf tmp/",
     "build:docs": "rimraf -rf bin/docs && npm run docs && ncp doc/ bin/docs/",
     "build:es6": "tsc --outDir tmp/ -p tsconfig.json --declaration --sourceMap --module ES6 --noEmit false && ncp tmp/src/ bin/ && npm run preprocess:es6",
@@ -32,41 +33,110 @@
     "postversion": "git push && git push --tags && npm publish bin/",
     "preprocess:es6": "rimraf bin/BitSet.js && metascript tmp/src/BitSet.js > bin/BitSet.js     -VERSION=%npm_package_version%",
     "preprocess:ts": " mkdirp bin/.ts/      && metascript     src/BitSet.ts > bin/.ts/BitSet.ts -VERSION=%npm_package_version%",
-    "test": "karma start --single-run",
-    "update": "ncu -u -a && npm install"
+    "test": "ava",
+    "update": "ncu -u -a && npm install",
+    "build:test": "tsc -p tsconfig.test.json"
   },
-  "dependencies": {
-    "@types/reflect-metadata": "^0.1.0",
-    "bottom_line": "^0.11.0",
-    "core-js": "^3.3.6",
-    "reflect-metadata": "^0.1.13"
-  },
+  "dependencies": {},
   "devDependencies": {
-    "@types/chai": "^4.2.4",
-    "@types/mocha": "^5.2.7",
-    "@types/sinon": "^7.5.0",
-    "awesome-typescript-loader": "^5.2.1",
-    "babel-polyfill": "^6.26.0",
-    "chai": "^4.2.0",
-    "coveralls": "^3.0.7",
-    "husky": "^3.0.9",
-    "karma": "^4.4.1",
-    "karma-chai": "^0.1.0",
-    "karma-chrome-launcher": "^3.1.0",
-    "karma-firefox-launcher": "^1.2.0",
-    "karma-mocha": "^1.3.0",
-    "karma-sinon": "^1.0.5",
-    "karma-typescript": "^4.1.1",
-    "karma-typescript-es6-transform": "^4.1.1",
-    "metascript": "^1.0.0",
-    "mocha": "^6.2.2",
-    "ncp": "^2.0.0",
-    "rimraf": "^3.0.0",
-    "sinon": "^7.5.0",
-    "tslint": "^5.20.0",
-    "tslint-eslint-rules": "^5.4.0",
-    "typedoc": "^0.15.0",
-    "typescript": "^3.6.4",
-    "webpack": "^4.41.2"
+    "@typescript-eslint/eslint-plugin": "^3.7.1",
+    "@typescript-eslint/parser": "^3.7.1",
+    "ava": "^3.11.1",
+    "benchmark": "^2.1.4",
+    "eslint": "^7.6.0",
+    "eslint-config-airbnb-base": "^14.2.0",
+    "eslint-import-resolver-alias": "^1.1.2",
+    "eslint-plugin-import": "^2.22.0",
+    "eslint-plugin-jsdoc": "^30.1.0",
+    "husky": "^4.2.5",
+    "lint-staged": "^10.2.11",
+    "ts-node": "^8.10.2",
+    "typescript": "^3.9.7"
+  },
+  "lint-staged": {
+    "*.(js|ts)": [
+      "eslint --fix",
+      "git add"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "ava": {
+    "files": [
+      "src/**/*.test.ts"
+    ],
+    "extensions": [
+      "ts"
+    ],
+    "require": [
+      "ts-node/register/transpile-only"
+    ],
+    "timeout": "30s",
+    "verbose": true
+  },
+  "eslintIgnore": [
+    "dist/**",
+    "*.old.ts"
+  ],
+  "eslintConfig": {
+    "parser": "@typescript-eslint/parser",
+    "plugins": [
+      "@typescript-eslint"
+    ],
+    "globals": {
+      "document": true,
+	  "window": true,
+	  "BigInt": true
+    },
+    "env": {
+    },
+    "extends": [
+      "eslint:recommended",
+      "airbnb-base",
+      "plugin:jsdoc/recommended"
+    ],
+    "settings": {
+      "import/resolver": {
+        "node": {
+          "extensions": [
+            ".ts"
+          ]
+        }
+      }
+    },
+    "rules": {
+      "brace-style": [
+        "error",
+        "stroustrup",
+        {
+          "allowSingleLine": false
+        }
+      ],
+      "indent": ["error", "tab"],
+      "jsdoc/require-param-type": "off",
+      "jsdoc/require-returns-type": "off",
+      "lines-between-class-members": "off",
+      "no-bitwise": "off",
+      "no-dupe-class-members": "off",
+      "import/extensions": "off",
+	    "import/no-extraneous-dependencies": ["error", {
+        "devDependencies": [
+          "src/**/*.test.ts"
+        ]
+      }],
+      "no-multi-spaces": "off",
+      "no-plusplus": "off",
+      "no-tabs": "off",
+      "no-underscore-dangle": "off",
+      "max-len": [
+        "warn",
+        {
+          "code": 180
+        }
+      ]
+    }
   }
 }

@@ -1,14 +1,11 @@
 {
-    "compilerOptions":
-    {
-        "noEmit": true,
-        "target": "es6",
-        "lib": ["es6", "dom", "es2017.object", "esnext"],
-        "types": ["reflect-metadata"],
-        "module": "commonjs",
-        "moduleResolution": "node",
-        "experimentalDecorators": true,
-        "emitDecoratorMetadata": true,
-        "jsx": "react"
-    }
+	"compilerOptions": {
+	  "esModuleInterop": true,
+	  "isolatedModules": true,
+	  "moduleResolution": "node",
+	  "outDir": "dist",
+	  "target": "es2020",
+	},
+	"include": ["src/**/*"],
+	"exclude": ["node_modules", "src/BitSet.old.ts"]
 }
