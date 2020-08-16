@@ -33,24 +33,25 @@
     "postversion": "git push && git push --tags && npm publish bin/",
     "preprocess:es6": "rimraf bin/BitSet.js && metascript tmp/src/BitSet.js > bin/BitSet.js     -VERSION=%npm_package_version%",
     "preprocess:ts": " mkdirp bin/.ts/      && metascript     src/BitSet.ts > bin/.ts/BitSet.ts -VERSION=%npm_package_version%",
-    "test": "ava",
     "update": "ncu -u -a && npm install",
-    "build:test": "tsc -p tsconfig.test.json"
+    "build:test": "tsc -p tsconfig.test.json",
+    "test": "jest"
   },
   "dependencies": {},
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^3.7.1",
-    "@typescript-eslint/parser": "^3.7.1",
-    "ava": "^3.11.1",
+    "@types/jest": "^26.0.10",
+    "@typescript-eslint/eslint-plugin": "^3.9.0",
+    "@typescript-eslint/parser": "^3.9.0",
     "benchmark": "^2.1.4",
-    "eslint": "^7.6.0",
+    "eslint": "^7.7.0",
     "eslint-config-airbnb-base": "^14.2.0",
-    "eslint-import-resolver-alias": "^1.1.2",
     "eslint-plugin-import": "^2.22.0",
-    "eslint-plugin-jsdoc": "^30.1.0",
+    "eslint-plugin-jest": "^23.20.0",
+    "eslint-plugin-jsdoc": "^30.2.3",
     "husky": "^4.2.5",
+    "jest": "^26.4.0",
     "lint-staged": "^10.2.11",
-    "ts-node": "^8.10.2",
+    "ts-jest": "^26.2.0",
     "typescript": "^3.9.7"
   },
   "lint-staged": {
@@ -64,79 +65,9 @@
       "pre-commit": "lint-staged"
     }
   },
-  "ava": {
-    "files": [
-      "src/**/*.test.ts"
-    ],
-    "extensions": [
-      "ts"
-    ],
-    "require": [
-      "ts-node/register/transpile-only"
-    ],
-    "timeout": "30s",
-    "verbose": true
-  },
   "eslintIgnore": [
     "dist/**",
-    "*.old.ts"
-  ],
-  "eslintConfig": {
-    "parser": "@typescript-eslint/parser",
-    "plugins": [
-      "@typescript-eslint"
-    ],
-    "globals": {
-      "document": true,
-	  "window": true,
-	  "BigInt": true
-    },
-    "env": {
-    },
-    "extends": [
-      "eslint:recommended",
-      "airbnb-base",
-      "plugin:jsdoc/recommended"
-    ],
-    "settings": {
-      "import/resolver": {
-        "node": {
-          "extensions": [
-            ".ts"
-          ]
-        }
-      }
-    },
-    "rules": {
-      "brace-style": [
-        "error",
-        "stroustrup",
-        {
-          "allowSingleLine": false
-        }
-      ],
-      "indent": ["error", "tab"],
-      "jsdoc/require-param-type": "off",
-      "jsdoc/require-returns-type": "off",
-      "lines-between-class-members": "off",
-      "no-bitwise": "off",
-      "no-dupe-class-members": "off",
-      "import/extensions": "off",
-	    "import/no-extraneous-dependencies": ["error", {
-        "devDependencies": [
-          "src/**/*.test.ts"
-        ]
-      }],
-      "no-multi-spaces": "off",
-      "no-plusplus": "off",
-      "no-tabs": "off",
-      "no-underscore-dangle": "off",
-      "max-len": [
-        "warn",
-        {
-          "code": 180
-        }
-      ]
-    }
-  }
+    "*.old.ts",
+    "*.ava.ts"
+  ]
 }

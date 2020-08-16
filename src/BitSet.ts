@@ -35,6 +35,7 @@ export default class BitSet {
 	 *
 	 * @returns this.
 	 */
+	// TODO any iterable
 	public add(...indices: number[]): BitSet {
 		for (let i = indices.length; i--;) {
 			this.set(indices[i]);
@@ -86,6 +87,18 @@ export default class BitSet {
 		this.value = ~this.value;
 
 		return this;
+	}
+
+	/**
+	 * Calculates if the bitset contains a certain bitset.
+	 * In bitmask terms it will calculate if a bitmask fits a bitset.
+	 *
+	 * @param mask - Tests if a bitset mask fits. i.e. subset to test containment.
+	 *
+	 * @returns a boolean indicating if the mask fits the bitset (i.e. is a subset).
+	 */
+	public fits(mask: BitSet): boolean {
+		return (this.value & mask.value) === mask.value;
 	}
 
 	/**
@@ -142,7 +155,7 @@ export default class BitSet {
 	 *
 	 * @returns this.
 	 */
-	public set(index: number, val: number = 1): BitSet {
+	public set(index: number, val = 1): BitSet {
 		this.value = (val)
 			? this.value |  (1n << BigInt(index))
 			: this.value & ~(1n << BigInt(index));
@@ -174,7 +187,7 @@ export default class BitSet {
 	 * @returns a boolean indicating if the loop finished completely=true or was broken=false.
 	 */
 	// TODO better algorithm
-	public forEach(cb: (value: number, index: number, bitset: BitSet) => any|boolean, ctx?: object): boolean {
+	public forEach(cb: (value: number, index: number, bitset: BitSet) => any|boolean, ctx?: Record<string, unknown>): boolean {
 		let remainder = this.value;
 		let idx       = 0;
 
