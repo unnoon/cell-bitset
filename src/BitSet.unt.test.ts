@@ -56,6 +56,51 @@ test('complement', () => {
 	expect(bs.value).toBe(-165n);
 });
 
+test('difference', () => {
+	const bs1  = new BitSet().add(6, 14, 62);
+	const bs2  = new BitSet().add(6, 16);
+
+	bs1.difference(bs2);
+
+	const str = bs1.toString(2);
+
+	expect(str).toBe('10000000000000000000000000000000000000000000000010000000000000');
+	expect(str).toHaveLength(62);
+});
+
+test('entries', () => {
+	const bs = new BitSet().add(7, 67, 23);
+
+	const setIter = bs.entries();
+
+	expect(setIter.next().value).toEqual([7, 7]);
+	expect(setIter.next().value).toEqual([23, 23]);
+	expect(setIter.next().value).toEqual([67, 67]);
+});
+
+describe('equals', () => {
+	test('should be able to positively compare two bitsets', () => {
+		const bs1 = new BitSet().add(6, 14, 62);
+		const bs2 = new BitSet().add(6, 14, 62);
+
+		expect(bs1.equals(bs2)).toBe(true);
+	});
+
+	test('should be able to negatively compare two bitsets', () => {
+		const bs1 = new BitSet().add(6, 14, 62);
+		const bs2 = new BitSet().add(6, 14, 78);
+
+		expect(bs1.equals(bs2)).toBe(false);
+	});
+});
+
+test('fits', () => {
+	const bs   = new BitSet().add(6, 14, 62, 123);
+	const mask = new BitSet().add(6, 14, 62);
+
+	expect(bs.fits(mask)).toBe(true);
+});
+
 test('set', () => {
 	const bs = new BitSet();
 
@@ -132,10 +177,22 @@ test('size', () => {
 });
 
 test('toString/stringify', () => {
-	const bs  = new BitSet().add(9, 14, 60);
+	const bs  = new BitSet().add(9, 14, 60, 1);
 
-	expect(bs.toString()).toBe('{9, 14, 60}');
-	expect(bs.toString(2)).toBe('100000000000000000000000000000000000000000000010000100000000');
+	expect(bs.toString()).toBe('{1, 9, 14, 60}');
+	expect(bs.toString(2)).toBe('100000000000000000000000000000000000000000000010000100000001');
+});
+
+test('xor', () => {
+	const bs1  = new BitSet().add(6, 14, 62);
+	const bs2  = new BitSet().add(6, 16);
+
+	bs2.xor(bs1);
+
+	const str = bs2.toString(2);
+
+	expect(str).toBe('10000000000000000000000000000000000000000000001010000000000000');
+	expect(str).toHaveLength(62);
 });
 
 // // // TODO set 0

@@ -90,6 +90,48 @@ export default class BitSet {
 	}
 
 	/**
+	 * Calculates the difference between 2 bitsets.
+	 * The result is stored in this.
+	 *
+	 * @param bitset - The bitset to subtract from the current one.
+	 *
+	 * @returns this.
+	 */
+	public difference(bitset: BitSet): BitSet {
+		this.value &= ~bitset.value;
+
+		return this;
+	}
+
+	/**
+	 * Returns a new Iterator object that contains an array of [index, index] for each element in the BitSet object.
+	 * This is kept similar to the Map object, so that each entry has the same value for its key and value here.
+	 *
+	 * @returns an iterable iterator yielding set indices [index, index].
+	 */
+	public entries(): IterableIterator<[number, number]> {
+		const bits: Array<[number, number]> = [];
+		const bitsIteratorFn = function* (bits_) {
+			yield* bits_;
+		};
+
+		this.forEach((val, index) => bits.push([index, index]));
+
+		return bitsIteratorFn(bits);
+	}
+
+	/**
+	 * Tests if 2 bitsets are equal.
+	 *
+	 * @param bitset - Bitset to compare to this.
+	 *
+	 * @returns a boolean indicating if the the 2 bitsets are equal.
+	 */
+	public equals(bitset: BitSet): boolean {
+		return this.value === bitset.value;
+	}
+
+	/**
 	 * Calculates if the bitset contains a certain bitset.
 	 * In bitmask terms it will calculate if a bitmask fits a bitset.
 	 *
@@ -239,5 +281,19 @@ export default class BitSet {
 		default: output = '{'; this.forEach((val) => { output += ((output !== '{') ? ', ' : '') + val; }); output += '}'; break; } // eslint-disable-line brace-style
 
 		return output;
+	}
+
+	/**
+	 * Calculates the exclusion/symmetric difference between to bitsets.
+	 * The result is stored in this.
+	 *
+	 * @param bitset - The bitset to calculate the symmetric difference with.
+	 *
+	 * @returns this.
+	 */
+	public xor(bitset: BitSet): BitSet {
+		this.value ^= bitset.value;
+
+		return this;
 	}
 }

@@ -40,6 +40,7 @@ module.exports = {
 			'error',
 			'tab',
 		],
+		'func-names': ['error', 'always', { generators: 'as-needed' }],
 		'jsdoc/require-param-type': 'off',
 		'jsdoc/require-returns-type': 'off',
 		'lines-between-class-members': 'off',
