@@ -85,11 +85,9 @@ test('difference', () => {
 test('entries', () => {
 	const bs = new BitSet().add(7, 67, 23);
 
-	const setIter = bs.entries();
+	const entriesGen = bs.entries();
 
-	expect(setIter.next().value).toEqual([7, 7]);
-	expect(setIter.next().value).toEqual([23, 23]);
-	expect(setIter.next().value).toEqual([67, 67]);
+	expect([...entriesGen]).toEqual([[7, 7], [23, 23], [67, 67]]);
 });
 
 describe('equals', () => {
@@ -209,4 +207,10 @@ test('xor', () => {
 	expect(str).toHaveLength(62);
 });
 
-// // // TODO set 0
+test('values', () => {
+	const bs1  = new BitSet().add(6, 14, 62);
+
+	const values = bs1.values();
+
+	expect([...values]).toEqual([6, 14, 62]);
+});

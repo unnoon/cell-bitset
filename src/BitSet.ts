@@ -144,17 +144,21 @@ export default class BitSet {
 	 * Returns a new Iterator object that contains an array of [index, index] for each element in the BitSet object.
 	 * This is kept similar to the Map object, so that each entry has the same value for its key and value here.
 	 *
+	 * @yields an iterable iterator yielding set indices [index, index].
+	 */
+	public* entries(): IterableIterator<[number, number]> {
+		for (const idx of this) {
+			yield [idx, idx];
+		}
+	}
+
+	/**
+	 * Returns a value iterator
+	 *
 	 * @returns an iterable iterator yielding set indices [index, index].
 	 */
-	public entries(): IterableIterator<[number, number]> {
-		const bits: Array<[number, number]> = [];
-		const bitsIteratorFn = function* (bits_: Array<[number, number]>) {
-			yield* bits_;
-		};
-
-		this.forEach((val, index) => bits.push([index, index]));
-
-		return bitsIteratorFn(bits);
+	public values(): IterableIterator<number> {
+		return this[Symbol.iterator].call(this);
 	}
 
 	public* [Symbol.iterator](): IterableIterator<number> {
@@ -169,6 +173,7 @@ export default class BitSet {
 
 			while (word) {
 				tmp = (word & -word);
+				tmp = word;
 				idx = (wordIdx << 5) + BitSet.hammingWeight(tmp - 1); // where 5 is the log of the word size 32
 
 				yield idx;
@@ -296,28 +301,10 @@ export default class BitSet {
 	 * @returns a boolean indicating if the loop finished completely=true or was broken=false.
 	 */
 	public forEach(cb: (value: number, index: number, bitset: BitSet) => any|boolean, ctx?: Record<string, any>): boolean {
-		let remainder = this.value;
-		let wordIdx   = 0;
-		let word;
-		let tmp;
-		let idx;
-
-		while (remainder) {
-			word = Number(BigInt.asIntN(32, remainder));
-
-			while (word) {
-				tmp = (word & -word);
-				idx = (wordIdx << 5) + BitSet.hammingWeight(tmp - 1); // where 5 is the log of the word size 32
-
-				if (cb.call(ctx, idx, idx, this) === false) {
-					return false;
-				}
-
-				word ^= tmp;
+		for (const idx of this) {
+			if (cb.call(ctx, idx, idx, this) === false) {
+				return false;
 			}
-
-			remainder >>= 32n;
-			wordIdx++;
 		}
 
 		return true;

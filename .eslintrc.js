@@ -46,6 +46,7 @@ module.exports = {
 		'lines-between-class-members': 'off',
 		'no-bitwise': 'off',
 		'no-dupe-class-members': 'off',
+		'no-restricted-syntax': 'off',
 		'import/extensions': 'off',
 		'import/no-extraneous-dependencies': [
 			'error',
