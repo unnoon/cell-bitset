@@ -173,7 +173,6 @@ export default class BitSet {
 
 			while (word) {
 				tmp = (word & -word);
-				tmp = word;
 				idx = (wordIdx << 5) + BitSet.hammingWeight(tmp - 1); // where 5 is the log of the word size 32
 
 				yield idx;

@@ -208,9 +208,9 @@ test('xor', () => {
 });
 
 test('values', () => {
-	const bs1  = new BitSet().add(6, 14, 62);
+	const bs1  = new BitSet().add(6, 14, 62, 256);
 
 	const values = bs1.values();
 
-	expect([...values]).toEqual([6, 14, 62]);
+	expect([...values]).toEqual([6, 14, 62, 256]);
 });
