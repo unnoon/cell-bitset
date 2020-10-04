@@ -5,10 +5,14 @@ test('constructor', () => {
 	const bs = new BitSet();
 
 	expect(bs.value).toBe(0n);
+
+	const str = bs.toString(2);
+
+	expect(str).toBe('0');
 });
 
 test('constructor with values', () => {
-	const bs = new BitSet().add(3, 4);
+	const bs = new BitSet([3, 4]);
 
 	expect(bs.value).toBe(24n);
 });
@@ -54,6 +58,16 @@ test('complement', () => {
 	bs.complement();
 
 	expect(bs.value).toBe(-165n);
+});
+
+test('delete', () => {
+	const bs1  = new BitSet().add(6, 14, 62);
+
+	bs1.delete(14, 62);
+
+	const str = bs1.toString(2);
+
+	expect(str).toBe('100000');
 });
 
 test('difference', () => {

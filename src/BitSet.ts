@@ -5,8 +5,6 @@
  * @overview     Fast JS BitSet implementation.
  */
 
-type numeric = number|bigint
-
 /**
  * Fast JS BitSet implementation.
  */
@@ -23,9 +21,26 @@ export default class BitSet {
 
 	public value = 0n
 
-	// TOOD iterable
-	constructor(value = 0n) {
-		this.value = value;
+	/**
+	 * Calculate the hamming weight i.e. the number of ones in a bitstring/word.
+	 *
+	 * @param num - Number to get the hamming weight from. Will be converted to a 32 bit int.
+	 *
+	 * @returns the number of set bits in the word.
+	 */
+	public static hammingWeight(num: number): number {
+		let w = num | 0;
+
+		w -= (w >>> 1) & 0x55555555;
+		w  = (w & 0x33333333) + ((w >>> 2) & 0x33333333);
+
+		w = ((w + (w >>> 4) & 0xF0F0F0F) * 0x1010101) >>> 24;
+
+		return w | 0;
+	}
+
+	constructor(indices: Iterable<number> = []) {
+		this.add(...indices);
 	}
 
 	/**
@@ -35,9 +50,10 @@ export default class BitSet {
 	 *
 	 * @returns this.
 	 */
-	// TODO any iterable
 	public add(...indices: number[]): BitSet {
-		for (let i = indices.length; i--;) {
+		let i = indices.length;
+
+		while (i--) {
 			this.set(indices[i]);
 		}
 
@@ -75,7 +91,11 @@ export default class BitSet {
 	 * @returns  clone.
 	 */
 	public clone(): BitSet {
-		return new BitSet(this.value);
+		const clone = new BitSet();
+
+		clone.value = this.value;
+
+		return clone;
 	}
 
 	/**
@@ -85,6 +105,23 @@ export default class BitSet {
 	 */
 	public complement(): BitSet {
 		this.value = ~this.value;
+
+		return this;
+	}
+
+	/**
+	 * Removes indices/numbers from the bitset.
+	 *
+	 * @param indices - The indices/numbers to be removed.
+	 *
+	 * @returns this.
+	 */
+	public delete(...indices: number[]): BitSet {
+		let i = indices.length;
+
+		while (i--) {
+			this.set(indices[i], 0);
+		}
 
 		return this;
 	}
@@ -111,13 +148,36 @@ export default class BitSet {
 	 */
 	public entries(): IterableIterator<[number, number]> {
 		const bits: Array<[number, number]> = [];
-		const bitsIteratorFn = function* (bits_) {
+		const bitsIteratorFn = function* (bits_: Array<[number, number]>) {
 			yield* bits_;
 		};
 
 		this.forEach((val, index) => bits.push([index, index]));
 
 		return bitsIteratorFn(bits);
+	}
+
+	public* [Symbol.iterator](): IterableIterator<number> {
+		let remainder = this.value;
+		let wordIdx   = 0;
+		let word;
+		let tmp;
+		let idx;
+
+		while (remainder) {
+			word = Number(BigInt.asIntN(32, remainder));
+
+			while (word) {
+				tmp = (word & -word);
+				idx = (wordIdx << 5) + BitSet.hammingWeight(tmp - 1); // where 5 is the log of the word size 32
+
+				yield idx;
+
+				word ^= tmp;
+			}
+
+			remainder = this.value >> BigInt(++wordIdx) * 32n;
+		}
 	}
 
 	/**
@@ -164,7 +224,7 @@ export default class BitSet {
 	 * @returns the value of the bit at the given index.
 	 */
 	public get(index: number): number {
-		return Number((this.value >> BigInt(index)) & 1n);
+		return Number(this.value >> BigInt(index)) & 1;
 	}
 
 	/**
@@ -210,13 +270,20 @@ export default class BitSet {
 	 *
 	 * @returns The size of the set.
 	 */
-	// TODO a better algorithm for this i.e. hammingWeight
 	public get size(): number {
-		let count = 0;
+		let remainder = this.value;
+		let word;
+		let size = 0;
 
-		this.forEach(() => count++);
+		while (remainder) {
+			word = Number(BigInt.asIntN(32, remainder));
 
-		return count;
+			size += BitSet.hammingWeight(word);
+
+			remainder >>= 32n;
+		}
+
+		return size;
 	}
 
 	/**
@@ -228,19 +295,29 @@ export default class BitSet {
 	 *
 	 * @returns a boolean indicating if the loop finished completely=true or was broken=false.
 	 */
-	// TODO better algorithm
-	public forEach(cb: (value: number, index: number, bitset: BitSet) => any|boolean, ctx?: Record<string, unknown>): boolean {
+	public forEach(cb: (value: number, index: number, bitset: BitSet) => any|boolean, ctx?: Record<string, any>): boolean {
 		let remainder = this.value;
-		let idx       = 0;
+		let wordIdx   = 0;
+		let word;
+		let tmp;
+		let idx;
 
 		while (remainder) {
-			if (remainder & 1n) {
+			word = Number(BigInt.asIntN(32, remainder));
+
+			while (word) {
+				tmp = (word & -word);
+				idx = (wordIdx << 5) + BitSet.hammingWeight(tmp - 1); // where 5 is the log of the word size 32
+
 				if (cb.call(ctx, idx, idx, this) === false) {
 					return false;
 				}
+
+				word ^= tmp;
 			}
-			idx++;
-			remainder >>= 1n;
+
+			remainder >>= 32n;
+			wordIdx++;
 		}
 
 		return true;
@@ -262,6 +339,8 @@ export default class BitSet {
 
 			bitString = `1${'0'.repeat(diff - 1)}${bitString}`;
 		});
+
+		bitString ||= '0';
 
 		return bitString;
 	}
