@@ -151,19 +151,21 @@ export default class BitSet {
 		let remainder = this.#value;
 		let wordIdx   = 0;
 		let word;
-		let tmp;
+		let subIdx = 0;
+		let accIdx = 0;
 		let idx;
 
 		while (remainder) {
 			word = Number(BigInt.asIntN(32, remainder));
+			accIdx = wordIdx * 32;
 
 			while (word) {
-				tmp = (word & -word);
-				idx = (wordIdx << 5) + ones(tmp - 1); // where 5 is the log of the word size 32
+				subIdx = lsb(word);
+				idx = accIdx + subIdx; // where 5 is the log of the word size 32
 
 				yield idx;
 
-				word ^= tmp;
+				word ^= 1 << subIdx;
 			}
 
 			remainder = this.#value >> BigInt(++wordIdx) * 32n;
@@ -353,8 +355,12 @@ export default class BitSet {
 	}
 }
 
+const DeBruijnTable = Object.freeze([
+	0, 1, 28, 2, 29, 14, 24, 3, 30, 22, 20, 15, 25, 17, 4, 8, 31, 27, 13, 23, 21, 19, 16, 7, 26, 12, 18, 6, 11, 5, 10, 9,
+]);
+
 /**
- * Calculate the number of set bits (hamming weight/pop count).
+ * Calculate the number of set bits (hamming weight/pop count) in a 32 bit number/word.
  *
  * @param num - 32 bit-ish number to calculate the number of ones from.
  *
@@ -374,22 +380,22 @@ export function ones(num: number): number {
 /**
  * Returns the least significant bit in a word. Returns 32 in case the word is 0.
  *
- * @param num - The word to get the least significant bit from.
+ * @param num - 32 bit-ish number to get the least significant bit from.
  *
- * @returns the least significant bit in w.
+ * @returns the least significant bit in the number.
  */
 export function lsb(num: number): number {
 	const w = num | 0;
 
-	return ones((w & -w) - 1) | 0;
+	return DeBruijnTable[(((w & -w) * 0x077CB531)) >>> 27] | 0;
 }
 
 /**
  * Returns the most significant bit in a word.
  *
- * @param num - the word to get the most significant bit from.
+ * @param num - 32 bit-ish number to get the most significant bit from.
  *
- * @returns the most significant bit in w.
+ * @returns the most significant bit in number.
  */
 export function msb(num: number): number {
 	let w = num | 0;
@@ -399,6 +405,7 @@ export function msb(num: number): number {
 	w |= w >> 4;
 	w |= w >> 8;
 	w |= w >> 16;
+	w = (w >> 1) + 1;
 
-	return ones(w >> 1) | 0;
+	return DeBruijnTable[(w * 0x077CB531) >>> 27] | 0;
 }

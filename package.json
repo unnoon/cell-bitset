@@ -18,7 +18,8 @@
   "author": "Rogier Geertzema",
   "license": "MIT",
   "scripts": {
-    "linter": "eslint src/**",
+	"linter": "eslint src/**",
+	"benchmarks": "node test/benchmarks/bitset.spd.test.js",
     "build:clean": "rimraf -rf bin/ && rimraf -rf tmp/",
     "build:docs": "rimraf -rf bin/docs && npm run docs && ncp doc/ bin/docs/",
     "build:es6": "tsc --outDir tmp/ -p tsconfig.json --declaration --sourceMap --module ES6 --noEmit false && ncp tmp/src/ bin/ && npm run preprocess:es6",

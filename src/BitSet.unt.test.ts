@@ -1,5 +1,5 @@
 /// <reference types="jest" />
-import BitSet from './BitSet';
+import BitSet, { lsb, msb, ones } from './BitSet';
 
 test('constructor', () => {
 	const bs = new BitSet();
