@@ -19,24 +19,14 @@ export default class BitSet {
 	 */
 	public [Symbol.toStringTag] = 'BitSet';
 
-	public value = 0n
+	#value = 0n
 
-	/**
-	 * Calculate the hamming weight i.e. the number of ones in a bitstring/word.
-	 *
-	 * @param num - Number to get the hamming weight from. Will be converted to a 32 bit int.
-	 *
-	 * @returns the number of set bits in the word.
-	 */
-	public static hammingWeight(num: number): number {
-		let w = num | 0;
+	static of(value: bigint): BitSet {
+		const bitset = new BitSet();
 
-		w -= (w >>> 1) & 0x55555555;
-		w  = (w & 0x33333333) + ((w >>> 2) & 0x33333333);
+		bitset.#value = value;
 
-		w = ((w + (w >>> 4) & 0xF0F0F0F) * 0x1010101) >>> 24;
-
-		return w | 0;
+		return bitset;
 	}
 
 	constructor(indices: Iterable<number> = []) {
@@ -69,7 +59,7 @@ export default class BitSet {
 	 * @returns this.
 	 */
 	public and(bitset: BitSet): BitSet {
-		this.value &= bitset.value;
+		this.#value &= bitset.#value;
 
 		return this;
 	}
@@ -80,7 +70,7 @@ export default class BitSet {
 	 * @returns this.
 	 */
 	public clear(): BitSet {
-		this.value = 0n;
+		this.#value = 0n;
 
 		return this;
 	}
@@ -91,11 +81,7 @@ export default class BitSet {
 	 * @returns  clone.
 	 */
 	public clone(): BitSet {
-		const clone = new BitSet();
-
-		clone.value = this.value;
-
-		return clone;
+		return BitSet.of(this.#value);
 	}
 
 	/**
@@ -104,7 +90,7 @@ export default class BitSet {
 	 * @returns this.
 	 */
 	public complement(): BitSet {
-		this.value = ~this.value;
+		this.#value = ~this.#value;
 
 		return this;
 	}
@@ -135,7 +121,7 @@ export default class BitSet {
 	 * @returns this.
 	 */
 	public difference(bitset: BitSet): BitSet {
-		this.value &= ~bitset.value;
+		this.#value &= ~bitset.#value;
 
 		return this;
 	}
@@ -162,7 +148,7 @@ export default class BitSet {
 	}
 
 	public* [Symbol.iterator](): IterableIterator<number> {
-		let remainder = this.value;
+		let remainder = this.#value;
 		let wordIdx   = 0;
 		let word;
 		let tmp;
@@ -173,14 +159,14 @@ export default class BitSet {
 
 			while (word) {
 				tmp = (word & -word);
-				idx = (wordIdx << 5) + BitSet.hammingWeight(tmp - 1); // where 5 is the log of the word size 32
+				idx = (wordIdx << 5) + ones(tmp - 1); // where 5 is the log of the word size 32
 
 				yield idx;
 
 				word ^= tmp;
 			}
 
-			remainder = this.value >> BigInt(++wordIdx) * 32n;
+			remainder = this.#value >> BigInt(++wordIdx) * 32n;
 		}
 	}
 
@@ -192,7 +178,7 @@ export default class BitSet {
 	 * @returns a boolean indicating if the the 2 bitsets are equal.
 	 */
 	public equals(bitset: BitSet): boolean {
-		return this.value === bitset.value;
+		return this.#value === bitset.#value;
 	}
 
 	/**
@@ -204,7 +190,7 @@ export default class BitSet {
 	 * @returns a boolean indicating if the mask fits the bitset (i.e. is a subset).
 	 */
 	public fits(mask: BitSet): boolean {
-		return (this.value & mask.value) === mask.value;
+		return (this.#value & mask.#value) === mask.#value;
 	}
 
 	/**
@@ -215,7 +201,7 @@ export default class BitSet {
 	 * @returns this.
 	 */
 	public flip(index: number): BitSet {
-		this.value ^= (1n << BigInt(index));
+		this.#value ^= (1n << BigInt(index));
 
 		return this;
 	}
@@ -228,7 +214,7 @@ export default class BitSet {
 	 * @returns the value of the bit at the given index.
 	 */
 	public get(index: number): number {
-		return Number(this.value >> BigInt(index)) & 1;
+		return Number(this.#value >> BigInt(index)) & 1;
 	}
 
 	/**
@@ -250,7 +236,7 @@ export default class BitSet {
 	 * @returns a boolean indicating if the two bitsets intersects.
 	 */
 	public intersects(bitset: BitSet): boolean {
-		return !!(this.value & bitset.value);
+		return !!(this.#value & bitset.#value);
 	}
 
 	/**
@@ -262,9 +248,9 @@ export default class BitSet {
 	 * @returns this.
 	 */
 	public set(index: number, val = 1): BitSet {
-		this.value = (val)
-			? this.value |  (1n << BigInt(index))
-			: this.value & ~(1n << BigInt(index));
+		this.#value = (val)
+			? this.#value |  (1n << BigInt(index))
+			: this.#value & ~(1n << BigInt(index));
 
 		return this;
 	}
@@ -275,14 +261,14 @@ export default class BitSet {
 	 * @returns The size of the set.
 	 */
 	public get size(): number {
-		let remainder = this.value;
+		let remainder = this.#value;
 		let word;
 		let size = 0;
 
 		while (remainder) {
 			word = Number(BigInt.asIntN(32, remainder));
 
-			size += BitSet.hammingWeight(word);
+			size += ones(word);
 
 			remainder >>= 32n;
 		}
@@ -348,6 +334,10 @@ export default class BitSet {
 		return output;
 	}
 
+	public valueOf() {
+		return this.#value;
+	}
+
 	/**
 	 * Calculates the exclusion/symmetric difference between to bitsets.
 	 * The result is stored in this.
@@ -357,8 +347,26 @@ export default class BitSet {
 	 * @returns this.
 	 */
 	public xor(bitset: BitSet): BitSet {
-		this.value ^= bitset.value;
+		this.#value ^= bitset.#value;
 
 		return this;
 	}
+}
+
+/**
+ * Calculate the number of set bits (hamming weight/pop count).
+ *
+ * @param num - 32 bit-ish number to calculate the number of ones from.
+ *
+ * @returns The number of set bits in the word.
+ */
+export function ones(num: number): number {
+	let w = num | 0; // convert to 32 bit int
+
+	w -= (w >>> 1) & 0x55555555;
+	w  = (w & 0x33333333) + ((w >>> 2) & 0x33333333);
+
+	w = ((w + (w >>> 4) & 0xF0F0F0F) * 0x1010101) >>> 24;
+
+	return w | 0;
 }

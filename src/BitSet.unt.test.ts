@@ -4,7 +4,7 @@ import BitSet from './BitSet';
 test('constructor', () => {
 	const bs = new BitSet();
 
-	expect(bs.value).toBe(0n);
+	expect(bs.valueOf()).toBe(0n);
 
 	const str = bs.toString(2);
 
@@ -14,7 +14,7 @@ test('constructor', () => {
 test('constructor with values', () => {
 	const bs = new BitSet([3, 4]);
 
-	expect(bs.value).toBe(24n);
+	expect(bs.valueOf()).toBe(24n);
 });
 
 test('add', () => {
@@ -22,7 +22,7 @@ test('add', () => {
 
 	bs.add(3, 4);
 
-	expect(bs.value).toBe(24n);
+	expect(bs.valueOf()).toBe(24n);
 });
 
 test('and', () => {
@@ -31,7 +31,7 @@ test('and', () => {
 
 	const bs3 = bs1.and(bs2);
 
-	expect(bs3.value).toBe(16448n); // {6, 14}
+	expect(bs3.valueOf()).toBe(16448n); // {6, 14}
 });
 
 test('clear', () => {
@@ -39,14 +39,14 @@ test('clear', () => {
 
 	bs.clear();
 
-	expect(bs.value).toBe(0n);
+	expect(bs.valueOf()).toBe(0n);
 });
 
 test('clone', () => {
 	const bs  = new BitSet().add(3, 4);
 	const bs_ = bs.clone();
 
-	expect(bs_.value).toBe(24n);
+	expect(bs_.valueOf()).toBe(24n);
 	expect(bs_).not.toBe(bs);
 });
 
@@ -57,7 +57,7 @@ test('complement', () => {
 
 	bs.complement();
 
-	expect(bs.value).toBe(-165n);
+	expect(bs.valueOf()).toBe(-165n);
 });
 
 test('delete', () => {
@@ -118,7 +118,7 @@ test('set', () => {
 
 	bs.set(3);
 
-	expect(bs.value).toBe(8n);
+	expect(bs.valueOf()).toBe(8n);
 });
 
 test('set specific value', () => {
@@ -127,7 +127,7 @@ test('set specific value', () => {
 	bs.set(3);
 	bs.set(3, 0);
 
-	expect(bs.value).toBe(0n);
+	expect(bs.valueOf()).toBe(0n);
 });
 
 test('get', () => {
@@ -147,7 +147,7 @@ test('flip', () => {
 
 	bs.flip(123).flip(3);
 
-	expect(bs.value).toBe(10633823966279326983230456482242756608n);
+	expect(bs.valueOf()).toBe(10633823966279326983230456482242756608n);
 });
 
 test('forEach', () => {

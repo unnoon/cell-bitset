@@ -47,6 +47,7 @@ module.exports = {
 		'no-bitwise': 'off',
 		'no-dupe-class-members': 'off',
 		'no-restricted-syntax': 'off',
+		'no-use-before-define': 'off',
 		'import/extensions': 'off',
 		'import/no-extraneous-dependencies': [
 			'error',
