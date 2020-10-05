@@ -370,3 +370,35 @@ export function ones(num: number): number {
 
 	return w | 0;
 }
+
+/**
+ * Returns the least significant bit in a word. Returns 32 in case the word is 0.
+ *
+ * @param num - The word to get the least significant bit from.
+ *
+ * @returns the least significant bit in w.
+ */
+export function lsb(num: number): number {
+	const w = num | 0;
+
+	return ones((w & -w) - 1) | 0;
+}
+
+/**
+ * Returns the most significant bit in a word.
+ *
+ * @param num - the word to get the most significant bit from.
+ *
+ * @returns the most significant bit in w.
+ */
+export function msb(num: number): number {
+	let w = num | 0;
+
+	w |= w >> 1;
+	w |= w >> 2;
+	w |= w >> 4;
+	w |= w >> 8;
+	w |= w >> 16;
+
+	return ones(w >> 1) | 0;
+}
