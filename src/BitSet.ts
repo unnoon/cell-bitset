@@ -5,6 +5,8 @@
  * @overview     Fast JS BitSet implementation.
  */
 
+type BitSettable = bigint|BitSet
+
 /**
  * Fast JS BitSet implementation.
  */
@@ -41,25 +43,7 @@ export default class BitSet {
 	 * @returns this.
 	 */
 	public add(...indices: number[]): BitSet {
-		let i = indices.length;
-
-		while (i--) {
-			this.set(indices[i]);
-		}
-
-		return this;
-	}
-
-	/**
-	 * Calculates the intersection between two bitsets.
-	 * The result is stored in this.
-	 *
-	 * @param bitset - The bitset to calculate the intersection with.
-	 *
-	 * @returns this.
-	 */
-	public and(bitset: BitSet): BitSet {
-		this.#value &= bitset.#value;
+		this.#value = add(this.#value, indices);
 
 		return this;
 	}
@@ -81,7 +65,9 @@ export default class BitSet {
 	 * @returns  clone.
 	 */
 	public clone(): BitSet {
-		return BitSet.of(this.#value);
+		const clone = BitSet.of(this.#value);
+
+		return clone;
 	}
 
 	/**
@@ -89,7 +75,7 @@ export default class BitSet {
 	 *
 	 * @returns this.
 	 */
-	public complement(): BitSet {
+	public invert(): BitSet {
 		this.#value = ~this.#value;
 
 		return this;
@@ -103,25 +89,7 @@ export default class BitSet {
 	 * @returns this.
 	 */
 	public delete(...indices: number[]): BitSet {
-		let i = indices.length;
-
-		while (i--) {
-			this.set(indices[i], 0);
-		}
-
-		return this;
-	}
-
-	/**
-	 * Calculates the difference between 2 bitsets.
-	 * The result is stored in this.
-	 *
-	 * @param bitset - The bitset to subtract from the current one.
-	 *
-	 * @returns this.
-	 */
-	public difference(bitset: BitSet): BitSet {
-		this.#value &= ~bitset.#value;
+		this.#value = del(this.#value, indices);
 
 		return this;
 	}
@@ -144,7 +112,7 @@ export default class BitSet {
 	 * @returns an iterable iterator yielding set indices [index, index].
 	 */
 	public values(): IterableIterator<number> {
-		return this[Symbol.iterator].call(this);
+		return this[Symbol.iterator]();
 	}
 
 	public* [Symbol.iterator](): IterableIterator<number> {
@@ -161,7 +129,7 @@ export default class BitSet {
 
 			while (word) {
 				subIdx = lsb(word);
-				idx = accIdx + subIdx; // where 5 is the log of the word size 32
+				idx = accIdx + subIdx;
 
 				yield idx;
 
@@ -191,7 +159,7 @@ export default class BitSet {
 	 *
 	 * @returns a boolean indicating if the mask fits the bitset (i.e. is a subset).
 	 */
-	public fits(mask: BitSet): boolean {
+	public contains(mask: BitSet): boolean {
 		return (this.#value & mask.#value) === mask.#value;
 	}
 
@@ -250,9 +218,7 @@ export default class BitSet {
 	 * @returns this.
 	 */
 	public set(index: number, val = 1): BitSet {
-		this.#value = (val)
-			? this.#value |  (1n << BigInt(index))
-			: this.#value & ~(1n << BigInt(index));
+		this.#value = set(this.#value, index, val);
 
 		return this;
 	}
@@ -262,6 +228,7 @@ export default class BitSet {
 	 *
 	 * @returns The size of the set.
 	 */
+	// TODO improve by (ceil(log2(this < 0 ? -this : this+1))).
 	public get size(): number {
 		let remainder = this.#value;
 		let word;
@@ -339,20 +306,6 @@ export default class BitSet {
 	public valueOf() {
 		return this.#value;
 	}
-
-	/**
-	 * Calculates the exclusion/symmetric difference between to bitsets.
-	 * The result is stored in this.
-	 *
-	 * @param bitset - The bitset to calculate the symmetric difference with.
-	 *
-	 * @returns this.
-	 */
-	public xor(bitset: BitSet): BitSet {
-		this.#value ^= bitset.#value;
-
-		return this;
-	}
 }
 
 const DeBruijnTable = Object.freeze([
@@ -382,12 +335,15 @@ export function ones(num: number): number {
  *
  * @param num - 32 bit-ish number to get the least significant bit from.
  *
- * @returns the least significant bit in the number.
+ * @returns The least significant bit in the number.
  */
 export function lsb(num: number): number {
-	const w = num | 0;
+	const w = (num & -num);
+	let output = 0;
 
-	return DeBruijnTable[(((w & -w) * 0x077CB531)) >>> 27] | 0;
+	output = DeBruijnTable[((w * 0x077CB531)) >>> 27];
+
+	return output | 0;
 }
 
 /**
@@ -395,10 +351,11 @@ export function lsb(num: number): number {
  *
  * @param num - 32 bit-ish number to get the most significant bit from.
  *
- * @returns the most significant bit in number.
+ * @returns The most significant bit in number.
  */
 export function msb(num: number): number {
-	let w = num | 0;
+	let w      = num | 0;
+	let output = 0;
 
 	w |= w >> 1;
 	w |= w >> 2;
@@ -407,5 +364,148 @@ export function msb(num: number): number {
 	w |= w >> 16;
 	w = (w >> 1) + 1;
 
-	return DeBruijnTable[(w * 0x077CB531) >>> 27] | 0;
+	output = DeBruijnTable[(w * 0x077CB531) >>> 27];
+
+	return output | 0;
+}
+
+/**
+ * Adds numbers(indices) to the set.
+ *
+ * @param bitsettable  - The bigint/bit set to add numbers to.
+ * @param indices - Indices/numbers to add to the set.
+ *
+ * @returns Big int with added indices.
+ */
+export function add(bitsettable: BitSettable, indices: number[]): bigint {
+	let output = bitsettable.valueOf();
+	let i = indices.length;
+
+	while (i--) {
+		output = set(output, indices[i]);
+	}
+
+	return output;
+}
+
+/**
+ * Removes indices/numbers from the bitset.
+ *
+ * @param bitsettable
+ * @param indices - The indices/numbers to be removed.
+ *
+ * @returns this.
+ */
+export function del(bitsettable: BitSettable, indices: number[]): bigint {
+	let output = bitsettable.valueOf();
+	let i = indices.length;
+
+	while (i--) {
+		output = set(output, indices[i], 0);
+	}
+
+	return output;
+}
+
+/**
+ * Calculates the difference between 2 bitsets.
+ * The result is stored in this.
+ *
+ * @param bitset - The bitset to subtract from the current one.
+ * @param {...any} bitsettables
+ * @returns this.
+ */
+export function difference(...bitsettables: BitSettable[]): bigint {
+	let output = bitsettables.pop()?.valueOf() ?? 0n;
+	let i      = bitsettables.length;
+
+	while (i-- && output) {
+		output &= ~bitsettables[i].valueOf();
+	}
+
+	return output;
+}
+
+/**
+ * Calculates the intersection bigints/bit sets
+ *
+ * @param bitsettables - Big ints to calculate the intersection off.
+ *
+ * @returns The intersection of all the bigints provided.
+ */
+export function intersection(...bitsettables: BitSettable[]): bigint {
+	let output = bitsettables.pop()?.valueOf() ?? 0n;
+	let i      = bitsettables.length;
+
+	while (i-- && output) {
+		output &= bitsettables[i].valueOf();
+	}
+
+	return output;
+}
+
+/**
+ * Creates of a bigint.
+ *
+ * @param value - Bigint internal value for the bit set.
+ *
+ * @returns BitSet with internal value equal to the value provided.
+ */
+export function of(value: bigint): BitSet {
+	const bitset = BitSet.of(value);
+
+	return bitset;
+}
+
+/**
+ * Adds a number(index) to the bigint/bit set.
+ *
+ * @param bitsettables - Big int to set a bit to.
+ * @param index  - Index/number to add to the set.
+ * @param val    - Value (0|1) to set.
+ *
+ * @returns Big int with the appropriate set bit.
+ */
+export function set(bitsettables: BitSettable, index: number, val = 1): bigint {
+	const output = (val)
+		? bitsettables.valueOf() |  (1n << BigInt(index))
+		: bitsettables.valueOf() & ~(1n << BigInt(index));
+
+	return output;
+}
+
+/**
+ * Calculates the symmetric difference bigints/bit sets
+ *
+ * @param bitsettables - Bigints to calculate the intersection off.
+ *
+ * @returns The intersection of all the bigints provided.
+ */
+export function symmetricDifference(...bitsettables: BitSettable[]): bigint {
+	let output = bitsettables.pop()?.valueOf() ?? 0n;
+	let i      = bitsettables.length;
+
+	while (i--) {
+		output ^= bitsettables[i].valueOf();
+	}
+
+	return output;
+}
+
+/**
+ * Calculates the union of the provided bigints/bit sets
+ *
+ * @param bitsettables - Bigints to calculate the intersection off.
+ *
+ * @returns The intersection of all the bigints provided.
+ */
+export function union(...bitsettables: BitSettable[]): bigint {
+	let output = bitsettables.pop()?.valueOf() ?? 0n;
+	let i      = bitsettables.length;
+
+	while (i--) {
+		output |= bitsettables[i].valueOf();
+	}
+
+	return output;
 }

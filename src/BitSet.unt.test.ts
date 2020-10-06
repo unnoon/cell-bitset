@@ -1,5 +1,7 @@
 /// <reference types="jest" />
-import BitSet, { lsb, msb, ones } from './BitSet';
+import BitSet, {
+	difference, intersection, lsb, msb, ones, of, symmetricDifference,
+} from './BitSet';
 
 test('constructor', () => {
 	const bs = new BitSet();
@@ -25,13 +27,11 @@ test('add', () => {
 	expect(bs.valueOf()).toBe(24n);
 });
 
-test('and', () => {
+test('intersection', () => {
 	const bs1  = new BitSet().add(6, 14, 62);
 	const bs2  = new BitSet().add(6, 14);
 
-	const bs3 = bs1.and(bs2);
-
-	expect(bs3.valueOf()).toBe(16448n); // {6, 14}
+	expect(intersection(bs1, bs2)).toBe(16448n); // {6, 14}
 });
 
 test('clear', () => {
@@ -55,7 +55,7 @@ test('complement', () => {
 
 	expect(bs.toString()).toBe('{2, 5, 7}');
 
-	bs.complement();
+	bs.invert();
 
 	expect(bs.valueOf()).toBe(-165n);
 });
@@ -74,9 +74,9 @@ test('difference', () => {
 	const bs1  = new BitSet().add(6, 14, 62);
 	const bs2  = new BitSet().add(6, 16);
 
-	bs1.difference(bs2);
+	const dbs = of(difference(bs1, bs2));
 
-	const str = bs1.toString(2);
+	const str = dbs.toString(2);
 
 	expect(str).toBe('10000000000000000000000000000000000000000000000010000000000000');
 	expect(str).toHaveLength(62);
@@ -110,7 +110,7 @@ test('fits', () => {
 	const bs   = new BitSet().add(6, 14, 62, 123);
 	const mask = new BitSet().add(6, 14, 62);
 
-	expect(bs.fits(mask)).toBe(true);
+	expect(bs.contains(mask)).toBe(true);
 });
 
 test('set', () => {
@@ -195,13 +195,13 @@ test('toString/stringify', () => {
 	expect(bs.toString(2)).toBe('100000000000000000000000000000000000000000000010000100000001');
 });
 
-test('xor', () => {
+test('symmetricDifference', () => {
 	const bs1  = new BitSet().add(6, 14, 62);
 	const bs2  = new BitSet().add(6, 16);
 
-	bs2.xor(bs1);
+	const sdbs = of(symmetricDifference(bs1, bs2));
 
-	const str = bs2.toString(2);
+	const str = sdbs.toString(2);
 
 	expect(str).toBe('10000000000000000000000000000000000000000000001010000000000000');
 	expect(str).toHaveLength(62);
