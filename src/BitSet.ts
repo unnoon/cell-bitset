@@ -5,8 +5,6 @@
  * @overview     Fast JS BitSet implementation.
  */
 
-type BitSettable = bigint|BitSet
-
 /**
  * Fast JS BitSet implementation.
  */
@@ -14,12 +12,12 @@ export default class BitSet {
 	/**
 	 * The species of the BitSet. Which is just the BitSet constructor.
 	 */
-	public static [Symbol.species] = BitSet;
+	static [Symbol.species] = BitSet;
 
 	/**
 	 * Custom name for Object.prototype.toString.call(bitset) === [object BitSet]
 	 */
-	public [Symbol.toStringTag] = 'BitSet';
+	[Symbol.toStringTag] = 'BitSet';
 
 	#value = 0n
 
@@ -42,7 +40,7 @@ export default class BitSet {
 	 *
 	 * @returns this.
 	 */
-	public add(...indices: number[]): BitSet {
+	add(...indices: number[]): BitSet {
 		this.#value = add(this.#value, indices);
 
 		return this;
@@ -53,7 +51,7 @@ export default class BitSet {
 	 *
 	 * @returns this.
 	 */
-	public clear(): BitSet {
+	clear(): BitSet {
 		this.#value = 0n;
 
 		return this;
@@ -64,7 +62,7 @@ export default class BitSet {
 	 *
 	 * @returns  clone.
 	 */
-	public clone(): BitSet {
+	clone(): BitSet {
 		const clone = BitSet.of(this.#value);
 
 		return clone;
@@ -75,7 +73,7 @@ export default class BitSet {
 	 *
 	 * @returns this.
 	 */
-	public invert(): BitSet {
+	invert(): BitSet {
 		this.#value = ~this.#value;
 
 		return this;
@@ -88,7 +86,7 @@ export default class BitSet {
 	 *
 	 * @returns this.
 	 */
-	public delete(...indices: number[]): BitSet {
+	delete(...indices: number[]): BitSet {
 		this.#value = del(this.#value, indices);
 
 		return this;
@@ -100,7 +98,7 @@ export default class BitSet {
 	 *
 	 * @yields an iterable iterator yielding set indices [index, index].
 	 */
-	public* entries(): IterableIterator<[number, number]> {
+	* entries(): IterableIterator<[number, number]> {
 		for (const idx of this) {
 			yield [idx, idx];
 		}
@@ -111,11 +109,11 @@ export default class BitSet {
 	 *
 	 * @returns an iterable iterator yielding set indices [index, index].
 	 */
-	public values(): IterableIterator<number> {
+	values(): IterableIterator<number> {
 		return this[Symbol.iterator]();
 	}
 
-	public* [Symbol.iterator](): IterableIterator<number> {
+	* [Symbol.iterator](): IterableIterator<number> {
 		let remainder = this.#value;
 		let wordIdx   = 0;
 		let word;
@@ -147,7 +145,7 @@ export default class BitSet {
 	 *
 	 * @returns a boolean indicating if the the 2 bitsets are equal.
 	 */
-	public equals(bitset: BitSet): boolean {
+	equals(bitset: BitSet): boolean {
 		return this.#value === bitset.#value;
 	}
 
@@ -159,7 +157,7 @@ export default class BitSet {
 	 *
 	 * @returns a boolean indicating if the mask fits the bitset (i.e. is a subset).
 	 */
-	public contains(mask: BitSet): boolean {
+	contains(mask: BitSet): boolean {
 		return (this.#value & mask.#value) === mask.#value;
 	}
 
@@ -170,7 +168,7 @@ export default class BitSet {
 	 *
 	 * @returns this.
 	 */
-	public flip(index: number): BitSet {
+	flip(index: number): BitSet {
 		this.#value ^= (1n << BigInt(index));
 
 		return this;
@@ -183,7 +181,7 @@ export default class BitSet {
 	 *
 	 * @returns the value of the bit at the given index.
 	 */
-	public get(index: number): number {
+	get(index: number): number {
 		return Number(this.#value >> BigInt(index)) & 1;
 	}
 
@@ -194,7 +192,7 @@ export default class BitSet {
 	 *
 	 * @returns a boolean indicating if the bitset has the vale/index.
 	 */
-	public has(index: number): boolean {
+	has(index: number): boolean {
 		return !!this.get(index);
 	}
 
@@ -205,7 +203,7 @@ export default class BitSet {
 	 *
 	 * @returns a boolean indicating if the two bitsets intersects.
 	 */
-	public intersects(bitset: BitSet): boolean {
+	intersects(bitset: BitSet): boolean {
 		return !!(this.#value & bitset.#value);
 	}
 
@@ -217,7 +215,7 @@ export default class BitSet {
 	 *
 	 * @returns this.
 	 */
-	public set(index: number, val = 1): BitSet {
+	set(index: number, val = 1): BitSet {
 		this.#value = set(this.#value, index, val);
 
 		return this;
@@ -229,7 +227,7 @@ export default class BitSet {
 	 * @returns The size of the set.
 	 */
 	// TODO improve by (ceil(log2(this < 0 ? -this : this+1))).
-	public get size(): number {
+	get size(): number {
 		let remainder = this.#value;
 		let word;
 		let size = 0;
@@ -254,7 +252,7 @@ export default class BitSet {
 	 *
 	 * @returns a boolean indicating if the loop finished completely=true or was broken=false.
 	 */
-	public forEach(cb: (value: number, index: number, bitset: BitSet) => any|boolean, ctx?: Record<string, any>): boolean {
+	forEach(cb: (value: number, index: number, bitset: BitSet) => unknown|boolean, ctx?: Record<string, unknown>): boolean {
 		for (const idx of this) {
 			if (cb.call(ctx, idx, idx, this) === false) {
 				return false;
@@ -269,7 +267,7 @@ export default class BitSet {
 	 *
 	 * @returns the stringified bitvector.
 	 */
-	public toBitString(): string {
+	toBitString(): string {
 		let prevIdx   = 0;
 		let bitString = '';
 
@@ -293,7 +291,7 @@ export default class BitSet {
 	 *
 	 * @returns stringified version of the bitset.
 	 */
-	public toString(mode?: number): string {
+	toString(mode?: number): string {
 		let output = '';
 
 		switch (mode) {
@@ -303,7 +301,7 @@ export default class BitSet {
 		return output;
 	}
 
-	public valueOf() {
+	valueOf() {
 		return this.#value;
 	}
 }
@@ -372,13 +370,13 @@ export function msb(num: number): number {
 /**
  * Adds numbers(indices) to the set.
  *
- * @param bitsettable  - The bigint/bit set to add numbers to.
+ * @param bigint  - The bigint/bit set to add numbers to.
  * @param indices - Indices/numbers to add to the set.
  *
  * @returns Big int with added indices.
  */
-export function add(bitsettable: BitSettable, indices: number[]): bigint {
-	let output = bitsettable.valueOf();
+export function add(bigint: bigint, indices: number[]): bigint {
+	let output = bigint;
 	let i = indices.length;
 
 	while (i--) {
@@ -391,13 +389,13 @@ export function add(bitsettable: BitSettable, indices: number[]): bigint {
 /**
  * Removes indices/numbers from the bitset.
  *
- * @param bitsettable
+ * @param bigint - Bigint-ish to remove indices from
  * @param indices - The indices/numbers to be removed.
  *
  * @returns this.
  */
-export function del(bitsettable: BitSettable, indices: number[]): bigint {
-	let output = bitsettable.valueOf();
+export function del(bigint: bigint, indices: number[]): bigint {
+	let output = bigint;
 	let i = indices.length;
 
 	while (i--) {
@@ -411,16 +409,16 @@ export function del(bitsettable: BitSettable, indices: number[]): bigint {
  * Calculates the difference between 2 bitsets.
  * The result is stored in this.
  *
- * @param bitset - The bitset to subtract from the current one.
- * @param {...any} bitsettables
+ * @param bigints - Bigint-ish to calculate the difference from
+ *
  * @returns this.
  */
-export function difference(...bitsettables: BitSettable[]): bigint {
-	let output = bitsettables.pop()?.valueOf() ?? 0n;
-	let i      = bitsettables.length;
+export function difference(...bigints: bigint[]): bigint {
+	let   output = bigints.shift() ?? 0n;
+	const max    = bigints.length;
 
-	while (i-- && output) {
-		output &= ~bitsettables[i].valueOf();
+	for (let i = 0; i < max && output; i++) {
+		output &= ~bigints[i];
 	}
 
 	return output;
@@ -429,16 +427,16 @@ export function difference(...bitsettables: BitSettable[]): bigint {
 /**
  * Calculates the intersection bigints/bit sets
  *
- * @param bitsettables - Big ints to calculate the intersection off.
+ * @param bigints - Big ints to calculate the intersection off.
  *
  * @returns The intersection of all the bigints provided.
  */
-export function intersection(...bitsettables: BitSettable[]): bigint {
-	let output = bitsettables.pop()?.valueOf() ?? 0n;
-	let i      = bitsettables.length;
+export function intersection(...bigints: bigint[]): bigint {
+	let output = bigints.pop() ?? 0n;
+	let i      = bigints.length;
 
 	while (i-- && output) {
-		output &= bitsettables[i].valueOf();
+		output &= bigints[i];
 	}
 
 	return output;
@@ -460,16 +458,16 @@ export function of(value: bigint): BitSet {
 /**
  * Adds a number(index) to the bigint/bit set.
  *
- * @param bitsettables - Big int to set a bit to.
+ * @param bigint - Big int to set a bit to.
  * @param index  - Index/number to add to the set.
  * @param val    - Value (0|1) to set.
  *
  * @returns Big int with the appropriate set bit.
  */
-export function set(bitsettables: BitSettable, index: number, val = 1): bigint {
+export function set(bigint: bigint, index: number, val = 1): bigint {
 	const output = (val)
-		? bitsettables.valueOf() |  (1n << BigInt(index))
-		: bitsettables.valueOf() & ~(1n << BigInt(index));
+		? bigint |  (1n << BigInt(index))
+		: bigint & ~(1n << BigInt(index));
 
 	return output;
 }
@@ -477,16 +475,16 @@ export function set(bitsettables: BitSettable, index: number, val = 1): bigint {
 /**
  * Calculates the symmetric difference bigints/bit sets
  *
- * @param bitsettables - Bigints to calculate the intersection off.
+ * @param bigints - Bigints to calculate the intersection off.
  *
  * @returns The intersection of all the bigints provided.
  */
-export function symmetricDifference(...bitsettables: BitSettable[]): bigint {
-	let output = bitsettables.pop()?.valueOf() ?? 0n;
-	let i      = bitsettables.length;
+export function symmetricDifference(...bigints: bigint[]): bigint {
+	let output = bigints.pop() ?? 0n;
+	let i      = bigints.length;
 
 	while (i--) {
-		output ^= bitsettables[i].valueOf();
+		output ^= bigints[i];
 	}
 
 	return output;
@@ -495,16 +493,16 @@ export function symmetricDifference(...bitsettables: BitSettable[]): bigint {
 /**
  * Calculates the union of the provided bigints/bit sets
  *
- * @param bitsettables - Bigints to calculate the intersection off.
+ * @param bigints - Bigints to calculate the intersection off.
  *
  * @returns The intersection of all the bigints provided.
  */
-export function union(...bitsettables: BitSettable[]): bigint {
-	let output = bitsettables.pop()?.valueOf() ?? 0n;
-	let i      = bitsettables.length;
+export function union(...bigints: bigint[]): bigint {
+	let output = bigints.pop() ?? 0n;
+	let i      = bigints.length;
 
 	while (i--) {
-		output |= bitsettables[i].valueOf();
+		output |= bigints[i];
 	}
 
 	return output;

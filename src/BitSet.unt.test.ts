@@ -1,6 +1,6 @@
 /// <reference types="jest" />
 import BitSet, {
-	difference, intersection, lsb, msb, ones, of, symmetricDifference,
+	difference, intersection, lsb, msb, ones, of, symmetricDifference, union,
 } from './BitSet';
 
 test('constructor', () => {
@@ -28,8 +28,8 @@ test('add', () => {
 });
 
 test('intersection', () => {
-	const bs1  = new BitSet().add(6, 14, 62);
-	const bs2  = new BitSet().add(6, 14);
+	const bs1  = new BitSet().add(6, 14, 62) as unknown as bigint;
+	const bs2  = new BitSet().add(6, 14) as unknown as bigint;
 
 	expect(intersection(bs1, bs2)).toBe(16448n); // {6, 14}
 });
@@ -71,8 +71,8 @@ test('delete', () => {
 });
 
 test('difference', () => {
-	const bs1  = new BitSet().add(6, 14, 62);
-	const bs2  = new BitSet().add(6, 16);
+	const bs1  = new BitSet().add(6, 14, 62) as unknown as bigint;
+	const bs2  = new BitSet().add(6, 16) as unknown as bigint;
 
 	const dbs = of(difference(bs1, bs2));
 
@@ -196,15 +196,21 @@ test('toString/stringify', () => {
 });
 
 test('symmetricDifference', () => {
-	const bs1  = new BitSet().add(6, 14, 62);
-	const bs2  = new BitSet().add(6, 16);
+	const bs1  = new BitSet().add(6, 14, 62) as unknown as bigint;
+	const bs2  = new BitSet().add(6, 16) as unknown as bigint;
 
 	const sdbs = of(symmetricDifference(bs1, bs2));
 
-	const str = sdbs.toString(2);
+	expect(sdbs.toString()).toBe('{14, 16, 62}');
+});
 
-	expect(str).toBe('10000000000000000000000000000000000000000000001010000000000000');
-	expect(str).toHaveLength(62);
+test('union', () => {
+	const bs1  = new BitSet().add(6, 14, 62) as unknown as bigint;
+	const bs2  = new BitSet().add(6, 16) as unknown as bigint;
+
+	const ubs = of(union(bs1, bs2));
+
+	expect(ubs.toString()).toBe('{6, 14, 16, 62}');
 });
 
 test('values', () => {
