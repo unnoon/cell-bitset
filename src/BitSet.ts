@@ -29,19 +29,19 @@ export default class BitSet {
 		return bitset;
 	}
 
-	constructor(indices: Iterable<number> = []) {
-		this.add(...indices);
+	constructor(bits: Iterable<number> = []) {
+		this.add(...bits);
 	}
 
 	/**
 	 * Adds numbers(indices) to the set.
 	 *
-	 * @param indices - Indices/numbers to add to the set.
+	 * @param bits - Indices/numbers to add to the set.
 	 *
 	 * @returns this.
 	 */
-	add(...indices: number[]): BitSet {
-		this.#value = add(this.#value, indices);
+	add(...bits: number[]): BitSet {
+		this.#value = add(this.#value, bits);
 
 		return this;
 	}
@@ -113,29 +113,8 @@ export default class BitSet {
 		return this[Symbol.iterator]();
 	}
 
-	* [Symbol.iterator](): IterableIterator<number> {
-		let remainder = this.#value;
-		let wordIdx   = 0;
-		let word;
-		let subIdx = 0;
-		let accIdx = 0;
-		let idx;
-
-		while (remainder) {
-			word = Number(BigInt.asIntN(32, remainder));
-			accIdx = wordIdx * 32;
-
-			while (word) {
-				subIdx = lsb(word);
-				idx = accIdx + subIdx;
-
-				yield idx;
-
-				word ^= 1 << subIdx;
-			}
-
-			remainder = this.#value >> BigInt(++wordIdx) * 32n;
-		}
+	[Symbol.iterator](): IterableIterator<number> {
+		return iterator(this.#value);
 	}
 
 	/**
@@ -182,7 +161,7 @@ export default class BitSet {
 	 * @returns the value of the bit at the given index.
 	 */
 	get(index: number): number {
-		return Number(this.#value >> BigInt(index)) & 1;
+		return get(this.#value, index);
 	}
 
 	/**
@@ -371,16 +350,16 @@ export function msb(num: number): number {
  * Adds numbers(indices) to the set.
  *
  * @param bigint  - The bigint/bit set to add numbers to.
- * @param indices - Indices/numbers to add to the set.
+ * @param bits - Indices/numbers to add to the set.
  *
  * @returns Big int with added indices.
  */
-export function add(bigint: bigint, indices: number[]): bigint {
-	let output = bigint;
-	let i = indices.length;
+export function add(bigint: bigint, bits: number[]): bigint {
+	let   output = bigint as bigint;
+	const max    = bits.length;
 
-	while (i--) {
-		output = set(output, indices[i]);
+	for (let i = 0; i < max; i++) {
+		output = set(output, bits[i]);
 	}
 
 	return output;
@@ -390,16 +369,16 @@ export function add(bigint: bigint, indices: number[]): bigint {
  * Removes indices/numbers from the bitset.
  *
  * @param bigint - Bigint-ish to remove indices from
- * @param indices - The indices/numbers to be removed.
+ * @param bits - The indices/numbers to be removed.
  *
  * @returns this.
  */
-export function del(bigint: bigint, indices: number[]): bigint {
-	let output = bigint;
-	let i = indices.length;
+export function del(bigint: bigint, bits: number[]): bigint {
+	let   output = bigint as bigint;
+	const max    = bits.length;
 
-	while (i--) {
-		output = set(output, indices[i], 0);
+	for (let i = 0; i < max; i++) {
+		output = set(output, bits[i], 0);
 	}
 
 	return output;
@@ -413,8 +392,8 @@ export function del(bigint: bigint, indices: number[]): bigint {
  *
  * @returns this.
  */
-export function difference(...bigints: bigint[]): bigint {
-	let   output = bigints.shift() ?? 0n;
+export function difference(...bigints: (bigint|BitSet)[]): bigint {
+	let   output = bigints.shift() as bigint ?? 0n;
 	const max    = bigints.length;
 
 	for (let i = 0; i < max && output; i++) {
@@ -425,21 +404,89 @@ export function difference(...bigints: bigint[]): bigint {
 }
 
 /**
+ * Flips a bit in the bitset.
+ *
+ * @param bigint
+ * @param index - Index of the bit to be flipped.
+ *
+ * @returns this.
+ */
+export function flip(bigint: bigint, index: number): bigint {
+	return bigint ^ (1n << BigInt(index));
+}
+
+/**
+ * Gets a specific bit from the bitset.
+ *
+ * @param bigint
+ * @param index - Index of the bit to get.
+ *
+ * @returns the value of the bit at the given index.
+ */
+export function get(bigint: bigint, index: number): number {
+	return Number(bigint >> BigInt(index)) & 1;
+}
+
+/**
  * Calculates the intersection bigints/bit sets
  *
  * @param bigints - Big ints to calculate the intersection off.
  *
  * @returns The intersection of all the bigints provided.
  */
-export function intersection(...bigints: bigint[]): bigint {
-	let output = bigints.pop() ?? 0n;
+export function intersection(...bigints: (bigint|BitSet)[]): bigint {
+	let output = bigints.pop() as bigint ?? 0n;
 	let i      = bigints.length;
 
 	while (i-- && output) {
-		output &= bigints[i];
+		output &= bigints[i] as bigint;
 	}
 
 	return output;
+}
+
+/**
+ * Returns a set bit iterator for a bigint.
+ *
+ * @param bigint - bigint to create a set bit iterator for.
+ *
+ * @yields Set bits in the provided bigint.
+ */
+export function* iterator(bigint: bigint): IterableIterator<number> {
+	let remainder = bigint;
+	let wordIdx   = 0;
+	let word;
+	let subIdx = 0;
+	let accIdx = 0;
+	let idx;
+
+	while (remainder) {
+		word = Number(BigInt.asIntN(32, remainder));
+		accIdx = wordIdx * 32;
+
+		while (word) {
+			subIdx = lsb(word);
+			idx = accIdx + subIdx;
+
+			yield idx;
+
+			word ^= 1 << subIdx;
+		}
+
+		wordIdx++;
+		remainder >>= 32n;
+	}
+}
+
+/**
+ * Returns the inverse/complement of the given bigint
+ *
+ * @param bigint - bigint to calculate the inverse for
+ *
+ * @returns The inverse of the provided bigint.
+ */
+export function inverse(bigint: bigint): bigint {
+	return ~bigint;
 }
 
 /**
@@ -479,12 +526,12 @@ export function set(bigint: bigint, index: number, val = 1): bigint {
  *
  * @returns The intersection of all the bigints provided.
  */
-export function symmetricDifference(...bigints: bigint[]): bigint {
-	let output = bigints.pop() ?? 0n;
-	let i      = bigints.length;
+export function symmetricDifference(...bigints: (bigint|BitSet)[]): bigint {
+	let   output = bigints.pop() as bigint ?? 0n;
+	const max    = bigints.length;
 
-	while (i--) {
-		output ^= bigints[i];
+	for (let i = 0; i < max; i++) {
+		output ^= bigints[i] as bigint;
 	}
 
 	return output;
@@ -497,12 +544,12 @@ export function symmetricDifference(...bigints: bigint[]): bigint {
  *
  * @returns The intersection of all the bigints provided.
  */
-export function union(...bigints: bigint[]): bigint {
-	let output = bigints.pop() ?? 0n;
-	let i      = bigints.length;
+export function union(...bigints: (bigint|BitSet)[]): bigint {
+	let   output = bigints.pop() as bigint ?? 0n;
+	const max    = bigints.length;
 
-	while (i--) {
-		output |= bigints[i];
+	for (let i = 0; i < max; i++) {
+		output |= bigints[i] as bigint;
 	}
 
 	return output;

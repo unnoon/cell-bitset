@@ -28,8 +28,8 @@ test('add', () => {
 });
 
 test('intersection', () => {
-	const bs1  = new BitSet().add(6, 14, 62) as unknown as bigint;
-	const bs2  = new BitSet().add(6, 14) as unknown as bigint;
+	const bs1  = new BitSet().add(6, 14, 62);
+	const bs2  = new BitSet().add(6, 14);
 
 	expect(intersection(bs1, bs2)).toBe(16448n); // {6, 14}
 });
@@ -71,8 +71,8 @@ test('delete', () => {
 });
 
 test('difference', () => {
-	const bs1  = new BitSet().add(6, 14, 62) as unknown as bigint;
-	const bs2  = new BitSet().add(6, 16) as unknown as bigint;
+	const bs1  = new BitSet().add(6, 14, 62);
+	const bs2  = new BitSet().add(6, 16);
 
 	const dbs = of(difference(bs1, bs2));
 
@@ -196,8 +196,8 @@ test('toString/stringify', () => {
 });
 
 test('symmetricDifference', () => {
-	const bs1  = new BitSet().add(6, 14, 62) as unknown as bigint;
-	const bs2  = new BitSet().add(6, 16) as unknown as bigint;
+	const bs1  = new BitSet().add(6, 14, 62);
+	const bs2  = new BitSet().add(6, 16);
 
 	const sdbs = of(symmetricDifference(bs1, bs2));
 
@@ -205,8 +205,8 @@ test('symmetricDifference', () => {
 });
 
 test('union', () => {
-	const bs1  = new BitSet().add(6, 14, 62) as unknown as bigint;
-	const bs2  = new BitSet().add(6, 16) as unknown as bigint;
+	const bs1  = new BitSet().add(6, 14, 62);
+	const bs2  = new BitSet().add(6, 16);
 
 	const ubs = of(union(bs1, bs2));
 
