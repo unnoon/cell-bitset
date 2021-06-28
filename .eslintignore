@@ -1,0 +1,10 @@
+.yarn/
+dist/
+node_modules/
+tmp/
+coverage/
+.eslintrc.js
+*.config.js
+.pnp.*
+
+src/BitSet.old.ts

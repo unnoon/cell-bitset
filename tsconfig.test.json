@@ -1,0 +1,15 @@
+{
+	"extends": "./tsconfig.json",
+	"compilerOptions": {
+		"lib": [
+			"ES2020",
+			"ES2020.BigInt",
+			"dom",
+			"dom.iterable"
+		],
+		"isolatedModules": true,
+		"noImplicitAny": false,
+		"strict": false,
+		"noEmit": true
+	}
+}

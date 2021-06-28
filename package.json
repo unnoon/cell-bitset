@@ -1,74 +1,79 @@
 {
-  "name": "cell-bitset",
-  "version": "0.3.6",
-  "description": "Fast JS BitSet implementation.",
-  "main": "BitSet.js",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/unnoon/cell-bitset.git"
-  },
-  "keywords": [
-    "bitset",
-    "bitvector",
-    "bitarray",
-    "bitstring",
-    "fast",
-    "typescript"
-  ],
-  "author": "Rogier Geertzema",
-  "license": "MIT",
-  "scripts": {
-	"linter": "eslint src/**",
-	"benchmarks": "node test/benchmarks/bitset.spd.test.js",
-    "build:clean": "rimraf -rf bin/ && rimraf -rf tmp/",
-    "build:docs": "rimraf -rf bin/docs && npm run docs && ncp doc/ bin/docs/",
-    "build:es6": "tsc --outDir tmp/ -p tsconfig.json --declaration --sourceMap --module ES6 --noEmit false && ncp tmp/src/ bin/ && npm run preprocess:es6",
-    "build:files": "ncp package.json bin/package.json && ncp README.md bin/README.md",
-    "build:ts": "npm run preprocess:ts",
-    "build": "npm run build:clean && npm run build:es6 && npm run build:ts && npm run build:docs && npm run build:files",
-    "docs": "rimraf -rf doc/ && typedoc --options .typedoc.json --out doc/ src/",
-    "release": "npm version",
-    "prepush": "npm test",
-    "preversion": "npm test",
-    "version": "npm run build && git add -A bin/",
-    "postversion": "git push && git push --tags && npm publish bin/",
-    "preprocess:es6": "rimraf bin/BitSet.js && metascript tmp/src/BitSet.js > bin/BitSet.js     -VERSION=%npm_package_version%",
-    "preprocess:ts": " mkdirp bin/.ts/      && metascript     src/BitSet.ts > bin/.ts/BitSet.ts -VERSION=%npm_package_version%",
-    "update": "ncu -u -a && npm install",
-    "build:test": "tsc -p tsconfig.test.json",
-    "test": "jest"
-  },
-  "dependencies": {},
-  "devDependencies": {
-    "@types/jest": "^26.0.14",
-    "@typescript-eslint/eslint-plugin": "^4.3.0",
-    "@typescript-eslint/parser": "^4.3.0",
-    "benchmark": "^2.1.4",
-    "eslint": "^7.10.0",
-    "eslint-config-airbnb-base": "^14.2.0",
-    "eslint-plugin-import": "^2.22.1",
-    "eslint-plugin-jest": "^24.0.2",
-    "eslint-plugin-jsdoc": "^30.6.3",
-    "husky": "^4.3.0",
-    "jest": "^26.4.2",
-    "lint-staged": "^10.4.0",
-    "ts-jest": "^26.4.1",
-    "typescript": "^4.0.3"
-  },
-  "lint-staged": {
-    "*.(js|ts)": [
-      "eslint --fix",
-      "git add"
-    ]
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
-  "eslintIgnore": [
-    "dist/**",
-    "*.old.ts",
-    "*.ava.ts"
-  ]
+	"name": "cell-bitset",
+	"version": "0.3.6",
+	"description": "Fast JS BitSet implementation.",
+	"main": "BitSet.js",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/unnoon/cell-bitset.git"
+	},
+	"keywords": [
+		"bitset",
+		"bitvector",
+		"bitarray",
+		"bitstring",
+		"fast",
+		"typescript"
+	],
+	"author": "Rogier Geertzema",
+	"license": "MIT",
+	"scripts": {
+		"linter": "eslint src/**",
+		"benchmarks": "node test/benchmarks/bitset.spd.test.js",
+		"build:clean": "rimraf -rf bin/ && rimraf -rf tmp/",
+		"build:docs": "rimraf -rf bin/docs && npm run docs && ncp doc/ bin/docs/",
+		"build:es6": "tsc --outDir tmp/ -p tsconfig.json --declaration --sourceMap --module ES6 --noEmit false && ncp tmp/src/ bin/ && npm run preprocess:es6",
+		"build:files": "ncp package.json bin/package.json && ncp README.md bin/README.md",
+		"build:ts": "npm run preprocess:ts",
+		"build": "npm run build:clean && npm run build:es6 && npm run build:ts && npm run build:docs && npm run build:files",
+		"docs": "rimraf -rf doc/ && typedoc --options .typedoc.json --out doc/ src/",
+		"release": "npm version",
+		"prepush": "npm test",
+		"preversion": "npm test",
+		"version": "npm run build && git add -A bin/",
+		"postversion": "git push && git push --tags && npm publish bin/",
+		"preprocess:es6": "rimraf bin/BitSet.js && metascript tmp/src/BitSet.js > bin/BitSet.js     -VERSION=%npm_package_version%",
+		"preprocess:ts": " mkdirp bin/.ts/      && metascript     src/BitSet.ts > bin/.ts/BitSet.ts -VERSION=%npm_package_version%",
+		"update": "ncu -u -a && npm install",
+		"build:test": "tsc -p tsconfig.test.json",
+		"test": "jest",
+		"yarn:up": "yarn set version latest && yarn dlx @yarnpkg/pnpify --sdk vscode"
+	},
+	"devDependencies": {
+		"@types/jest": "^26.0.23",
+		"@typescript-eslint/eslint-plugin": "^4.28.0",
+		"@typescript-eslint/parser": "^4.28.0",
+		"benchmark": "^2.1.4",
+		"eslint": "^7.29.0",
+		"eslint-config-airbnb-base": "^14.2.1",
+		"eslint-import-resolver-node": "^0.3.4",
+		"eslint-import-resolver-typescript": "^2.4.0",
+		"eslint-plugin-import": "^2.23.4",
+		"eslint-plugin-jest": "^24.3.6",
+		"eslint-plugin-jsdoc": "^35.4.0",
+		"husky": "^6.0.0",
+		"jest": "^27.0.5",
+		"lint-staged": "^11.0.0",
+		"ts-jest": "^27.0.3",
+		"typescript": "^4.3.4"
+	},
+	"lint-staged": {
+		"*.(js|ts)": [
+			"eslint --fix",
+			"git add"
+		]
+	},
+	"husky": {
+		"hooks": {
+			"pre-commit": "lint-staged"
+		}
+	},
+	"eslintIgnore": [
+		"dist/**",
+		"*.old.ts",
+		"*.ava.ts"
+	],
+	"dependencies": {
+		"type-fest": "^1.2.1"
+	}
 }

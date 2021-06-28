@@ -343,8 +343,12 @@ export default class BitSet
 
             while (word !== ZERO)
             {
-                tmp = (word & -word)|0;
-                if(cb.call(ctx, ONE, (i << WORD_LOG) + BitSet.hammingWeight(tmp - ONE), this) === false) {return false}
+				tmp = (word & -word)|0;
+
+                if(cb.call(ctx, ONE, (i << WORD_LOG) + BitSet.hammingWeight(tmp - ONE), this) === false) {
+					return false
+				}
+
                 word ^= tmp;
             }
         }

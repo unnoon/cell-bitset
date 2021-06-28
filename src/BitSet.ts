@@ -5,23 +5,22 @@
  * @overview     Fast JS BitSet implementation.
  */
 
+import type { Primitive } from 'type-fest';
+import { ctrz, ones } from './Int32';
+
+type BigIntish = bigint|BigInt|BitSet // eslint-disable-line no-use-before-define
+
 /**
  * Fast JS BitSet implementation.
  */
 export default class BitSet {
 	/**
-	 * The species of the BitSet. Which is just the BitSet constructor.
+	 * Creates a bitset from a bigint.
+	 *
+	 * @param value Bigint to create a BitSet from.
+	 * @returns the created BitSet.
 	 */
-	static [Symbol.species] = BitSet;
-
-	/**
-	 * Custom name for Object.prototype.toString.call(bitset) === [object BitSet]
-	 */
-	[Symbol.toStringTag] = 'BitSet';
-
-	#value = 0n
-
-	static of(value: bigint): BitSet {
+	static from(value: bigint): BitSet {
 		const bitset = new BitSet();
 
 		bitset.#value = value;
@@ -29,15 +28,57 @@ export default class BitSet {
 		return bitset;
 	}
 
+	/**
+	 * The internal bigint representation of the bit set.
+	 */
+	#value = 0n;
+
+	/**
+	 * BitSet constructor
+	 *
+	 * @param bits Number iterator to initialize the bitset with.
+	 */
 	constructor(bits: Iterable<number> = []) {
 		this.add(...bits);
+	}
+
+	/**
+	 * A method that returns the default iterator for an object.
+	 * Called by the semantics of the for-of statement.
+	 *
+	 * @returns The iterator for the bitset.
+	 */
+	[Symbol.iterator](): IterableIterator<number> {
+		return iterator(this.#value);
+	}
+
+	/**
+	 * A method that converts an object to a corresponding primitive value.
+	 * Called by the ToPrimitive abstract operation.
+	 *
+	 * @param hint Typeof value hit to be used in this to primitive conversion.
+	 * @returns The internal bigint representation.
+	 */
+	[Symbol.toPrimitive](hint: Primitive): string|bigint {
+		return (hint === 'string')
+			? this.toString()
+			: this.#value;
+	}
+
+	/**
+	 * A String value that is used in the creation of the default string description of an object.
+	 * Called by the built-in method Object.prototype.toString.
+	 *
+	 * @returns toStringTag value.
+	 */
+	get [Symbol.toStringTag](): string {
+		return this.constructor.name;
 	}
 
 	/**
 	 * Adds numbers(indices) to the set.
 	 *
 	 * @param bits - Indices/numbers to add to the set.
-	 *
 	 * @returns this.
 	 */
 	add(...bits: number[]): BitSet {
@@ -63,27 +104,37 @@ export default class BitSet {
 	 * @returns  clone.
 	 */
 	clone(): BitSet {
-		const clone = BitSet.of(this.#value);
+		const clone = BitSet.from(this.#value);
 
 		return clone;
 	}
 
 	/**
-	 * Calculates the inverse of the set.
+	 * Calculates the (two's) complement of the set.
 	 *
 	 * @returns this.
 	 */
-	invert(): BitSet {
-		this.#value = ~this.#value;
+	complement(): BitSet {
+		this.#value = complement(this.#value);
 
 		return this;
+	}
+
+	/**
+	 * Calculates if the bitset contains a certain bitset.
+	 * In bitmask terms it will calculate if a bitmask fits a bitset.
+	 *
+	 * @param mask - Tests if a bitset mask fits. i.e. subset to test containment.
+	 * @returns a boolean indicating if the mask fits the bitset (i.e. is a subset).
+	 */
+	contains(mask: BigIntish): boolean {
+		return contains(this.#value, mask);
 	}
 
 	/**
 	 * Removes indices/numbers from the bitset.
 	 *
 	 * @param indices - The indices/numbers to be removed.
-	 *
 	 * @returns this.
 	 */
 	delete(...indices: number[]): BitSet {
@@ -105,23 +156,9 @@ export default class BitSet {
 	}
 
 	/**
-	 * Returns a value iterator
-	 *
-	 * @returns an iterable iterator yielding set indices [index, index].
-	 */
-	values(): IterableIterator<number> {
-		return this[Symbol.iterator]();
-	}
-
-	[Symbol.iterator](): IterableIterator<number> {
-		return iterator(this.#value);
-	}
-
-	/**
 	 * Tests if 2 bitsets are equal.
 	 *
 	 * @param bitset - Bitset to compare to this.
-	 *
 	 * @returns a boolean indicating if the the 2 bitsets are equal.
 	 */
 	equals(bitset: BitSet): boolean {
@@ -129,22 +166,9 @@ export default class BitSet {
 	}
 
 	/**
-	 * Calculates if the bitset contains a certain bitset.
-	 * In bitmask terms it will calculate if a bitmask fits a bitset.
-	 *
-	 * @param mask - Tests if a bitset mask fits. i.e. subset to test containment.
-	 *
-	 * @returns a boolean indicating if the mask fits the bitset (i.e. is a subset).
-	 */
-	contains(mask: BitSet): boolean {
-		return (this.#value & mask.#value) === mask.#value;
-	}
-
-	/**
 	 * Flips a bit in the bitset.
 	 *
 	 * @param index - Index of the bit to be flipped.
-	 *
 	 * @returns this.
 	 */
 	flip(index: number): BitSet {
@@ -154,10 +178,27 @@ export default class BitSet {
 	}
 
 	/**
+	 * Iterates over the set bits and calls the callback function with: value index, this.
+	 * Can be broken prematurely by returning false.
+	 *
+	 * @param cb  - Callback function to be called on each bit.
+	 * @param ctx - Context to be called upon the callback function.
+	 * @returns a boolean indicating if the loop finished completely=true or was broken=false.
+	 */
+	forEach(cb: (value: number, index: number, bitset: BitSet) => unknown|boolean, ctx?: Record<string, unknown>): boolean { // eslint-disable-line max-len
+		for (const idx of this) {
+			if (cb.call(ctx, idx, idx, this) === false) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
 	 * Gets a specific bit from the bitset.
 	 *
 	 * @param index - Index of the bit to get.
-	 *
 	 * @returns the value of the bit at the given index.
 	 */
 	get(index: number): number {
@@ -168,18 +209,16 @@ export default class BitSet {
 	 * Checks is the bitsets has a value/index.
 	 *
 	 * @param index - The index/value to check membership for.
-	 *
 	 * @returns a boolean indicating if the bitset has the vale/index.
 	 */
 	has(index: number): boolean {
-		return !!this.get(index);
+		return has(this.#value, index);
 	}
 
 	/**
 	 * Calculates if two bitsets intersect.
 	 *
 	 * @param bitset - The bitset to check intersection with.
-	 *
 	 * @returns a boolean indicating if the two bitsets intersects.
 	 */
 	intersects(bitset: BitSet): boolean {
@@ -191,10 +230,9 @@ export default class BitSet {
 	 *
 	 * @param index - Index/number to add to the set.
 	 * @param val   - Value (0|1) to set.
-	 *
 	 * @returns this.
 	 */
-	set(index: number, val = 1): BitSet {
+	set(index: number, val = 1 | 0): BitSet {
 		this.#value = set(this.#value, index, val);
 
 		return this;
@@ -205,7 +243,6 @@ export default class BitSet {
 	 *
 	 * @returns The size of the set.
 	 */
-	// TODO improve by (ceil(log2(this < 0 ? -this : this+1))).
 	get size(): number {
 		let remainder = this.#value;
 		let word;
@@ -223,31 +260,12 @@ export default class BitSet {
 	}
 
 	/**
-	 * Iterates over the set bits and calls the callback function with: value index, this.
-	 * Can be broken prematurely by returning false.
-	 *
-	 * @param cb  - Callback function to be called on each bit.
-	 * @param ctx - Context to be called upon the callback function.
-	 *
-	 * @returns a boolean indicating if the loop finished completely=true or was broken=false.
-	 */
-	forEach(cb: (value: number, index: number, bitset: BitSet) => unknown|boolean, ctx?: Record<string, unknown>): boolean {
-		for (const idx of this) {
-			if (cb.call(ctx, idx, idx, this) === false) {
-				return false;
-			}
-		}
-
-		return true;
-	}
-
-	/**
 	 * Outputs the underlying bitvector as a bitstring, starting with the most significant bit.
 	 *
 	 * @returns the stringified bitvector.
 	 */
 	toBitString(): string {
-		let prevIdx   = 0;
+		let prevIdx = 0;
 		let bitString = '';
 
 		this.forEach((idx) => {
@@ -267,83 +285,30 @@ export default class BitSet {
 	 * Will output a string version of the bitset or bitstring.
 	 *
 	 * @param mode - Mode of toString. undefined=bitset | 2=bitstring
-	 *
 	 * @returns stringified version of the bitset.
 	 */
 	toString(mode?: number): string {
 		let output = '';
 
 		switch (mode) {
-		case  2: output = this.toBitString(); break;
-		default: output = '{'; this.forEach((val) => { output += ((output !== '{') ? ', ' : '') + val; }); output += '}'; break; } // eslint-disable-line brace-style
+		case 2: output = this.toBitString(); break;
+		default: output = '{'; this.forEach((val) => { output += ((output !== '{') ? ', ' : '') + val; }); output += '}'; break; } // eslint-disable-line brace-style, max-len
 
 		return output;
 	}
 
-	valueOf() {
+	valueOf(): bigint {
 		return this.#value;
 	}
-}
 
-const DeBruijnTable = Object.freeze([
-	0, 1, 28, 2, 29, 14, 24, 3, 30, 22, 20, 15, 25, 17, 4, 8, 31, 27, 13, 23, 21, 19, 16, 7, 26, 12, 18, 6, 11, 5, 10, 9,
-]);
-
-/**
- * Calculate the number of set bits (hamming weight/pop count) in a 32 bit number/word.
- *
- * @param num - 32 bit-ish number to calculate the number of ones from.
- *
- * @returns The number of set bits in the word.
- */
-export function ones(num: number): number {
-	let w = num | 0; // convert to 32 bit int
-
-	w -= (w >>> 1) & 0x55555555;
-	w  = (w & 0x33333333) + ((w >>> 2) & 0x33333333);
-
-	w = ((w + (w >>> 4) & 0xF0F0F0F) * 0x1010101) >>> 24;
-
-	return w | 0;
-}
-
-/**
- * Returns the least significant bit in a word. Returns 32 in case the word is 0.
- *
- * @param num - 32 bit-ish number to get the least significant bit from.
- *
- * @returns The least significant bit in the number.
- */
-export function lsb(num: number): number {
-	const w = (num & -num);
-	let output = 0;
-
-	output = DeBruijnTable[((w * 0x077CB531)) >>> 27];
-
-	return output | 0;
-}
-
-/**
- * Returns the most significant bit in a word.
- *
- * @param num - 32 bit-ish number to get the most significant bit from.
- *
- * @returns The most significant bit in number.
- */
-export function msb(num: number): number {
-	let w      = num | 0;
-	let output = 0;
-
-	w |= w >> 1;
-	w |= w >> 2;
-	w |= w >> 4;
-	w |= w >> 8;
-	w |= w >> 16;
-	w = (w >> 1) + 1;
-
-	output = DeBruijnTable[(w * 0x077CB531) >>> 27];
-
-	return output | 0;
+	/**
+	 * Returns a value iterator
+	 *
+	 * @returns an iterable iterator yielding set indices [index, index].
+	 */
+	values(): IterableIterator<number> {
+		return this[Symbol.iterator]();
+	}
 }
 
 /**
@@ -351,12 +316,11 @@ export function msb(num: number): number {
  *
  * @param bigint  - The bigint/bit set to add numbers to.
  * @param bits - Indices/numbers to add to the set.
- *
  * @returns Big int with added indices.
  */
-export function add(bigint: bigint, bits: number[]): bigint {
-	let   output = bigint as bigint;
-	const max    = bits.length;
+export function add(bigint: BigIntish, bits: number[]): bigint {
+	let output = bigint as bigint;
+	const max = bits.length;
 
 	for (let i = 0; i < max; i++) {
 		output = set(output, bits[i]);
@@ -366,19 +330,40 @@ export function add(bigint: bigint, bits: number[]): bigint {
 }
 
 /**
+ * Returns the (two's) complement of the given bigint
+ *
+ * @param bigint - bigint to calculate the (two's) complement for.
+ * @returns The (two's) complement of the provided bigint.
+ */
+export function complement(bigint: BigIntish): bigint {
+	return ~(bigint as bigint);
+}
+
+/**
+ * Calculates if the bitset contains a certain bitset.
+ * In bitmask terms it will calculate if a bitmask fits a bitset.
+ *
+ * @param bigint - Bitset to check containment/fit for.
+ * @param mask - Tests if a bitset mask fits. i.e. subset to test containment.
+ * @returns a boolean indicating if the mask fits the bitset (i.e. is a subset).
+ */
+export function contains(bigint: BigIntish, mask: BigIntish): boolean {
+	return ((bigint as bigint) & (mask as bigint)) == (mask as bigint); // eslint-disable-line eqeqeq
+}
+
+/**
  * Removes indices/numbers from the bitset.
  *
  * @param bigint - Bigint-ish to remove indices from
  * @param bits - The indices/numbers to be removed.
- *
  * @returns this.
  */
-export function del(bigint: bigint, bits: number[]): bigint {
-	let   output = bigint as bigint;
-	const max    = bits.length;
+export function del(bigint: BigIntish, bits: number[]): bigint {
+	let output = bigint as bigint;
+	const max = bits.length;
 
-	for (let i = 0; i < max; i++) {
-		output = set(output, bits[i], 0);
+	for (let idx = 0; idx < max; idx++) {
+		output = set(output, bits[idx], 0);
 	}
 
 	return output;
@@ -389,15 +374,15 @@ export function del(bigint: bigint, bits: number[]): bigint {
  * The result is stored in this.
  *
  * @param bigints - Bigint-ish to calculate the difference from
- *
  * @returns this.
  */
-export function difference(...bigints: (bigint|BitSet)[]): bigint {
-	let   output = bigints.shift() as bigint ?? 0n;
-	const max    = bigints.length;
+export function difference(...bigints: BigIntish[]): bigint {
+	const max = bigints.length;
 
-	for (let i = 0; i < max && output; i++) {
-		output &= ~bigints[i];
+	let output = bigints[0] as bigint;
+
+	for (let idx = 1; idx < max && output; idx++) {
+		output &= ~(bigints[idx] as bigint);
 	}
 
 	return output;
@@ -406,40 +391,49 @@ export function difference(...bigints: (bigint|BitSet)[]): bigint {
 /**
  * Flips a bit in the bitset.
  *
- * @param bigint
+ * @param bigint - Provided bigint to work from.
  * @param index - Index of the bit to be flipped.
- *
  * @returns this.
  */
-export function flip(bigint: bigint, index: number): bigint {
-	return bigint ^ (1n << BigInt(index));
+export function flip(bigint: BigIntish, index: number): bigint {
+	return (bigint as bigint) ^ (1n << BigInt(index));
 }
 
 /**
  * Gets a specific bit from the bitset.
  *
- * @param bigint
+ * @param bigint - Provided bigint to work from.
  * @param index - Index of the bit to get.
- *
  * @returns the value of the bit at the given index.
  */
-export function get(bigint: bigint, index: number): number {
-	return Number(bigint >> BigInt(index)) & 1;
+export function get(bigint: BigIntish, index: number): number {
+	return Number((bigint as bigint) >> BigInt(index)) & 1;
+}
+
+/**
+ * Checks is the bitsets has a value/index.
+ *
+ * @param bigint - Provided bigint to work from.
+ * @param index - The index/value to check membership for.
+ * @returns a boolean indicating if the bitset has the vale/index.
+ */
+export function has(bigint: BigIntish, index: number): boolean {
+	return !!get(bigint, index);
 }
 
 /**
  * Calculates the intersection bigints/bit sets
  *
  * @param bigints - Big ints to calculate the intersection off.
- *
  * @returns The intersection of all the bigints provided.
  */
-export function intersection(...bigints: (bigint|BitSet)[]): bigint {
-	let output = bigints.pop() as bigint ?? 0n;
-	let i      = bigints.length;
+export function intersection(...bigints: BigIntish[]): bigint {
+	const max = bigints.length;
 
-	while (i-- && output) {
-		output &= bigints[i] as bigint;
+	let output = bigints[0] as bigint;
+
+	for (let idx = 1; idx < max && output; idx++) {
+		output &= bigints[idx] as bigint;
 	}
 
 	return output;
@@ -449,12 +443,10 @@ export function intersection(...bigints: (bigint|BitSet)[]): bigint {
  * Returns a set bit iterator for a bigint.
  *
  * @param bigint - bigint to create a set bit iterator for.
- *
  * @yields Set bits in the provided bigint.
  */
-export function* iterator(bigint: bigint): IterableIterator<number> {
-	let remainder = bigint;
-	let wordIdx   = 0;
+export function* iterator(bigint: BigIntish): IterableIterator<number> {
+	let remainder = bigint as bigint;
 	let word;
 	let subIdx = 0;
 	let accIdx = 0;
@@ -462,10 +454,9 @@ export function* iterator(bigint: bigint): IterableIterator<number> {
 
 	while (remainder) {
 		word = Number(BigInt.asIntN(32, remainder));
-		accIdx = wordIdx * 32;
 
 		while (word) {
-			subIdx = lsb(word);
+			subIdx = ctrz(word);
 			idx = accIdx + subIdx;
 
 			yield idx;
@@ -473,33 +464,9 @@ export function* iterator(bigint: bigint): IterableIterator<number> {
 			word ^= 1 << subIdx;
 		}
 
-		wordIdx++;
+		accIdx += 32;
 		remainder >>= 32n;
 	}
-}
-
-/**
- * Returns the inverse/complement of the given bigint
- *
- * @param bigint - bigint to calculate the inverse for
- *
- * @returns The inverse of the provided bigint.
- */
-export function inverse(bigint: bigint): bigint {
-	return ~bigint;
-}
-
-/**
- * Creates of a bigint.
- *
- * @param value - Bigint internal value for the bit set.
- *
- * @returns BitSet with internal value equal to the value provided.
- */
-export function of(value: bigint): BitSet {
-	const bitset = BitSet.of(value);
-
-	return bitset;
 }
 
 /**
@@ -508,13 +475,12 @@ export function of(value: bigint): BitSet {
  * @param bigint - Big int to set a bit to.
  * @param index  - Index/number to add to the set.
  * @param val    - Value (0|1) to set.
- *
  * @returns Big int with the appropriate set bit.
  */
-export function set(bigint: bigint, index: number, val = 1): bigint {
+export function set(bigint: BigIntish, index: number, val = 1 | 0): bigint {
 	const output = (val)
-		? bigint |  (1n << BigInt(index))
-		: bigint & ~(1n << BigInt(index));
+		? (bigint as bigint) | (1n << BigInt(index))
+		: (bigint as bigint) & ~(1n << BigInt(index));
 
 	return output;
 }
@@ -522,16 +488,16 @@ export function set(bigint: bigint, index: number, val = 1): bigint {
 /**
  * Calculates the symmetric difference bigints/bit sets
  *
- * @param bigints - Bigints to calculate the intersection off.
- *
+ * @param bigints - Bigints to calculate the intersection of.
  * @returns The intersection of all the bigints provided.
  */
-export function symmetricDifference(...bigints: (bigint|BitSet)[]): bigint {
-	let   output = bigints.pop() as bigint ?? 0n;
-	const max    = bigints.length;
+export function xor(...bigints: BigIntish[]): bigint {
+	const max = bigints.length;
 
-	for (let i = 0; i < max; i++) {
-		output ^= bigints[i] as bigint;
+	let output = bigints[0] as bigint;
+
+	for (let idx = 1; idx < max; idx++) {
+		output ^= bigints[idx] as bigint;
 	}
 
 	return output;
@@ -540,16 +506,16 @@ export function symmetricDifference(...bigints: (bigint|BitSet)[]): bigint {
 /**
  * Calculates the union of the provided bigints/bit sets
  *
- * @param bigints - Bigints to calculate the intersection off.
- *
+ * @param {...any} bigints - bigint to get the union of
  * @returns The intersection of all the bigints provided.
  */
-export function union(...bigints: (bigint|BitSet)[]): bigint {
-	let   output = bigints.pop() as bigint ?? 0n;
-	const max    = bigints.length;
+export function union(...bigints : BigIntish[]): bigint {
+	const max = bigints.length;
 
-	for (let i = 0; i < max; i++) {
-		output |= bigints[i] as bigint;
+	let output = bigints[0] as bigint;
+
+	for (let idx = 1; idx < max; idx++) {
+		output |= bigints[idx] as bigint;
 	}
 
 	return output;
