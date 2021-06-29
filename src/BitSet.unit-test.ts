@@ -1,6 +1,6 @@
 /// <reference types="jest" />
 import BitSet, {
-	difference, intersection, xor, union,
+	difference, intersection, isEmpty, isEqual, symmetricDifference, union,
 } from './BitSet';
 
 describe('BitSet', () => {
@@ -87,12 +87,12 @@ describe('BitSet', () => {
 			expect(bs.valueOf()).toBe(-165n);
 		});
 
-		test('contains', () => {
+		test('isSuperSet', () => {
 			const bs1 = new BitSet([2, 5, 7]);
 			const bs2 = new BitSet([2, 5]);
 
-			expect(bs1.contains(bs2)).toBe(true);
-			expect(bs2.contains(bs1)).toBe(false);
+			expect(bs1.isSuperSet(bs2)).toBe(true);
+			expect(bs2.isSuperSet(bs1)).toBe(false);
 		});
 
 		test('delete', () => {
@@ -103,19 +103,45 @@ describe('BitSet', () => {
 			expect(`${bs}`).toBe('{6}');
 		});
 
+		test('difference', () => {
+			const bs1 = new BitSet([6, 14, 62]);
+			const bs2 = new BitSet([6, 16]);
+
+			bs1.difference(bs2);
+
+			expect(`${bs1}`).toBe('{14, 62}');
+		});
+
 		test('entries', () => {
 			const bs = new BitSet([7, 67, 23]);
 
 			expect([...bs.entries()]).toEqual([[7, 7], [23, 23], [67, 67]]);
 		});
 
-		test('equals', () => {
+		test('intersection', () => {
+			const bs1 = new BitSet([6, 14, 62]);
+			const bs2 = new BitSet([6, 16]);
+
+			bs1.intersection(bs2);
+
+			expect(`${bs1}`).toBe('{6}');
+		});
+
+		test('isEmpty', () => {
+			const bs1 = new BitSet([6, 14, 62]);
+			const bs2 = new BitSet();
+
+			expect(bs1.isEmpty()).toBe(false);
+			expect(bs2.isEmpty()).toBe(true);
+		});
+
+		test('isEqual', () => {
 			const bs1 = new BitSet([6, 14, 62]);
 			const bs2 = new BitSet([6, 14, 62]);
 			const bs3 = new BitSet([6]);
 
-			expect(bs1.equals(bs2)).toBe(true);
-			expect(bs2.equals(bs3)).toBe(false);
+			expect(bs1.isEqual(bs2)).toBe(true);
+			expect(bs2.isEqual(bs3)).toBe(false);
 		});
 
 		test('flip', () => {
@@ -140,6 +166,23 @@ describe('BitSet', () => {
 			expect(indices).toEqual([6, 14, 62]);
 			expect(values).toEqual([6, 14, 62]);
 			expect(result).toBe(true);
+		});
+
+		test('forEach with break', () => {
+			const bs = new BitSet([6, 14, 62]);
+			const indices: number[] = [];
+			const values: number[] = [];
+
+			const result = bs.forEach((val, i, bsi) => {
+				indices.push(i);
+				values.push(val);
+				expect(bsi).toBe(bs);
+				return i < 2;
+			});
+
+			expect(indices).toEqual([6]);
+			expect(values).toEqual([6]);
+			expect(result).toBe(false);
 		});
 
 		test('get', () => {
@@ -197,6 +240,15 @@ describe('BitSet', () => {
 			expect(bs1.size).toBe(0);
 		});
 
+		test('symmetricDifference', () => {
+			const bs1 = new BitSet([6, 14, 62]);
+			const bs2 = new BitSet([6, 16]);
+
+			bs1.symmetricDifference(bs2);
+
+			expect(`${bs1}`).toBe('{14, 16, 62}');
+		});
+
 		test('toBitString', () => {
 			const bs1 = new BitSet([9, 14, 60, 1]);
 
@@ -220,6 +272,15 @@ describe('BitSet', () => {
 
 			expect(`${bs}`).toBe('{1, 9, 14, 60}');
 			expect(bs.toString(2)).toBe('100000000000000000000000000000000000000000000010000100000001');
+		});
+
+		test('union', () => {
+			const bs1 = new BitSet([6, 14, 62]);
+			const bs2 = new BitSet([6, 16]);
+
+			bs1.union(bs2);
+
+			expect(`${bs1}`).toBe('{6, 14, 16, 62}');
 		});
 
 		test('valueOf', () => {
@@ -264,13 +325,29 @@ describe('BigIntish functions', () => {
 		expect(`${ubs}`).toBe('{6, 14, 16, 62}');
 	});
 
-	// // FIXME
-	test('xor', () => {
+	test('symmetricDifference', () => {
 		const bs1 = new BitSet([6, 14, 62]);
 		const bs2 = new BitSet([6, 16]);
 
-		const sdbs = BitSet.from(xor(bs1, bs2));
+		const sdbs = BitSet.from(symmetricDifference(bs1, bs2));
 
 		expect(`${sdbs}`).toBe('{14, 16, 62}');
+	});
+
+	test('isEmpty', () => {
+		const bs1 = new BitSet([6, 14, 62]);
+		const bs2 = new BitSet();
+
+		expect(isEmpty(bs1.valueOf())).toBe(false);
+		expect(isEmpty(bs2)).toBe(true);
+	});
+
+	test('isEqual', () => {
+		const bs1 = new BitSet([6, 14, 62]);
+		const bs2 = new BitSet([6, 14, 62]);
+		const bs3 = new BitSet([6]);
+
+		expect(isEqual(bs1.valueOf(), bs2)).toBe(true);
+		expect(isEqual(bs1, bs3)).toBe(false);
 	});
 });
