@@ -268,10 +268,14 @@ describe('BitSet', () => {
 		});
 
 		test('toString', () => {
-			const bs = new BitSet([9, 14, 60, 1]);
+			const bs1 = new BitSet([9, 14, 60, 1]);
+			const bs2 = new BitSet([]);
+			const bs3 = new BitSet([128000]);
 
-			expect(`${bs}`).toBe('{1, 9, 14, 60}');
-			expect(bs.toString(2)).toBe('100000000000000000000000000000000000000000000010000100000001');
+			expect(`${bs1}`).toBe('{1, 9, 14, 60}');
+			expect(`${bs2}`).toBe('{}');
+			expect(`${bs3}`).toBe('{128000}');
+			expect(bs1.toString(2)).toBe('100000000000000000000000000000000000000000000010000100000001');
 		});
 
 		test('union', () => {
@@ -313,7 +317,9 @@ describe('BigIntish functions', () => {
 		const bs1 = new BitSet([6, 14, 62]);
 		const bs2 = new BitSet([6, 14]);
 
-		expect(intersection(bs1, bs2)).toBe(16448n); // {6, 14}
+		const ibs = BitSet.from(intersection(bs1, bs2));
+
+		expect(`${ibs}`).toBe('{6, 14}');
 	});
 
 	test('union', () => {
