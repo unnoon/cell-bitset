@@ -34,6 +34,29 @@ export default class BitSet {
 	#value = 0n;
 
 	/**
+	 * A method that returns the default iterator for an object.
+	 * Called by the semantics of the for-of statement.
+	 *
+	 * @returns The iterator for the bitset.
+	 */
+	[Symbol.iterator](): IterableIterator<number> {
+		return iterator(this.#value);
+	}
+
+	/**
+	 * A method that converts an object to a corresponding primitive value.
+	 * Called by the ToPrimitive abstract operation.
+	 *
+	 * @param hint Typeof value hit to be used in this to primitive conversion.
+	 * @returns The internal bigint representation.
+	 */
+	[Symbol.toPrimitive](hint: Primitive): string|bigint {
+		return (hint === 'string')
+			? this.toString()
+			: this.valueOf();
+	}
+
+	/**
 	 * A String value that is used in the creation of the default string description of an object.
 	 * Called by the built-in method Object.prototype.toString.
 	 *
@@ -71,29 +94,6 @@ export default class BitSet {
 	 */
 	constructor(bits: Iterable<number> = []) {
 		this.add(...bits);
-	}
-
-	/**
-	 * A method that returns the default iterator for an object.
-	 * Called by the semantics of the for-of statement.
-	 *
-	 * @returns The iterator for the bitset.
-	 */
-	[Symbol.iterator](): IterableIterator<number> {
-		return iterator(this.#value);
-	}
-
-	/**
-	 * A method that converts an object to a corresponding primitive value.
-	 * Called by the ToPrimitive abstract operation.
-	 *
-	 * @param hint Typeof value hit to be used in this to primitive conversion.
-	 * @returns The internal bigint representation.
-	 */
-	[Symbol.toPrimitive](hint: Primitive): string|bigint {
-		return (hint === 'string')
-			? this.toString()
-			: this.valueOf();
 	}
 
 	/**
@@ -170,7 +170,7 @@ export default class BitSet {
 	 * @param bitset - Bitset to calculate the difference with.
 	 * @returns this.
 	 */
-	difference(bitset: this): this {
+	difference(bitset: BitSet): this {
 		this.#value = difference(this.#value, bitset.#value);
 
 		return this;
@@ -203,7 +203,7 @@ export default class BitSet {
 	 * @param bitset - Bitset to compare to this.
 	 * @returns a boolean indicating if the the 2 bitsets are equal.
 	 */
-	isEqual(bitset: this): boolean {
+	isEqual(bitset: BitSet): boolean {
 		return this.#value === bitset.#value;
 	}
 
@@ -227,7 +227,7 @@ export default class BitSet {
 	 * @param thisArg - Context to be called upon the callback function.
 	 * @returns a boolean indicating if the loop finished completely=true or was broken=false.
 	 */
-	forEach(cb: (value: number, index: number, bitset: this) => unknown|boolean, thisArg?: unknown): boolean { // eslint-disable-line max-len, @typescript-eslint/explicit-module-boundary-types
+	forEach(cb: (value: number, index: number, bitset: BitSet) => unknown|boolean, thisArg?: unknown): boolean { // eslint-disable-line max-len, @typescript-eslint/explicit-module-boundary-types
 		for (const idx of this) {
 			if (cb.call(thisArg, idx, idx, this) === false) {
 				return false;
@@ -263,7 +263,7 @@ export default class BitSet {
 	 * @param bitset - Bitset to calculate the intersection with.
 	 * @returns this.
 	 */
-	intersection(bitset: this): this {
+	intersection(bitset: BitSet): this {
 		this.#value = intersection(this.#value, bitset.#value);
 
 		return this;
@@ -275,7 +275,7 @@ export default class BitSet {
 	 * @param bitset - The bitset to check intersection with.
 	 * @returns a boolean indicating if the two bitsets intersects.
 	 */
-	intersects(bitset: this): boolean {
+	intersects(bitset: BitSet): boolean {
 		return intersects(this.#value, bitset.#value);
 	}
 
@@ -298,7 +298,7 @@ export default class BitSet {
 	 * @param bitset - Bitset to calculate the symmetric difference with
 	 * @returns this.
 	 */
-	symmetricDifference(bitset: this): this {
+	symmetricDifference(bitset: BitSet): this {
 		this.#value = symmetricDifference(this.#value, bitset.#value);
 
 		return this;
@@ -348,7 +348,7 @@ export default class BitSet {
 	 * @param bitset - Bitset to calculate the union with.
 	 * @returns this.
 	 */
-	union(bitset: this): this {
+	union(bitset: BitSet): this {
 		this.#value = union(this.#value, bitset.#value);
 
 		return this;
@@ -434,7 +434,7 @@ export function difference(bigintish1: BigIntish, bigintish2: BigIntish): bigint
  * Checks if a bigintish is empty.
  *
  * @param bigintish - To check for emptiness.
- * @returns Boolean that the bgiintish is empty.
+ * @returns Boolean that the bigintish is empty.
  */
 export function isEmpty(bigintish: BigIntish): boolean {
 	return (bigintish as bigint) == 0n; // eslint-disable-line eqeqeq
@@ -521,7 +521,7 @@ export function intersects(bigintish1: BigIntish, bigintish2: BigIntish): boolea
 /**
  * Returns an 'on' bit iterator for a bigint.
  *
- * @param bigintish - bigintish to create a 'on' bit iterator for.
+ * @param bigintish - bigintish to create an 'on' bit iterator for.
  * @yields Set bits in the provided bigint.
  */
 export function* iterator(bigintish: BigIntish): IterableIterator<number> {
