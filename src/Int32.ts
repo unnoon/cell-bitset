@@ -38,7 +38,7 @@ export function clon(x: number): number {
  * @returns Returns the number of trailing zero bits in the 32-bit binary representation of a number.
  */
 export function ctrz(x: number): number {
-	return ((!x) as unknown as number * 32)
+	return ((!x) as unknown as number * 32 | 0)
 		+ ((!!x) as unknown as number * DeBruijnTable[(((x & -x) * 0x077CB531)) >>> 27]);
 }
 
@@ -74,5 +74,5 @@ export function ones(x: number): number {
  * @returns The number of off bits in the 32 binary representation of a number.
  */
 export function zeros(x: number): number {
-	return 32 - ones(x);
+	return ones(~x);
 }
