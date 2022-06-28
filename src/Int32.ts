@@ -1,7 +1,9 @@
+import type { Int32 } from './Int32.types'
+
 const DeBruijnTable = new Int32Array([
 	0, 1, 28, 2, 29, 14, 24, 3, 30, 22, 20, 15, 25, 17, 4, 8,
 	31, 27, 13, 23, 21, 19, 16, 7, 26, 12, 18, 6, 11, 5, 10, 9,
-]);
+])
 
 /**
  * Count Leading Zeros.
@@ -9,7 +11,7 @@ const DeBruijnTable = new Int32Array([
  * @param x - Number to count the leading zeros for.
  * @returns Returns the number of leading zero bits in the 32-bit binary representation of a number.
  */
-export const clz = Math.clz32;
+export const clz = Math.clz32 as (x: number) => number
 
 /**
  * Returns the result of 32-bit multiplication of two numbers.
@@ -18,8 +20,7 @@ export const clz = Math.clz32;
  * @param y — Second number.
  * @returns 32-bit multiplication of two numbers.
  */
-// eslint-disable-next-line prefer-destructuring
-export const imul = Math.imul;
+export const imul = Math.imul as (x: number, y: number) => Int32
 
 /**
  * Count Leading Ones and beyond.
@@ -28,7 +29,7 @@ export const imul = Math.imul;
  * @returns Returns the number of leading one bits in the 32-bit binary representation of a number.
  */
 export function clon(x: number): number {
-	return clz(~x);
+	return clz(~x)
 }
 
 /**
@@ -38,8 +39,8 @@ export function clon(x: number): number {
  * @returns Returns the number of trailing zero bits in the 32-bit binary representation of a number.
  */
 export function ctrz(x: number): number {
-	return ((!x) as unknown as number * 32 | 0)
-		+ ((!!x) as unknown as number * DeBruijnTable[(((x & -x) * 0x077CB531)) >>> 27]);
+	return ((!x) as unknown as number * 32)
+		+ ((!!x) as unknown as number * DeBruijnTable[(((x & -x) * 0x077CB531)) >>> 27]) as Int32
 }
 
 /**
@@ -49,7 +50,7 @@ export function ctrz(x: number): number {
  * @returns Returns the number of trailing one bits in the 32-bit binary representation of a number.
  */
 export function ctron(x: number): number {
-	return ctrz(~x);
+	return ctrz(~x)
 }
 
 /**
@@ -59,12 +60,11 @@ export function ctron(x: number): number {
  * @returns The number of set bits in the 32-bit binary representation of a number.
  */
 export function ones(x: number): number {
-	let internal = x | 0;
+	let internal = x - (x >>> 1) & 0x55555555
 
-	internal -= (internal >>> 1) & 0x55555555;
-	internal = (internal & 0x33333333) + ((internal >>> 2) & 0x33333333);
+	internal = (internal & 0x33333333) + ((internal >>> 2) & 0x33333333)
 
-	return ((internal + (internal >>> 4) & 0xF0F0F0F) * 0x1010101) >>> 24;
+	return ((internal + (internal >>> 4) & 0xF0F0F0F) * 0x1010101) >>> 24 as Int32
 }
 
 /**
@@ -74,5 +74,5 @@ export function ones(x: number): number {
  * @returns The number of off bits in the 32 binary representation of a number.
  */
 export function zeros(x: number): number {
-	return ones(~x);
+	return ones(~x)
 }
